@@ -218,6 +218,8 @@ class VideoClip(Clip):
         ffmpeg_params=None,
         logger="bar",
         pixel_format=None,
+        ffmpeg_i_params=[],
+        ffmpeg_o_params=[],
     ):
         """Write the clip to a videofile.
 
@@ -390,6 +392,8 @@ class VideoClip(Clip):
             ffmpeg_params=ffmpeg_params,
             logger=logger,
             pixel_format=pixel_format,
+            ffmpeg_i_params=ffmpeg_i_params,
+            ffmpeg_o_params=ffmpeg_o_params,
         )
 
         if remove_temp and make_audio:
@@ -785,6 +789,17 @@ class VideoClip(Clip):
         self.make_frame = mf
         self.size = self.get_frame(0).shape[:2][::-1]
 
+    
+    @outplace
+    def set_make_frame(self, mf):
+        """Change the clip's ``get_frame``.
+
+        Returns a copy of the VideoClip instance, with the make_frame
+        attribute set to `mf`.
+        """
+        self.make_frame = mf
+        self.size = self.get_frame(0).shape[:2][::-1]
+
     @outplace
     def with_audio(self, audioclip):
         """Attach an AudioClip to the VideoClip.
@@ -793,6 +808,17 @@ class VideoClip(Clip):
         attribute set to ``audio``, which must be an AudioClip instance.
         """
         self.audio = audioclip
+
+    @outplace
+    def set_audio(self, audioclip):
+        """Attach an AudioClip to the VideoClip.
+
+        Returns a copy of the VideoClip instance, with the `audio`
+        attribute set to ``audio``, which must be an AudioClip instance.
+        """
+        self.audio = audioclip
+
+    
 
     @outplace
     def with_mask(self, mask):
@@ -804,9 +830,29 @@ class VideoClip(Clip):
         assert mask is None or mask.is_mask
         self.mask = mask
 
+    @outplace
+    def set_mask(self, mask):
+        """Set the clip's mask.
+
+        Returns a copy of the VideoClip with the mask attribute set to
+        ``mask``, which must be a greyscale (values in 0-1) VideoClip.
+        """
+        assert mask is None or mask.is_mask
+        self.mask = mask
+
     @add_mask_if_none
     @outplace
     def with_opacity(self, opacity):
+        """Set the opacity/transparency level of the clip.
+
+        Returns a semi-transparent copy of the clip where the mask is
+        multiplied by ``op`` (any float, normally between 0 and 1).
+        """
+        self.mask = self.mask.image_transform(lambda pic: opacity * pic)
+
+    @add_mask_if_none
+    @outplace
+    def set_opacity(self, opacity):
         """Set the opacity/transparency level of the clip.
 
         Returns a semi-transparent copy of the clip where the mask is
@@ -846,6 +892,41 @@ class VideoClip(Clip):
         else:
             self.pos = lambda t: pos
 
+    
+    @apply_to_mask
+    @outplace
+    def set_pos(self, pos, relative=False):
+        """Set the clip's position in compositions.
+
+        Sets the position that the clip will have when included
+        in compositions. The argument ``pos`` can be either a couple
+        ``(x,y)`` or a function ``t-> (x,y)``. `x` and `y` mark the
+        location of the top left corner of the clip, and can be
+        of several types.
+
+        Examples
+        --------
+
+        >>> clip.with_position((45,150)) # x=45, y=150
+        >>>
+        >>> # clip horizontally centered, at the top of the picture
+        >>> clip.with_position(("center","top"))
+        >>>
+        >>> # clip is at 40% of the width, 70% of the height:
+        >>> clip.with_position((0.4,0.7), relative=True)
+        >>>
+        >>> # clip's position is horizontally centered, and moving up !
+        >>> clip.with_position(lambda t: ('center', 50+t) )
+
+        """
+        self.relative_pos = relative
+        if hasattr(pos, "__call__"):
+            self.pos = pos
+        else:
+            self.pos = lambda t: pos
+
+    
+
     @apply_to_mask
     @outplace
     def with_layer(self, layer):
@@ -855,6 +936,18 @@ class VideoClip(Clip):
         Note: Only has effect when the clip is used in a CompositeVideoClip.
         """
         self.layer = layer
+
+
+    @apply_to_mask
+    @outplace
+    def set_layer(self, layer):
+        """Set the clip's layer in compositions. Clips with a greater ``layer``
+        attribute will be displayed on top of others.
+
+        Note: Only has effect when the clip is used in a CompositeVideoClip.
+        """
+        self.layer = layer
+
 
     # --------------------------------------------------------------
     # CONVERSIONS TO OTHER TYPES
@@ -1274,6 +1367,7 @@ class TextClip(ImageClip):
         color="black",
         bg_color="transparent",
         font_size=None,
+        fontsize=None,
         font="Courier",
         stroke_color=None,
         stroke_width=1,
@@ -1320,8 +1414,8 @@ class TextClip(ImageClip):
             font,
         ]
 
-        if font_size is not None:
-            cmd += ["-pointsize", "%d" % font_size]
+        if font_size is not None or fontsize is not None:
+            cmd += ["-pointsize", "%d" % font_size if font_size else "%d" % fontsize]
         if kerning is not None:
             cmd += ["-kerning", "%0.1f" % kerning]
         if stroke_color is not None:

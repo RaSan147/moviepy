@@ -232,6 +232,41 @@ class Clip:
         elif self.end is not None:
             self.duration = self.end - self.start
 
+    
+    @apply_to_mask
+    @apply_to_audio
+    @convert_parameter_to_seconds(["t"])
+    @outplace
+    def set_start(self, t, change_end=True):
+        """Returns a copy of the clip, with the ``start`` attribute set
+        to ``t``, which can be expressed in seconds (15.35), in (min, sec),
+        in (hour, min, sec), or as a string: '01:03:05.35'.
+
+        These changes are also applied to the ``audio`` and ``mask``
+        clips of the current clip, if they exist.
+
+        Parameters
+        ----------
+
+        t : float or tuple or str
+          New ``start`` attribute value for the clip.
+
+        change_end : bool optional
+          Indicates if the ``end`` attribute value must be changed accordingly,
+          if possible. If ``change_end=True`` and the clip has a ``duration``
+          attribute, the ``end`` attribute of the clip will be updated to
+          ``start + duration``. If ``change_end=False`` and the clip has a
+          ``end`` attribute, the ``duration`` attribute of the clip will be
+          updated to ``end - start``.
+        """
+        self.start = t
+        if (self.duration is not None) and change_end:
+            self.end = t + self.duration
+        elif self.end is not None:
+            self.duration = self.end - self.start
+
+    
+
     @apply_to_mask
     @apply_to_audio
     @convert_parameter_to_seconds(["t"])
@@ -257,11 +292,71 @@ class Clip:
         else:
             self.duration = self.end - self.start
 
+
+    @apply_to_mask
+    @apply_to_audio
+    @convert_parameter_to_seconds(["t"])
+    @outplace
+    def set_end(self, t):
+        """Returns a copy of the clip, with the ``end`` attribute set to ``t``,
+        which can be expressed in seconds (15.35), in (min, sec), in
+        (hour, min, sec), or as a string: '01:03:05.35'. Also sets the duration
+        of the mask and audio, if any, of the returned clip.
+
+        Parameters
+        ----------
+
+        t : float or tuple or str
+          New ``end`` attribute value for the clip.
+        """
+        self.end = t
+        if self.end is None:
+            return
+        if self.start is None:
+            if self.duration is not None:
+                self.start = max(0, t - self.duration)
+        else:
+            self.duration = self.end - self.start
+
+
     @apply_to_mask
     @apply_to_audio
     @convert_parameter_to_seconds(["duration"])
     @outplace
     def with_duration(self, duration, change_end=True):
+        """Returns a copy of the clip, with the  ``duration`` attribute set to
+        ``t``, which can be expressed in seconds (15.35), in (min, sec), in
+        (hour, min, sec), or as a string: '01:03:05.35'. Also sets the duration
+        of the mask and audio, if any, of the returned clip.
+
+        If ``change_end is False``, the start attribute of the clip will be
+        modified in function of the duration and the preset end of the clip.
+
+        Parameters
+        ----------
+
+        duration : float
+          New duration attribute value for the clip.
+
+        change_end : bool, optional
+          If ``True``, the ``end`` attribute value of the clip will be adjusted
+          accordingly to the new duration using ``clip.start + duration``.
+        """
+        self.duration = duration
+
+        if change_end:
+            self.end = None if (duration is None) else (self.start + duration)
+        else:
+            if self.duration is None:
+                raise ValueError("Cannot change clip start when new duration is None")
+            self.start = self.end - duration
+
+    
+    @apply_to_mask
+    @apply_to_audio
+    @convert_parameter_to_seconds(["duration"])
+    @outplace
+    def set_duration(self, duration, change_end=True):
         """Returns a copy of the clip, with the  ``duration`` attribute set to
         ``t``, which can be expressed in seconds (15.35), in (min, sec), in
         (hour, min, sec), or as a string: '01:03:05.35'. Also sets the duration
@@ -302,7 +397,45 @@ class Clip:
         """
         self.make_frame = make_frame
 
+    @outplace
+    def set_make_frame(self, make_frame):
+        """Sets a ``make_frame`` attribute for the clip. Useful for setting
+        arbitrary/complicated videoclips.
+
+        Parameters
+        ----------
+
+        make_frame : function
+          New frame creator function for the clip.
+        """
+        self.make_frame = make_frame
+
     def with_fps(self, fps, change_duration=False):
+        """Returns a copy of the clip with a new default fps for functions like
+        write_videofile, iterframe, etc.
+
+        Parameters
+        ----------
+
+        fps : int
+          New ``fps`` attribute value for the clip.
+
+        change_duration : bool, optional
+          If ``change_duration=True``, then the video speed will change to
+          match the new fps (conserving all frames 1:1). For example, if the
+          fps is halved in this mode, the duration will be doubled.
+        """
+        if change_duration:
+            from moviepy.video.fx.multiply_speed import multiply_speed
+
+            newclip = multiply_speed(self, fps / self.fps)
+        else:
+            newclip = self.copy()
+
+        newclip.fps = fps
+        return newclip
+    
+    def set_fps(self, fps, change_duration=False):
         """Returns a copy of the clip with a new default fps for functions like
         write_videofile, iterframe, etc.
 
@@ -340,6 +473,18 @@ class Clip:
         self.is_mask = is_mask
 
     @outplace
+    def set_is_mask(self, is_mask):
+        """Says whether the clip is a mask or not.
+
+        Parameters
+        ----------
+
+        is_mask : bool
+          New ``is_mask`` attribute value for the clip.
+        """
+        self.is_mask = is_mask
+
+    @outplace
     def with_memoize(self, memoize):
         """Sets whether the clip should keep the last frame read in memory.
 
@@ -350,6 +495,19 @@ class Clip:
           Indicates if the clip should keep the last frame read in memory.
         """
         self.memoize = memoize
+
+    @outplace
+    def set_memoize(self, memoize):
+        """Sets whether the clip should keep the last frame read in memory.
+
+        Parameters
+        ----------
+
+        memoize : bool
+          Indicates if the clip should keep the last frame read in memory.
+        """
+        self.memoize = memoize
+
 
     @convert_parameter_to_seconds(["t"])
     def is_playing(self, t):
