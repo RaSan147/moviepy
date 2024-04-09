@@ -925,6 +925,38 @@ class VideoClip(Clip):
         else:
             self.pos = lambda t: pos
 
+    @apply_to_mask
+    @outplace
+    def set_position(self, pos, relative=False):
+        """Set the clip's position in compositions.
+
+        Sets the position that the clip will have when included
+        in compositions. The argument ``pos`` can be either a couple
+        ``(x,y)`` or a function ``t-> (x,y)``. `x` and `y` mark the
+        location of the top left corner of the clip, and can be
+        of several types.
+
+        Examples
+        --------
+
+        >>> clip.with_position((45,150)) # x=45, y=150
+        >>>
+        >>> # clip horizontally centered, at the top of the picture
+        >>> clip.with_position(("center","top"))
+        >>>
+        >>> # clip is at 40% of the width, 70% of the height:
+        >>> clip.with_position((0.4,0.7), relative=True)
+        >>>
+        >>> # clip's position is horizontally centered, and moving up !
+        >>> clip.with_position(lambda t: ('center', 50+t) )
+
+        """
+        self.relative_pos = relative
+        if hasattr(pos, "__call__"):
+            self.pos = pos
+        else:
+            self.pos = lambda t: pos
+
     
 
     @apply_to_mask
