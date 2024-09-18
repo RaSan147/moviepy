@@ -232,6 +232,8 @@ class Clip:
         elif self.end is not None:
             self.duration = self.end - self.start
 
+        return self
+
     
     @apply_to_mask
     @apply_to_audio
@@ -265,6 +267,8 @@ class Clip:
         elif self.end is not None:
             self.duration = self.end - self.start
 
+        return self
+
     
 
     @apply_to_mask
@@ -292,6 +296,8 @@ class Clip:
         else:
             self.duration = self.end - self.start
 
+        return self
+
 
     @apply_to_mask
     @apply_to_audio
@@ -317,6 +323,8 @@ class Clip:
                 self.start = max(0, t - self.duration)
         else:
             self.duration = self.end - self.start
+
+        return self
 
 
     @apply_to_mask
@@ -351,6 +359,8 @@ class Clip:
                 raise ValueError("Cannot change clip start when new duration is None")
             self.start = self.end - duration
 
+        return self
+
     
     @apply_to_mask
     @apply_to_audio
@@ -384,6 +394,8 @@ class Clip:
                 raise ValueError("Cannot change clip start when new duration is None")
             self.start = self.end - duration
 
+        return self
+
     @outplace
     def with_make_frame(self, make_frame):
         """Sets a ``make_frame`` attribute for the clip. Useful for setting
@@ -397,6 +409,8 @@ class Clip:
         """
         self.make_frame = make_frame
 
+        return self
+
     @outplace
     def set_make_frame(self, make_frame):
         """Sets a ``make_frame`` attribute for the clip. Useful for setting
@@ -409,6 +423,8 @@ class Clip:
           New frame creator function for the clip.
         """
         self.make_frame = make_frame
+
+        return self
 
     def with_fps(self, fps, change_duration=False):
         """Returns a copy of the clip with a new default fps for functions like
@@ -472,6 +488,8 @@ class Clip:
         """
         self.is_mask = is_mask
 
+        return self
+
     @outplace
     def set_is_mask(self, is_mask):
         """Says whether the clip is a mask or not.
@@ -483,6 +501,8 @@ class Clip:
           New ``is_mask`` attribute value for the clip.
         """
         self.is_mask = is_mask
+
+        return self
 
     @outplace
     def with_memoize(self, memoize):
@@ -496,6 +516,8 @@ class Clip:
         """
         self.memoize = memoize
 
+        return self
+
     @outplace
     def set_memoize(self, memoize):
         """Sets whether the clip should keep the last frame read in memory.
@@ -507,6 +529,8 @@ class Clip:
           Indicates if the clip should keep the last frame read in memory.
         """
         self.memoize = memoize
+
+        return self
 
 
     @convert_parameter_to_seconds(["t"])

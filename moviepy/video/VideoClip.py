@@ -789,6 +789,8 @@ class VideoClip(Clip):
         self.make_frame = mf
         self.size = self.get_frame(0).shape[:2][::-1]
 
+        return self
+
     
     @outplace
     def set_make_frame(self, mf):
@@ -800,6 +802,8 @@ class VideoClip(Clip):
         self.make_frame = mf
         self.size = self.get_frame(0).shape[:2][::-1]
 
+        return self
+
     @outplace
     def with_audio(self, audioclip):
         """Attach an AudioClip to the VideoClip.
@@ -809,6 +813,8 @@ class VideoClip(Clip):
         """
         self.audio = audioclip
 
+        return self
+
     @outplace
     def set_audio(self, audioclip):
         """Attach an AudioClip to the VideoClip.
@@ -817,6 +823,8 @@ class VideoClip(Clip):
         attribute set to ``audio``, which must be an AudioClip instance.
         """
         self.audio = audioclip
+
+        return self
 
     
 
@@ -830,6 +838,8 @@ class VideoClip(Clip):
         assert mask is None or mask.is_mask
         self.mask = mask
 
+        return self
+
     @outplace
     def set_mask(self, mask):
         """Set the clip's mask.
@@ -839,6 +849,8 @@ class VideoClip(Clip):
         """
         assert mask is None or mask.is_mask
         self.mask = mask
+
+        return self
 
     @add_mask_if_none
     @outplace
@@ -850,6 +862,8 @@ class VideoClip(Clip):
         """
         self.mask = self.mask.image_transform(lambda pic: opacity * pic)
 
+        return self
+
     @add_mask_if_none
     @outplace
     def set_opacity(self, opacity):
@@ -859,6 +873,8 @@ class VideoClip(Clip):
         multiplied by ``op`` (any float, normally between 0 and 1).
         """
         self.mask = self.mask.image_transform(lambda pic: opacity * pic)
+
+        return self
 
     @apply_to_mask
     @outplace
@@ -892,6 +908,8 @@ class VideoClip(Clip):
         else:
             self.pos = lambda t: pos
 
+        return self
+
     
     @apply_to_mask
     @outplace
@@ -924,6 +942,8 @@ class VideoClip(Clip):
             self.pos = pos
         else:
             self.pos = lambda t: pos
+
+        return self
 
     @apply_to_mask
     @outplace
@@ -969,6 +989,8 @@ class VideoClip(Clip):
         """
         self.layer = layer
 
+        return self
+
 
     @apply_to_mask
     @outplace
@@ -979,6 +1001,8 @@ class VideoClip(Clip):
         Note: Only has effect when the clip is used in a CompositeVideoClip.
         """
         self.layer = layer
+
+        return self
 
 
     # --------------------------------------------------------------
@@ -1027,6 +1051,8 @@ class VideoClip(Clip):
         """
         self.audio = None
 
+        return self
+
     @outplace
     def afx(self, fun, *args, **kwargs):
         """Transform the clip's audio.
@@ -1034,6 +1060,8 @@ class VideoClip(Clip):
         Return a new clip whose audio has been transformed by ``fun``.
         """
         self.audio = self.audio.fx(fun, *args, **kwargs)
+
+        return self
 
     def __add__(self, other):
         if isinstance(other, VideoClip):
@@ -1263,6 +1291,8 @@ class ImageClip(VideoClip):
                 new_a = a.image_transform(image_func)
                 setattr(self, attr, new_a)
 
+        return self
+
     @outplace
     def time_transform(self, time_func, apply_to=None, keep_duration=False):
         """Time-transformation filter.
@@ -1280,6 +1310,8 @@ class ImageClip(VideoClip):
             if a is not None:
                 new_a = a.time_transform(time_func)
                 setattr(self, attr, new_a)
+
+        return self
 
 
 class ColorClip(ImageClip):
