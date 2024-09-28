@@ -100,6 +100,9 @@ class FFMPEG_VideoWriter:
         if not pixel_format:  # pragma: no cover
             pixel_format = "rgba" if with_mask else "rgb24"
 
+        ffmpeg_i_params = ffmpeg_i_params or []
+        ffmpeg_o_params = ffmpeg_o_params or []
+
         # order is important
         cmd = [
             FFMPEG_BINARY,
