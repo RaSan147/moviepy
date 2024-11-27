@@ -88,6 +88,8 @@ class FFMPEG_VideoWriter:
         threads=None,
         ffmpeg_params=None,
         pixel_format=None,
+        ffmpeg_i_params=[],
+        ffmpeg_o_params=[],
     ):
         if logfile is None:
             logfile = sp.PIPE
@@ -98,12 +100,16 @@ class FFMPEG_VideoWriter:
         if not pixel_format:  # pragma: no cover
             pixel_format = "rgba" if with_mask else "rgb24"
 
+        ffmpeg_i_params = ffmpeg_i_params or []
+        ffmpeg_o_params = ffmpeg_o_params or []
+
         # order is important
         cmd = [
             FFMPEG_BINARY,
             "-y",
             "-loglevel",
             "error" if logfile == sp.PIPE else "info",
+        ] + ffmpeg_i_params + [
             "-f",
             "rawvideo",
             "-vcodec",
@@ -120,7 +126,14 @@ class FFMPEG_VideoWriter:
         ]
         if audiofile is not None:
             cmd.extend(["-i", audiofile, "-acodec", "copy"])
-        cmd.extend(["-vcodec", codec, "-preset", preset])
+
+        if (codec == "h264_nvenc") :
+            cmd.extend(["-c:v", codec])
+        else :
+            cmd.extend(["-vcodec", codec])
+
+        cmd.extend(["-preset", preset])
+
         if ffmpeg_params is not None:
             cmd.extend(ffmpeg_params)
         if bitrate is not None:
@@ -129,8 +142,11 @@ class FFMPEG_VideoWriter:
         if threads is not None:
             cmd.extend(["-threads", str(threads)])
 
-        if (codec == "libx264") and (size[0] % 2 == 0) and (size[1] % 2 == 0):
+        if (codec == "libx264" or codec == "h264_nvenc") and (size[0] % 2 == 0) and (size[1] % 2 == 0):
             cmd.extend(["-pix_fmt", "yuv420p"])
+
+        cmd.extend(ffmpeg_o_params)
+
         cmd.extend([filename])
 
         popen_params = cross_platform_popen_params(
@@ -227,6 +243,8 @@ def ffmpeg_write_video(
     ffmpeg_params=None,
     logger="bar",
     pixel_format=None,
+    ffmpeg_i_params=[],
+    ffmpeg_o_params=[],
 ):
     """Write the clip to a videofile. See VideoClip.write_videofile for details
     on the parameters.
@@ -252,6 +270,8 @@ def ffmpeg_write_video(
         threads=threads,
         ffmpeg_params=ffmpeg_params,
         pixel_format=pixel_format,
+        ffmpeg_i_params=ffmpeg_i_params,
+        ffmpeg_o_params=ffmpeg_o_params,
     ) as writer:
         for t, frame in clip.iter_frames(
             logger=logger, with_times=True, fps=fps, dtype="uint8"

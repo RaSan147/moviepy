@@ -227,6 +227,8 @@ class VideoClip(Clip):
         ffmpeg_params=None,
         logger="bar",
         pixel_format=None,
+        ffmpeg_i_params=[],
+        ffmpeg_o_params=[],
     ):
         """Write the clip to a videofile.
 
@@ -401,6 +403,8 @@ class VideoClip(Clip):
             ffmpeg_params=ffmpeg_params,
             logger=logger,
             pixel_format=pixel_format,
+            ffmpeg_i_params=ffmpeg_i_params,
+            ffmpeg_o_params=ffmpeg_o_params,
         )
 
         if remove_temp and make_audio:
@@ -846,6 +850,21 @@ class VideoClip(Clip):
         self.frame_function = frame_function
         self.size = self.get_frame(0).shape[:2][::-1]
 
+        return self
+
+    
+    @outplace
+    def set_make_frame(self, mf):
+        """Change the clip's ``get_frame``.
+
+        Returns a copy of the VideoClip instance, with the make_frame
+        attribute set to `mf`.
+        """
+        self.make_frame = mf
+        self.size = self.get_frame(0).shape[:2][::-1]
+
+        return self
+
     @outplace
     def with_audio(self, audioclip):
         """Attach an AudioClip to the VideoClip.
@@ -854,6 +873,21 @@ class VideoClip(Clip):
         attribute set to ``audio``, which must be an AudioClip instance.
         """
         self.audio = audioclip
+
+        return self
+
+    @outplace
+    def set_audio(self, audioclip):
+        """Attach an AudioClip to the VideoClip.
+
+        Returns a copy of the VideoClip instance, with the `audio`
+        attribute set to ``audio``, which must be an AudioClip instance.
+        """
+        self.audio = audioclip
+
+        return self
+
+    
 
     @outplace
     def with_mask(self, mask: Union["VideoClip", str] = "auto"):
@@ -877,6 +911,19 @@ class VideoClip(Clip):
     def without_mask(self):
         """Remove the clip's mask."""
         self.mask = None
+        return self
+
+    @outplace
+    def set_mask(self, mask):
+        """Set the clip's mask.
+
+        Returns a copy of the VideoClip with the mask attribute set to
+        ``mask``, which must be a greyscale (values in 0-1) VideoClip.
+        """
+        assert mask is None or mask.is_mask
+        self.mask = mask
+
+        return self
 
     @add_mask_if_none
     @outplace
@@ -887,6 +934,20 @@ class VideoClip(Clip):
         multiplied by ``op`` (any float, normally between 0 and 1).
         """
         self.mask = self.mask.image_transform(lambda pic: opacity * pic)
+
+        return self
+
+    @add_mask_if_none
+    @outplace
+    def set_opacity(self, opacity):
+        """Set the opacity/transparency level of the clip.
+
+        Returns a semi-transparent copy of the clip where the mask is
+        multiplied by ``op`` (any float, normally between 0 and 1).
+        """
+        self.mask = self.mask.image_transform(lambda pic: opacity * pic)
+
+        return self
 
     @apply_to_mask
     @outplace
@@ -921,6 +982,77 @@ class VideoClip(Clip):
             self.pos = pos
         else:
             self.pos = lambda t: pos
+
+        return self
+
+    
+    @apply_to_mask
+    @outplace
+    def set_pos(self, pos, relative=False):
+        """Set the clip's position in compositions.
+
+        Sets the position that the clip will have when included
+        in compositions. The argument ``pos`` can be either a couple
+        ``(x,y)`` or a function ``t-> (x,y)``. `x` and `y` mark the
+        location of the top left corner of the clip, and can be
+        of several types.
+
+        Examples
+        --------
+
+        >>> clip.with_position((45,150)) # x=45, y=150
+        >>>
+        >>> # clip horizontally centered, at the top of the picture
+        >>> clip.with_position(("center","top"))
+        >>>
+        >>> # clip is at 40% of the width, 70% of the height:
+        >>> clip.with_position((0.4,0.7), relative=True)
+        >>>
+        >>> # clip's position is horizontally centered, and moving up !
+        >>> clip.with_position(lambda t: ('center', 50+t) )
+
+        """
+        self.relative_pos = relative
+        if hasattr(pos, "__call__"):
+            self.pos = pos
+        else:
+            self.pos = lambda t: pos
+
+        return self
+
+    @apply_to_mask
+    @outplace
+    def set_position(self, pos, relative=False):
+        """Set the clip's position in compositions.
+
+        Sets the position that the clip will have when included
+        in compositions. The argument ``pos`` can be either a couple
+        ``(x,y)`` or a function ``t-> (x,y)``. `x` and `y` mark the
+        location of the top left corner of the clip, and can be
+        of several types.
+
+        Examples
+        --------
+
+        >>> clip.with_position((45,150)) # x=45, y=150
+        >>>
+        >>> # clip horizontally centered, at the top of the picture
+        >>> clip.with_position(("center","top"))
+        >>>
+        >>> # clip is at 40% of the width, 70% of the height:
+        >>> clip.with_position((0.4,0.7), relative=True)
+        >>>
+        >>> # clip's position is horizontally centered, and moving up !
+        >>> clip.with_position(lambda t: ('center', 50+t) )
+
+        """
+        self.relative_pos = relative
+        if hasattr(pos, "__call__"):
+            self.pos = pos
+        else:
+            self.pos = lambda t: pos
+
+    
 
     @apply_to_mask
     @outplace
@@ -1007,6 +1139,22 @@ class VideoClip(Clip):
                 )
             ]
         )
+
+        return self
+
+
+    @apply_to_mask
+    @outplace
+    def set_layer(self, layer):
+        """Set the clip's layer in compositions. Clips with a greater ``layer``
+        attribute will be displayed on top of others.
+
+        Note: Only has effect when the clip is used in a CompositeVideoClip.
+        """
+        self.layer = layer
+
+        return self
+
 
     # --------------------------------------------------------------
     # CONVERSIONS TO OTHER TYPES
@@ -1295,6 +1443,8 @@ class ImageClip(VideoClip):
                 new_a = a.image_transform(image_func)
                 setattr(self, attr, new_a)
 
+        return self
+
     @outplace
     def time_transform(self, time_func, apply_to=None, keep_duration=False):
         """Time-transformation filter.
@@ -1312,6 +1462,8 @@ class ImageClip(VideoClip):
             if a is not None:
                 new_a = a.time_transform(time_func)
                 setattr(self, attr, new_a)
+
+        return self
 
 
 class ColorClip(ImageClip):
@@ -1443,7 +1595,7 @@ class TextClip(ImageClip):
     @convert_path_to_string("filename")
     def __init__(
         self,
-        font,
+        font="Courier",
         text=None,
         filename=None,
         font_size=None,
@@ -1451,6 +1603,7 @@ class TextClip(ImageClip):
         margin=(None, None),
         color="black",
         bg_color=None,
+        fontsize=None,
         stroke_color=None,
         stroke_width=0,
         method="label",
@@ -1461,6 +1614,9 @@ class TextClip(ImageClip):
         transparent=True,
         duration=None,
     ):
+
+        font_size = font_size or fontsize # for backward compatibility
+
         def break_text(
             width, text, font, font_size, stroke_width, align, spacing
         ) -> List[str]:
