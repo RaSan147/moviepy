@@ -1079,6 +1079,12 @@ class VideoClip(Clip):
             ]
         )
 
+    def resize(self, new_size=None, height=None, width=None, apply_to_mask=True):
+        """Returns a video clip that is a resized version of the clip.
+        For info on the parameters, please see ``vfx.Resize``
+        """
+        return self.resized(new_size, height, width, apply_to_mask)
+
     def rotated(
         self,
         angle: float,
