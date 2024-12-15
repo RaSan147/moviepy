@@ -1614,6 +1614,7 @@ class TextClip(ImageClip):
         stroke_width=0,
         method="label",
         text_align="left",
+        align=None,
         horizontal_align="center",
         vertical_align="center",
         interline=4,
@@ -1622,6 +1623,7 @@ class TextClip(ImageClip):
     ):
 
         font_size = font_size or fontsize # for backward compatibility
+        text_align = align or text_align # for backward compatibility
 
         def break_text(
             width, text, font, font_size, stroke_width, align, spacing
