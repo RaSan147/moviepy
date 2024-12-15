@@ -1991,6 +1991,7 @@ document.write(`
         <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">method</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
         <span class="n">text_align</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">align</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">horizontal_align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
         <span class="n">vertical_align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
         <span class="n">interline</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
@@ -1999,6 +2000,7 @@ document.write(`
     <span class="p">):</span>
 
         <span class="n">font_size</span> <span class="o">=</span> <span class="n">font_size</span> <span class="ow">or</span> <span class="n">fontsize</span> <span class="c1"># for backward compatibility</span>
+        <span class="n">text_align</span> <span class="o">=</span> <span class="n">align</span> <span class="ow">or</span> <span class="n">text_align</span> <span class="c1"># for backward compatibility</span>
 
         <span class="k">def</span> <span class="nf">break_text</span><span class="p">(</span>
             <span class="n">width</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">font_size</span><span class="p">,</span> <span class="n">stroke_width</span><span class="p">,</span> <span class="n">align</span><span class="p">,</span> <span class="n">spacing</span>
