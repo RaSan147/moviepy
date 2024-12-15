@@ -672,7 +672,7 @@ accordingly to the new duration using <code class="docutils literal notranslate"
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.Clip.Clip.set_end">
-<span class="sig-name descname"><span class="pre">set_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.set_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.set_end" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#moviepy.Clip.Clip" title="moviepy.Clip.Clip"><span class="pre">Clip</span></a></span></span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.set_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.set_end" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the clip, with the <code class="docutils literal notranslate"><span class="pre">end</span></code> attribute set to <code class="docutils literal notranslate"><span class="pre">t</span></code>,
 which can be expressed in seconds (15.35), in (min, sec), in
 (hour, min, sec), or as a string: ‘01:03:05.35’. Also sets the duration
@@ -737,7 +737,7 @@ arbitrary/complicated videoclips.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.Clip.Clip.set_start">
-<span class="sig-name descname"><span class="pre">set_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.set_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.set_start" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#moviepy.Clip.Clip" title="moviepy.Clip.Clip"><span class="pre">Clip</span></a></span></span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.set_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.set_start" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the clip, with the <code class="docutils literal notranslate"><span class="pre">start</span></code> attribute set
 to <code class="docutils literal notranslate"><span class="pre">t</span></code>, which can be expressed in seconds (15.35), in (min, sec),
 in (hour, min, sec), or as a string: ‘01:03:05.35’.</p>
@@ -759,8 +759,40 @@ updated to <code class="docutils literal notranslate"><span class="pre">end</spa
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="moviepy.Clip.Clip.subclip">
+<span class="sig-name descname"><span class="pre">subclip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#moviepy.Clip.Clip" title="moviepy.Clip.Clip"><span class="pre">Clip</span></a></span></span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.subclip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.subclip" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a clip playing the content of the current clip between times
+<code class="docutils literal notranslate"><span class="pre">start_time</span></code> and <code class="docutils literal notranslate"><span class="pre">end_time</span></code>, which can be expressed in seconds
+(15.35), in (min, sec), in (hour, min, sec), or as a string:
+‘01:03:05.35’.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">mask</span></code> and <code class="docutils literal notranslate"><span class="pre">audio</span></code> of the resulting subclip will be subclips of
+<code class="docutils literal notranslate"><span class="pre">mask</span></code> and <code class="docutils literal notranslate"><span class="pre">audio</span></code> the original clip, if they exist.</p>
+<p>It’s equivalent to slice the clip as a sequence, like
+<code class="docutils literal notranslate"><span class="pre">clip[t_start:t_end]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_time</strong> (<em>float</em><em> or </em><em>tuple</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – Moment that will be chosen as the beginning of the produced clip. If
+is negative, it is reset to <code class="docutils literal notranslate"><span class="pre">clip.duration</span> <span class="pre">+</span> <span class="pre">start_time</span></code>.</p></li>
+<li><p><strong>end_time</strong> (<em>float</em><em> or </em><em>tuple</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – <p>Moment that will be chosen as the end of the produced clip. If not
+provided, it is assumed to be the duration of the clip (potentially
+infinite). If is negative, it is reset to <code class="docutils literal notranslate"><span class="pre">clip.duration</span> <span class="pre">+</span> <span class="pre">end_time</span></code>.
+For instance:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># cut the last two seconds of the clip:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_clip</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">end_time</span></code> is provided or if the clip has a duration attribute,
+the duration of the returned clip is set automatically.</p>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="moviepy.Clip.Clip.subclipped">
-<span class="sig-name descname"><span class="pre">subclipped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.subclipped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.subclipped" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">subclipped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#moviepy.Clip.Clip" title="moviepy.Clip.Clip"><span class="pre">Clip</span></a></span></span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.subclipped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.subclipped" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a clip playing the content of the current clip between times
 <code class="docutils literal notranslate"><span class="pre">start_time</span></code> and <code class="docutils literal notranslate"><span class="pre">end_time</span></code>, which can be expressed in seconds
 (15.35), in (min, sec), in (hour, min, sec), or as a string:
@@ -853,7 +885,7 @@ content scrolls from the top to the bottom of the frames of
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.Clip.Clip.with_duration">
-<span class="sig-name descname"><span class="pre">with_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.with_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.with_duration" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">with_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#moviepy.Clip.Clip" title="moviepy.Clip.Clip"><span class="pre">Clip</span></a></span></span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.with_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.with_duration" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the clip, with the  <code class="docutils literal notranslate"><span class="pre">duration</span></code> attribute set to
 <code class="docutils literal notranslate"><span class="pre">t</span></code>, which can be expressed in seconds (15.35), in (min, sec), in
 (hour, min, sec), or as a string: ‘01:03:05.35’. Also sets the duration
@@ -886,7 +918,7 @@ accordingly to the new duration using <code class="docutils literal notranslate"
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.Clip.Clip.with_end">
-<span class="sig-name descname"><span class="pre">with_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.with_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.with_end" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">with_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#moviepy.Clip.Clip" title="moviepy.Clip.Clip"><span class="pre">Clip</span></a></span></span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.with_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.with_end" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the clip, with the <code class="docutils literal notranslate"><span class="pre">end</span></code> attribute set to <code class="docutils literal notranslate"><span class="pre">t</span></code>,
 which can be expressed in seconds (15.35), in (min, sec), in
 (hour, min, sec), or as a string: ‘01:03:05.35’. Also sets the duration
@@ -968,7 +1000,7 @@ by <code class="docutils literal notranslate"><span class="pre">factor</span></c
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.Clip.Clip.with_start">
-<span class="sig-name descname"><span class="pre">with_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.with_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.with_start" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">with_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#moviepy.Clip.Clip" title="moviepy.Clip.Clip"><span class="pre">Clip</span></a></span></span><a class="reference internal" href="../../_modules/moviepy/Clip.html#Clip.with_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.Clip.Clip.with_start" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the clip, with the <code class="docutils literal notranslate"><span class="pre">start</span></code> attribute set
 to <code class="docutils literal notranslate"><span class="pre">t</span></code>, which can be expressed in seconds (15.35), in (min, sec),
 in (hour, min, sec), or as a string: ‘01:03:05.35’.</p>
@@ -1069,6 +1101,7 @@ For info on the parameters, please see <code class="docutils literal notranslate
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.Clip.Clip.set_make_frame"><code class="docutils literal notranslate"><span class="pre">Clip.set_make_frame()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.Clip.Clip.set_memoize"><code class="docutils literal notranslate"><span class="pre">Clip.set_memoize()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.Clip.Clip.set_start"><code class="docutils literal notranslate"><span class="pre">Clip.set_start()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.Clip.Clip.subclip"><code class="docutils literal notranslate"><span class="pre">Clip.subclip()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.Clip.Clip.subclipped"><code class="docutils literal notranslate"><span class="pre">Clip.subclipped()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.Clip.Clip.time_transform"><code class="docutils literal notranslate"><span class="pre">Clip.time_transform()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.Clip.Clip.transform"><code class="docutils literal notranslate"><span class="pre">Clip.transform()</span></code></a></li>

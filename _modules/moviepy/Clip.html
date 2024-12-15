@@ -587,7 +587,7 @@ document.write(`
     <span class="nd">@apply_to_audio</span>
     <span class="nd">@convert_parameter_to_seconds</span><span class="p">([</span><span class="s2">&quot;t&quot;</span><span class="p">])</span>
     <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">with_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">change_end</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">with_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">change_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a copy of the clip, with the ``start`` attribute set</span>
 <span class="sd">        to ``t``, which can be expressed in seconds (15.35), in (min, sec),</span>
 <span class="sd">        in (hour, min, sec), or as a string: &#39;01:03:05.35&#39;.</span>
@@ -622,7 +622,7 @@ document.write(`
     <span class="nd">@apply_to_audio</span>
     <span class="nd">@convert_parameter_to_seconds</span><span class="p">([</span><span class="s2">&quot;t&quot;</span><span class="p">])</span>
     <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">set_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">change_end</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">change_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a copy of the clip, with the ``start`` attribute set</span>
 <span class="sd">        to ``t``, which can be expressed in seconds (15.35), in (min, sec),</span>
 <span class="sd">        in (hour, min, sec), or as a string: &#39;01:03:05.35&#39;.</span>
@@ -644,13 +644,7 @@ document.write(`
 <span class="sd">          ``end`` attribute, the ``duration`` attribute of the clip will be</span>
 <span class="sd">          updated to ``end - start``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">t</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">change_end</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_start</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">change_end</span><span class="p">)</span></div>
 
     
 
@@ -658,7 +652,7 @@ document.write(`
     <span class="nd">@apply_to_audio</span>
     <span class="nd">@convert_parameter_to_seconds</span><span class="p">([</span><span class="s2">&quot;t&quot;</span><span class="p">])</span>
     <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">with_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">with_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a copy of the clip, with the ``end`` attribute set to ``t``,</span>
 <span class="sd">        which can be expressed in seconds (15.35), in (min, sec), in</span>
 <span class="sd">        (hour, min, sec), or as a string: &#39;01:03:05.35&#39;. Also sets the duration</span>
@@ -686,7 +680,7 @@ document.write(`
     <span class="nd">@apply_to_audio</span>
     <span class="nd">@convert_parameter_to_seconds</span><span class="p">([</span><span class="s2">&quot;t&quot;</span><span class="p">])</span>
     <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">set_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a copy of the clip, with the ``end`` attribute set to ``t``,</span>
 <span class="sd">        which can be expressed in seconds (15.35), in (min, sec), in</span>
 <span class="sd">        (hour, min, sec), or as a string: &#39;01:03:05.35&#39;. Also sets the duration</span>
@@ -698,23 +692,14 @@ document.write(`
 <span class="sd">        t : float or tuple or str</span>
 <span class="sd">          New ``end`` attribute value for the clip.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">t</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_end</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Clip.with_duration"><a class="viewcode-back" href="../../reference/reference/moviepy.Clip.Clip.html#moviepy.Clip.Clip.with_duration">[docs]</a>    <span class="nd">@apply_to_mask</span>
     <span class="nd">@apply_to_audio</span>
     <span class="nd">@convert_parameter_to_seconds</span><span class="p">([</span><span class="s2">&quot;duration&quot;</span><span class="p">])</span>
     <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">with_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">change_end</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">with_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">change_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a copy of the clip, with the  ``duration`` attribute set to</span>
 <span class="sd">        ``t``, which can be expressed in seconds (15.35), in (min, sec), in</span>
 <span class="sd">        (hour, min, sec), or as a string: &#39;01:03:05.35&#39;. Also sets the duration</span>
@@ -768,16 +753,8 @@ document.write(`
 <span class="sd">          If ``True``, the ``end`` attribute value of the clip will be adjusted</span>
 <span class="sd">          accordingly to the new duration using ``clip.start + duration``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
 
-        <span class="k">if</span> <span class="n">change_end</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">duration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">duration</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot change clip start when new duration is None&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">duration</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_duration</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">change_end</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Clip.with_updated_frame_function"><a class="viewcode-back" href="../../reference/reference/moviepy.Clip.Clip.html#moviepy.Clip.Clip.with_updated_frame_function">[docs]</a>    <span class="nd">@outplace</span>
     <span class="k">def</span> <span class="nf">with_updated_frame_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_function</span><span class="p">):</span>
@@ -946,7 +923,7 @@ document.write(`
 <div class="viewcode-block" id="Clip.subclipped"><a class="viewcode-back" href="../../reference/reference/moviepy.Clip.Clip.html#moviepy.Clip.Clip.subclipped">[docs]</a>    <span class="nd">@convert_parameter_to_seconds</span><span class="p">([</span><span class="s2">&quot;start_time&quot;</span><span class="p">,</span> <span class="s2">&quot;end_time&quot;</span><span class="p">])</span>
     <span class="nd">@apply_to_mask</span>
     <span class="nd">@apply_to_audio</span>
-    <span class="k">def</span> <span class="nf">subclipped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">subclipped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a clip playing the content of the current clip between times</span>
 <span class="sd">        ``start_time`` and ``end_time``, which can be expressed in seconds</span>
 <span class="sd">        (15.35), in (min, sec), in (hour, min, sec), or as a string:</span>
@@ -1012,6 +989,44 @@ document.write(`
             <span class="n">new_clip</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">new_clip</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">new_clip</span><span class="o">.</span><span class="n">duration</span>
 
         <span class="k">return</span> <span class="n">new_clip</span></div>
+
+    
+<div class="viewcode-block" id="Clip.subclip"><a class="viewcode-back" href="../../reference/reference/moviepy.Clip.Clip.html#moviepy.Clip.Clip.subclip">[docs]</a>    <span class="nd">@convert_parameter_to_seconds</span><span class="p">([</span><span class="s2">&quot;start_time&quot;</span><span class="p">,</span> <span class="s2">&quot;end_time&quot;</span><span class="p">])</span>
+    <span class="nd">@apply_to_mask</span>
+    <span class="nd">@apply_to_audio</span>
+    <span class="k">def</span> <span class="nf">subclip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a clip playing the content of the current clip between times</span>
+<span class="sd">        ``start_time`` and ``end_time``, which can be expressed in seconds</span>
+<span class="sd">        (15.35), in (min, sec), in (hour, min, sec), or as a string:</span>
+<span class="sd">        &#39;01:03:05.35&#39;.</span>
+
+<span class="sd">        The ``mask`` and ``audio`` of the resulting subclip will be subclips of</span>
+<span class="sd">        ``mask`` and ``audio`` the original clip, if they exist.</span>
+
+<span class="sd">        It&#39;s equivalent to slice the clip as a sequence, like</span>
+<span class="sd">        ``clip[t_start:t_end]``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        start_time : float or tuple or str, optional</span>
+<span class="sd">          Moment that will be chosen as the beginning of the produced clip. If</span>
+<span class="sd">          is negative, it is reset to ``clip.duration + start_time``.</span>
+
+<span class="sd">        end_time : float or tuple or str, optional</span>
+<span class="sd">          Moment that will be chosen as the end of the produced clip. If not</span>
+<span class="sd">          provided, it is assumed to be the duration of the clip (potentially</span>
+<span class="sd">          infinite). If is negative, it is reset to ``clip.duration + end_time``.</span>
+<span class="sd">          For instance:</span>
+
+<span class="sd">          &gt;&gt;&gt; # cut the last two seconds of the clip:</span>
+<span class="sd">          &gt;&gt;&gt; new_clip = clip.subclipped(0, -2)</span>
+
+<span class="sd">          If ``end_time`` is provided or if the clip has a duration attribute,</span>
+<span class="sd">          the duration of the returned clip is set automatically.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Clip.with_section_cut_out"><a class="viewcode-back" href="../../reference/reference/moviepy.Clip.Clip.html#moviepy.Clip.Clip.with_section_cut_out">[docs]</a>    <span class="nd">@convert_parameter_to_seconds</span><span class="p">([</span><span class="s2">&quot;start_time&quot;</span><span class="p">,</span> <span class="s2">&quot;end_time&quot;</span><span class="p">])</span>
     <span class="k">def</span> <span class="nf">with_section_cut_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">):</span>
