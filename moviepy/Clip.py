@@ -210,7 +210,7 @@ class Clip:
     @apply_to_audio
     @convert_parameter_to_seconds(["t"])
     @outplace
-    def with_start(self, t, change_end=True):
+    def with_start(self, t, change_end=True) -> "Clip":
         """Returns a copy of the clip, with the ``start`` attribute set
         to ``t``, which can be expressed in seconds (15.35), in (min, sec),
         in (hour, min, sec), or as a string: '01:03:05.35'.
@@ -245,7 +245,7 @@ class Clip:
     @apply_to_audio
     @convert_parameter_to_seconds(["t"])
     @outplace
-    def set_start(self, t, change_end=True):
+    def set_start(self, t, change_end=True) -> "Clip":
         """Returns a copy of the clip, with the ``start`` attribute set
         to ``t``, which can be expressed in seconds (15.35), in (min, sec),
         in (hour, min, sec), or as a string: '01:03:05.35'.
@@ -267,13 +267,7 @@ class Clip:
           ``end`` attribute, the ``duration`` attribute of the clip will be
           updated to ``end - start``.
         """
-        self.start = t
-        if (self.duration is not None) and change_end:
-            self.end = t + self.duration
-        elif self.end is not None:
-            self.duration = self.end - self.start
-
-        return self
+        return self.with_start(t, change_end)
 
     
 
@@ -281,7 +275,7 @@ class Clip:
     @apply_to_audio
     @convert_parameter_to_seconds(["t"])
     @outplace
-    def with_end(self, t):
+    def with_end(self, t) -> "Clip":
         """Returns a copy of the clip, with the ``end`` attribute set to ``t``,
         which can be expressed in seconds (15.35), in (min, sec), in
         (hour, min, sec), or as a string: '01:03:05.35'. Also sets the duration
@@ -309,7 +303,7 @@ class Clip:
     @apply_to_audio
     @convert_parameter_to_seconds(["t"])
     @outplace
-    def set_end(self, t):
+    def set_end(self, t) -> "Clip":
         """Returns a copy of the clip, with the ``end`` attribute set to ``t``,
         which can be expressed in seconds (15.35), in (min, sec), in
         (hour, min, sec), or as a string: '01:03:05.35'. Also sets the duration
@@ -321,23 +315,14 @@ class Clip:
         t : float or tuple or str
           New ``end`` attribute value for the clip.
         """
-        self.end = t
-        if self.end is None:
-            return
-        if self.start is None:
-            if self.duration is not None:
-                self.start = max(0, t - self.duration)
-        else:
-            self.duration = self.end - self.start
-
-        return self
+        return self.with_end(t)
 
 
     @apply_to_mask
     @apply_to_audio
     @convert_parameter_to_seconds(["duration"])
     @outplace
-    def with_duration(self, duration, change_end=True):
+    def with_duration(self, duration, change_end=True) -> "Clip":
         """Returns a copy of the clip, with the  ``duration`` attribute set to
         ``t``, which can be expressed in seconds (15.35), in (min, sec), in
         (hour, min, sec), or as a string: '01:03:05.35'. Also sets the duration
@@ -391,16 +376,8 @@ class Clip:
           If ``True``, the ``end`` attribute value of the clip will be adjusted
           accordingly to the new duration using ``clip.start + duration``.
         """
-        self.duration = duration
 
-        if change_end:
-            self.end = None if (duration is None) else (self.start + duration)
-        else:
-            if self.duration is None:
-                raise ValueError("Cannot change clip start when new duration is None")
-            self.start = self.end - duration
-
-        return self
+        return self.with_duration(duration, change_end)
 
     @outplace
     def with_updated_frame_function(self, frame_function):
@@ -569,7 +546,7 @@ class Clip:
     @convert_parameter_to_seconds(["start_time", "end_time"])
     @apply_to_mask
     @apply_to_audio
-    def subclipped(self, start_time=0, end_time=None):
+    def subclipped(self, start_time=0, end_time=None) -> "Clip":
         """Returns a clip playing the content of the current clip between times
         ``start_time`` and ``end_time``, which can be expressed in seconds
         (15.35), in (min, sec), in (hour, min, sec), or as a string:
@@ -635,6 +612,44 @@ class Clip:
             new_clip.end = new_clip.start + new_clip.duration
 
         return new_clip
+
+    
+    @convert_parameter_to_seconds(["start_time", "end_time"])
+    @apply_to_mask
+    @apply_to_audio
+    def subclip(self, start_time=0, end_time=None) -> "Clip":
+        """Returns a clip playing the content of the current clip between times
+        ``start_time`` and ``end_time``, which can be expressed in seconds
+        (15.35), in (min, sec), in (hour, min, sec), or as a string:
+        '01:03:05.35'.
+
+        The ``mask`` and ``audio`` of the resulting subclip will be subclips of
+        ``mask`` and ``audio`` the original clip, if they exist.
+
+        It's equivalent to slice the clip as a sequence, like
+        ``clip[t_start:t_end]``.
+
+        Parameters
+        ----------
+
+        start_time : float or tuple or str, optional
+          Moment that will be chosen as the beginning of the produced clip. If
+          is negative, it is reset to ``clip.duration + start_time``.
+
+        end_time : float or tuple or str, optional
+          Moment that will be chosen as the end of the produced clip. If not
+          provided, it is assumed to be the duration of the clip (potentially
+          infinite). If is negative, it is reset to ``clip.duration + end_time``.
+          For instance:
+
+          >>> # cut the last two seconds of the clip:
+          >>> new_clip = clip.subclipped(0, -2)
+
+          If ``end_time`` is provided or if the clip has a duration attribute,
+          the duration of the returned clip is set automatically.
+        """
+
+        return self.subclipped(start_time, end_time)
 
     @convert_parameter_to_seconds(["start_time", "end_time"])
     def with_section_cut_out(self, start_time, end_time):
