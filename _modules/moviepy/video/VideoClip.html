@@ -2330,12 +2330,12 @@ document.write(`
             <span class="n">xy</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
             <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">fill</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">font</span><span class="p">:</span> <span class="p">(</span>
-                <span class="n">ImageFont</span><span class="o">.</span><span class="n">ImageFont</span>
-                <span class="o">|</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">FreeTypeFont</span>
-                <span class="o">|</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">TransposedFont</span>
-                <span class="o">|</span> <span class="kc">None</span>
-            <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">font</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="n">ImageFont</span><span class="o">.</span><span class="n">ImageFont</span><span class="p">,</span>
+            <span class="n">ImageFont</span><span class="o">.</span><span class="n">FreeTypeFont</span><span class="p">,</span>
+            <span class="n">ImageFont</span><span class="o">.</span><span class="n">TransposedFont</span><span class="p">,</span>
+            <span class="kc">None</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">spacing</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
             <span class="n">kerning</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
