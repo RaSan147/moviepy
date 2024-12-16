@@ -48,6 +48,9 @@ moviepy
    moviepy.decorators
 
 
+   moviepy.editor
+
+
    moviepy.tools
 
 
