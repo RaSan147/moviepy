@@ -1590,6 +1590,9 @@ class TextClip(ImageClip):
     interline
       Interline spacing. Default to ``4``.
 
+    kerning
+        Space between letters. Default to ``0``.
+
     transparent
       ``True`` (default) if you want to take into account the
       transparency in the image.
@@ -1601,7 +1604,7 @@ class TextClip(ImageClip):
     @convert_path_to_string("filename")
     def __init__(
         self,
-        font="Courier",
+        font="Arial",
         text=None,
         filename=None,
         font_size=None,
@@ -1618,6 +1621,7 @@ class TextClip(ImageClip):
         horizontal_align="center",
         vertical_align="center",
         interline=4,
+        kerning=0,
         transparent=True,
         duration=None,
     ):
@@ -1626,7 +1630,7 @@ class TextClip(ImageClip):
         text_align = align or text_align # for backward compatibility
 
         def break_text(
-            width, text, font, font_size, stroke_width, align, spacing
+            width, text, font, font_size, stroke_width, align, spacing, kerning
         ) -> List[str]:
             """Break text to never overflow a width"""
             img = Image.new("RGB", (1, 1))
@@ -1646,7 +1650,7 @@ class TextClip(ImageClip):
                     align=align,
                     stroke_width=stroke_width,
                 )
-                temp_width = temp_right - temp_left
+                temp_width = temp_right - temp_left + kerning * (len(temp_line)) # not -1 because we add a space
 
                 if temp_width <= width:
                     current_line = temp_line
@@ -1666,6 +1670,7 @@ class TextClip(ImageClip):
             stroke_width,
             align,
             spacing,
+            kerning,
             max_width=None,
             allow_break=False,
         ) -> tuple[int, int]:
@@ -1685,7 +1690,11 @@ class TextClip(ImageClip):
                     anchor="lm",
                 )
 
-                return (int(right - left), int(bottom - top))
+                max_line = max(text.split("\n"), key=len)
+                w = int(right - left + kerning * (len(max_line)))
+                h = int(bottom - top)
+
+                return (w, h)
 
             lines = break_text(
                 width=max_width,
@@ -1695,6 +1704,7 @@ class TextClip(ImageClip):
                 stroke_width=stroke_width,
                 align=align,
                 spacing=spacing,
+                kerning=kerning,
             )
 
             left, top, right, bottom = draw.multiline_textbbox(
@@ -1707,7 +1717,11 @@ class TextClip(ImageClip):
                 anchor="lm",
             )
 
-            return (int(right - left), int(bottom - top))
+
+            w = int(right - left + kerning * (len(max(lines, key=len))))
+            h = int(bottom - top)
+
+            return (w, h)
 
         def find_optimum_font_size(
             text,
@@ -1715,6 +1729,7 @@ class TextClip(ImageClip):
             stroke_width,
             align,
             spacing,
+            kerning,
             width,
             height=None,
             allow_break=False,
@@ -1733,6 +1748,7 @@ class TextClip(ImageClip):
                     stroke_width,
                     align,
                     spacing,
+                    kerning,
                     max_width=width,
                     allow_break=allow_break,
                 )
@@ -1750,6 +1766,7 @@ class TextClip(ImageClip):
                 stroke_width,
                 align,
                 spacing,
+                kerning,
                 max_width=width,
                 allow_break=allow_break,
             )
@@ -1791,6 +1808,7 @@ class TextClip(ImageClip):
                     stroke_width=stroke_width,
                     align=text_align,
                     spacing=interline,
+                    kerning=kerning,
                     width=img_width,
                     height=img_height,
                     allow_break=True,
@@ -1804,6 +1822,7 @@ class TextClip(ImageClip):
                     stroke_width=stroke_width,
                     align=text_align,
                     spacing=interline,
+                    kerning=kerning,
                     max_width=img_width,
                     allow_break=True,
                 )[1]
@@ -1818,6 +1837,7 @@ class TextClip(ImageClip):
                     stroke_width=stroke_width,
                     align=text_align,
                     spacing=interline,
+                    kerning=kerning,
                 )
             )
 
@@ -1834,6 +1854,7 @@ class TextClip(ImageClip):
                     stroke_width=stroke_width,
                     align=text_align,
                     spacing=interline,
+                    kerning=kerning,
                     width=img_width,
                     height=img_height,
                 )
@@ -1846,6 +1867,7 @@ class TextClip(ImageClip):
                     stroke_width=stroke_width,
                     align=text_align,
                     spacing=interline,
+                    kerning=kerning,
                 )[0]
 
             if img_height is None:
@@ -1856,6 +1878,7 @@ class TextClip(ImageClip):
                     stroke_width=stroke_width,
                     align=text_align,
                     spacing=interline,
+                    kerning=kerning,
                     max_width=img_width,
                 )[1]
 
@@ -1895,12 +1918,13 @@ class TextClip(ImageClip):
             stroke_width=stroke_width,
             align=text_align,
             spacing=interline,
+            kerning=kerning,
             max_width=img_width,
         )
 
         x = 0
         if horizontal_align == "right":
-            x = img_width - text_width - left_margin - right_margin
+            x = img_width - left_margin - right_margin - text_width
         elif horizontal_align == "center":
             x = (img_width - left_margin - right_margin - text_width) / 2
 
@@ -1924,12 +1948,118 @@ class TextClip(ImageClip):
         # middle line.
         y += text_height / 2
 
-        draw.multiline_text(
-            xy=(x, y),
-            text=text,
+        def multiline_text(
+            self: ImageDraw.ImageDraw,
+            xy: tuple[float, float],
+            text: str,
+            fill=None,
+            font: (
+                ImageFont.ImageFont
+                | ImageFont.FreeTypeFont
+                | ImageFont.TransposedFont
+                | None
+            ) = None,
+            anchor=None,
+            spacing=4,
+            kerning=0,
+            align="left",
+            direction=None,
+            features=None,
+            language=None,
+            stroke_width=0,
+            stroke_fill=None,
+            embedded_color=False,
+            *,
+            font_size=None,
+        ) -> None:
+            if direction == "ttb":
+                msg = "ttb direction is unsupported for multiline text"
+                raise ValueError(msg)
+
+            if anchor is None:
+                anchor = "la"
+            elif len(anchor) != 2:
+                msg = "anchor must be a 2 character string"
+                raise ValueError(msg)
+            elif anchor[1] in "tb":
+                msg = "anchor not supported for multiline text"
+                raise ValueError(msg)
+
+            if font is None:
+                font = self._getfont(font_size)
+
+            widths = []
+            max_width: float = 0
+            lines = self._multiline_split(text)
+            line_spacing = self._multiline_spacing(font, spacing, stroke_width)
+            for line in lines:
+                line_width = self.textlength(
+                    line, font, direction=direction, features=features, language=language
+                ) + kerning*len(line)
+                widths.append(line_width)
+                max_width = max(max_width, line_width)
+
+            top = xy[1]
+            if anchor[1] == "m":
+                top -= (len(lines) - 1) * line_spacing / 2.0
+            elif anchor[1] == "d":
+                top -= (len(lines) - 1) * line_spacing
+
+            for idx, line in enumerate(lines):
+                left = xy[0]
+                width_difference = max_width - widths[idx]
+
+                # first align left by anchor
+                if anchor[0] == "m":
+                    left -= width_difference / 2.0
+                elif anchor[0] == "r":
+                    left -= width_difference
+
+                # then align by align parameter
+                if align == "left":
+                    pass
+                elif align == "center":
+                    left += width_difference / 2.0
+                elif align == "right":
+                    left += width_difference
+                else:
+                    msg = 'align must be "left", "center" or "right"'
+                    raise ValueError(msg)
+
+                line_upto = ""
+                last_len = 0
+                for c in line:
+                    self.text(
+                        (left, top),
+                        c,
+                        fill,
+                        font,
+                        direction=direction,
+                        features=features,
+                        language=language,
+                        stroke_width=stroke_width,
+                        stroke_fill=stroke_fill,
+                        embedded_color=embedded_color,
+                    )
+
+                    line_upto += c
+                    new_len = self.textlength(
+                        line_upto, font, direction=direction, features=features, language=language
+                    )
+                    change = new_len - last_len
+                    last_len = new_len
+                    left += change + kerning
+                
+                top += line_spacing
+
+        multiline_text(
+            draw,
+            (x, y),
+            text,
             fill=color,
             font=pil_font,
             spacing=interline,
+            kerning=kerning,
             align=text_align,
             stroke_width=stroke_width,
             stroke_fill=stroke_color,
