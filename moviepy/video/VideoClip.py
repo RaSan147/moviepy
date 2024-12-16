@@ -1953,12 +1953,12 @@ class TextClip(ImageClip):
             xy: tuple[float, float],
             text: str,
             fill=None,
-            font: (
-                ImageFont.ImageFont
-                | ImageFont.FreeTypeFont
-                | ImageFont.TransposedFont
-                | None
-            ) = None,
+            font: Union[
+            ImageFont.ImageFont,
+            ImageFont.FreeTypeFont,
+            ImageFont.TransposedFont,
+            None
+            ] = None,
             anchor=None,
             spacing=4,
             kerning=0,
