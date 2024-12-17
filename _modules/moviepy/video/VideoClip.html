@@ -418,6 +418,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">moviepy.video.io.ffmpeg_writer</span> <span class="kn">import</span> <span class="n">ffmpeg_write_video</span>
 <span class="kn">from</span> <span class="nn">moviepy.video.io.gif_writers</span> <span class="kn">import</span> <span class="n">write_gif_with_imageio</span>
 <span class="kn">from</span> <span class="nn">moviepy.video.tools.drawing</span> <span class="kn">import</span> <span class="n">blit</span>
+<span class="kn">from</span> <span class="nn">moviepy.tools</span> <span class="kn">import</span> <span class="n">subprocess_call</span>
 
 
 <div class="viewcode-block" id="VideoClip"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip">[docs]</a><span class="k">class</span> <span class="nc">VideoClip</span><span class="p">(</span><span class="n">Clip</span><span class="p">):</span>
@@ -1253,18 +1254,8 @@ document.write(`
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
-<div class="viewcode-block" id="VideoClip.set_audio"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.set_audio">[docs]</a>    <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">set_audio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">audioclip</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach an AudioClip to the VideoClip.</span>
+    <span class="n">set_audio</span> <span class="o">=</span> <span class="n">with_audio</span>
 
-<span class="sd">        Returns a copy of the VideoClip instance, with the `audio`</span>
-<span class="sd">        attribute set to ``audio``, which must be an AudioClip instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">audio</span> <span class="o">=</span> <span class="n">audioclip</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-    
 
 <div class="viewcode-block" id="VideoClip.with_mask"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.with_mask">[docs]</a>    <span class="nd">@outplace</span>
     <span class="k">def</span> <span class="nf">with_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;VideoClip&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">):</span>
@@ -1290,17 +1281,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-<div class="viewcode-block" id="VideoClip.set_mask"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.set_mask">[docs]</a>    <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">set_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the clip&#39;s mask.</span>
-
-<span class="sd">        Returns a copy of the VideoClip with the mask attribute set to</span>
-<span class="sd">        ``mask``, which must be a greyscale (values in 0-1) VideoClip.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mask</span><span class="o">.</span><span class="n">is_mask</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
+    <span class="n">set_mask</span> <span class="o">=</span> <span class="n">with_mask</span>
 
 <div class="viewcode-block" id="VideoClip.with_opacity"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.with_opacity">[docs]</a>    <span class="nd">@add_mask_if_none</span>
     <span class="nd">@outplace</span>
@@ -1314,17 +1295,7 @@ document.write(`
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
-<div class="viewcode-block" id="VideoClip.set_opacity"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.set_opacity">[docs]</a>    <span class="nd">@add_mask_if_none</span>
-    <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">set_opacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opacity</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the opacity/transparency level of the clip.</span>
-
-<span class="sd">        Returns a semi-transparent copy of the clip where the mask is</span>
-<span class="sd">        multiplied by ``op`` (any float, normally between 0 and 1).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">image_transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">pic</span><span class="p">:</span> <span class="n">opacity</span> <span class="o">*</span> <span class="n">pic</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
+    <span class="n">set_opacity</span> <span class="o">=</span> <span class="n">with_opacity</span>
 
 <div class="viewcode-block" id="VideoClip.with_position"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.with_position">[docs]</a>    <span class="nd">@apply_to_mask</span>
     <span class="nd">@outplace</span>
@@ -1363,73 +1334,8 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span></div>
 
     
-<div class="viewcode-block" id="VideoClip.set_pos"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.set_pos">[docs]</a>    <span class="nd">@apply_to_mask</span>
-    <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">set_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the clip&#39;s position in compositions.</span>
-
-<span class="sd">        Sets the position that the clip will have when included</span>
-<span class="sd">        in compositions. The argument ``pos`` can be either a couple</span>
-<span class="sd">        ``(x,y)`` or a function ``t-&gt; (x,y)``. `x` and `y` mark the</span>
-<span class="sd">        location of the top left corner of the clip, and can be</span>
-<span class="sd">        of several types.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-
-<span class="sd">        &gt;&gt;&gt; clip.with_position((45,150)) # x=45, y=150</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # clip horizontally centered, at the top of the picture</span>
-<span class="sd">        &gt;&gt;&gt; clip.with_position((&quot;center&quot;,&quot;top&quot;))</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # clip is at 40% of the width, 70% of the height:</span>
-<span class="sd">        &gt;&gt;&gt; clip.with_position((0.4,0.7), relative=True)</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # clip&#39;s position is horizontally centered, and moving up !</span>
-<span class="sd">        &gt;&gt;&gt; clip.with_position(lambda t: (&#39;center&#39;, 50+t) )</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">relative_pos</span> <span class="o">=</span> <span class="n">relative</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">pos</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-<div class="viewcode-block" id="VideoClip.set_position"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.set_position">[docs]</a>    <span class="nd">@apply_to_mask</span>
-    <span class="nd">@outplace</span>
-    <span class="k">def</span> <span class="nf">set_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the clip&#39;s position in compositions.</span>
-
-<span class="sd">        Sets the position that the clip will have when included</span>
-<span class="sd">        in compositions. The argument ``pos`` can be either a couple</span>
-<span class="sd">        ``(x,y)`` or a function ``t-&gt; (x,y)``. `x` and `y` mark the</span>
-<span class="sd">        location of the top left corner of the clip, and can be</span>
-<span class="sd">        of several types.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-
-<span class="sd">        &gt;&gt;&gt; clip.with_position((45,150)) # x=45, y=150</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # clip horizontally centered, at the top of the picture</span>
-<span class="sd">        &gt;&gt;&gt; clip.with_position((&quot;center&quot;,&quot;top&quot;))</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # clip is at 40% of the width, 70% of the height:</span>
-<span class="sd">        &gt;&gt;&gt; clip.with_position((0.4,0.7), relative=True)</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # clip&#39;s position is horizontally centered, and moving up !</span>
-<span class="sd">        &gt;&gt;&gt; clip.with_position(lambda t: (&#39;center&#39;, 50+t) )</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">relative_pos</span> <span class="o">=</span> <span class="n">relative</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">pos</span></div>
-
-    
+    <span class="n">set_position</span> <span class="o">=</span> <span class="n">with_position</span>
+    <span class="n">set_pos</span> <span class="o">=</span> <span class="n">with_position</span>
 
 <div class="viewcode-block" id="VideoClip.with_layer_index"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.with_layer_index">[docs]</a>    <span class="nd">@apply_to_mask</span>
     <span class="nd">@outplace</span>
@@ -1455,12 +1361,6 @@ document.write(`
                 <span class="p">)</span>
             <span class="p">]</span>
         <span class="p">)</span></div>
-
-<div class="viewcode-block" id="VideoClip.resize"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.resize">[docs]</a>    <span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">apply_to_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a video clip that is a resized version of the clip.</span>
-<span class="sd">        For info on the parameters, please see ``vfx.Resize``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resized</span><span class="p">(</span><span class="n">new_size</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">apply_to_mask</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VideoClip.rotated"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.rotated">[docs]</a>    <span class="k">def</span> <span class="nf">rotated</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1490,6 +1390,8 @@ document.write(`
                 <span class="p">)</span>
             <span class="p">]</span>
         <span class="p">)</span></div>
+
+    <span class="n">resize</span> <span class="o">=</span> <span class="n">resized</span>
 
 <div class="viewcode-block" id="VideoClip.cropped"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.cropped">[docs]</a>    <span class="k">def</span> <span class="nf">cropped</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1524,6 +1426,8 @@ document.write(`
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="n">crop</span> <span class="o">=</span> <span class="n">cropped</span>
 
 
 <div class="viewcode-block" id="VideoClip.set_layer"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.VideoClip.html#moviepy.video.VideoClip.VideoClip.set_layer">[docs]</a>    <span class="nd">@apply_to_mask</span>
@@ -1981,7 +1885,7 @@ document.write(`
     <span class="nd">@convert_path_to_string</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;Arial&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">font_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2325,123 +2229,18 @@ document.write(`
         <span class="c1"># middle line.</span>
         <span class="n">y</span> <span class="o">+=</span> <span class="n">text_height</span> <span class="o">/</span> <span class="mi">2</span>
 
-        <span class="k">def</span> <span class="nf">multiline_text</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">:</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">ImageDraw</span><span class="p">,</span>
-            <span class="n">xy</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
-            <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">fill</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">font</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
-            <span class="n">ImageFont</span><span class="o">.</span><span class="n">ImageFont</span><span class="p">,</span>
-            <span class="n">ImageFont</span><span class="o">.</span><span class="n">FreeTypeFont</span><span class="p">,</span>
-            <span class="n">ImageFont</span><span class="o">.</span><span class="n">TransposedFont</span><span class="p">,</span>
-            <span class="kc">None</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">anchor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">spacing</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-            <span class="n">kerning</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-            <span class="n">align</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-            <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-            <span class="n">stroke_fill</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">embedded_color</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">font_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;ttb&quot;</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;ttb direction is unsupported for multiline text&quot;</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">anchor</span> <span class="o">=</span> <span class="s2">&quot;la&quot;</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;anchor must be a 2 character string&quot;</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">anchor</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;tb&quot;</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;anchor not supported for multiline text&quot;</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">font</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">font</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getfont</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
-
-            <span class="n">widths</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">max_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiline_split</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-            <span class="n">line_spacing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiline_spacing</span><span class="p">(</span><span class="n">font</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">stroke_width</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-                <span class="n">line_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">textlength</span><span class="p">(</span>
-                    <span class="n">line</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span>
-                <span class="p">)</span> <span class="o">+</span> <span class="n">kerning</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                <span class="n">widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_width</span><span class="p">)</span>
-                <span class="n">max_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_width</span><span class="p">,</span> <span class="n">line_width</span><span class="p">)</span>
-
-            <span class="n">top</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">anchor</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span>
-                <span class="n">top</span> <span class="o">-=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">line_spacing</span> <span class="o">/</span> <span class="mf">2.0</span>
-            <span class="k">elif</span> <span class="n">anchor</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
-                <span class="n">top</span> <span class="o">-=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">line_spacing</span>
-
-            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-                <span class="n">left</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">width_difference</span> <span class="o">=</span> <span class="n">max_width</span> <span class="o">-</span> <span class="n">widths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-
-                <span class="c1"># first align left by anchor</span>
-                <span class="k">if</span> <span class="n">anchor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span>
-                    <span class="n">left</span> <span class="o">-=</span> <span class="n">width_difference</span> <span class="o">/</span> <span class="mf">2.0</span>
-                <span class="k">elif</span> <span class="n">anchor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span>
-                    <span class="n">left</span> <span class="o">-=</span> <span class="n">width_difference</span>
-
-                <span class="c1"># then align by align parameter</span>
-                <span class="k">if</span> <span class="n">align</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
-                    <span class="k">pass</span>
-                <span class="k">elif</span> <span class="n">align</span> <span class="o">==</span> <span class="s2">&quot;center&quot;</span><span class="p">:</span>
-                    <span class="n">left</span> <span class="o">+=</span> <span class="n">width_difference</span> <span class="o">/</span> <span class="mf">2.0</span>
-                <span class="k">elif</span> <span class="n">align</span> <span class="o">==</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span>
-                    <span class="n">left</span> <span class="o">+=</span> <span class="n">width_difference</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;align must be &quot;left&quot;, &quot;center&quot; or &quot;right&quot;&#39;</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-                <span class="n">line_upto</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                <span class="n">last_len</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
-                        <span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">top</span><span class="p">),</span>
-                        <span class="n">c</span><span class="p">,</span>
-                        <span class="n">fill</span><span class="p">,</span>
-                        <span class="n">font</span><span class="p">,</span>
-                        <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
-                        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
-                        <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span>
-                        <span class="n">stroke_width</span><span class="o">=</span><span class="n">stroke_width</span><span class="p">,</span>
-                        <span class="n">stroke_fill</span><span class="o">=</span><span class="n">stroke_fill</span><span class="p">,</span>
-                        <span class="n">embedded_color</span><span class="o">=</span><span class="n">embedded_color</span><span class="p">,</span>
-                    <span class="p">)</span>
-
-                    <span class="n">line_upto</span> <span class="o">+=</span> <span class="n">c</span>
-                    <span class="n">new_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">textlength</span><span class="p">(</span>
-                        <span class="n">line_upto</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span>
-                    <span class="p">)</span>
-                    <span class="n">change</span> <span class="o">=</span> <span class="n">new_len</span> <span class="o">-</span> <span class="n">last_len</span>
-                    <span class="n">last_len</span> <span class="o">=</span> <span class="n">new_len</span>
-                    <span class="n">left</span> <span class="o">+=</span> <span class="n">change</span> <span class="o">+</span> <span class="n">kerning</span>
-                
-                <span class="n">top</span> <span class="o">+=</span> <span class="n">line_spacing</span>
-
-        <span class="n">multiline_text</span><span class="p">(</span>
-            <span class="n">draw</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
-            <span class="n">text</span><span class="p">,</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">multiline_text</span><span class="p">(</span>
+            <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
             <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
             <span class="n">font</span><span class="o">=</span><span class="n">pil_font</span><span class="p">,</span>
             <span class="n">spacing</span><span class="o">=</span><span class="n">interline</span><span class="p">,</span>
-            <span class="n">kerning</span><span class="o">=</span><span class="n">kerning</span><span class="p">,</span>
             <span class="n">align</span><span class="o">=</span><span class="n">text_align</span><span class="p">,</span>
             <span class="n">stroke_width</span><span class="o">=</span><span class="n">stroke_width</span><span class="p">,</span>
             <span class="n">stroke_fill</span><span class="o">=</span><span class="n">stroke_color</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;lm&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+
 
         <span class="c1"># We just need the image as a numpy array</span>
         <span class="n">img_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
@@ -2452,6 +2251,183 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stroke_color</span> <span class="o">=</span> <span class="n">stroke_color</span></div>
+
+
+
+<div class="viewcode-block" id="MagicTextClip"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.MagicTextClip.html#moviepy.video.VideoClip.MagicTextClip">[docs]</a><span class="k">class</span> <span class="nc">MagicTextClip</span><span class="p">(</span><span class="n">ImageClip</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for autogenerated text clips.</span>
+
+<span class="sd">    Creates an ImageClip originating from a script-generated text image.</span>
+<span class="sd">    Requires ImageMagick.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    text</span>
+<span class="sd">      A string of the text to write. Can be replaced by argument</span>
+<span class="sd">      ``filename``.</span>
+
+<span class="sd">    filename</span>
+<span class="sd">      The name of a file in which there is the text to write,</span>
+<span class="sd">      as a string or a path-like object.</span>
+<span class="sd">      Can be provided instead of argument ``txt``</span>
+
+<span class="sd">    size</span>
+<span class="sd">      Size of the picture in pixels. Can be auto-set if</span>
+<span class="sd">      method=&#39;label&#39;, but mandatory if method=&#39;caption&#39;.</span>
+<span class="sd">      the height can be None, it will then be auto-determined.</span>
+
+<span class="sd">    bg_color</span>
+<span class="sd">      Color of the background. See ``TextClip.list(&#39;color&#39;)``</span>
+<span class="sd">      for a list of acceptable names.</span>
+
+<span class="sd">    color</span>
+<span class="sd">      Color of the text. See ``TextClip.list(&#39;color&#39;)`` for a</span>
+<span class="sd">      list of acceptable names.</span>
+
+<span class="sd">    font</span>
+<span class="sd">      Name of the font to use. See ``TextClip.list(&#39;font&#39;)`` for</span>
+<span class="sd">      the list of fonts you can use on your computer.</span>
+
+<span class="sd">    stroke_color</span>
+<span class="sd">      Color of the stroke (=contour line) of the text. If ``None``,</span>
+<span class="sd">      there will be no stroke.</span>
+
+<span class="sd">    stroke_width</span>
+<span class="sd">      Width of the stroke, in pixels. Can be a float, like 1.5.</span>
+
+<span class="sd">    method</span>
+<span class="sd">      Either &#39;label&#39; (default, the picture will be autosized so as to fit</span>
+<span class="sd">      exactly the size) or &#39;caption&#39; (the text will be drawn in a picture</span>
+<span class="sd">      with fixed size provided with the ``size`` argument). If `caption`,</span>
+<span class="sd">      the text will be wrapped automagically (sometimes it is buggy, not</span>
+<span class="sd">      my fault, complain to the ImageMagick crew) and can be aligned or</span>
+<span class="sd">      centered (see parameter ``align``).</span>
+
+<span class="sd">    kerning</span>
+<span class="sd">      Changes the default spacing between letters. For</span>
+<span class="sd">      instance ``kerning=-1`` will make the letters 1 pixel nearer from</span>
+<span class="sd">      ach other compared to the default spacing.</span>
+
+<span class="sd">    text_align</span>
+<span class="sd">      center | East | West | South | North . Will only work if ``method``</span>
+<span class="sd">      is set to ``caption``</span>
+
+<span class="sd">    transparent</span>
+<span class="sd">      ``True`` (default) if you want to take into account the</span>
+<span class="sd">      transparency in the image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@convert_path_to_string</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">bg_color</span><span class="o">=</span><span class="s2">&quot;transparent&quot;</span><span class="p">,</span>
+        <span class="n">font_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;Courier&quot;</span><span class="p">,</span>
+        <span class="n">stroke_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stroke_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="n">kerning</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">text_align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">interline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tempfilename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">temptxt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">remove_temp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">print_cmd</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="kn">import</span> <span class="nn">tempfile</span>
+        <span class="n">IMAGEMAGICK_BINARY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;IMAGEMAGICK_BINARY&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">IMAGEMAGICK_BINARY</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="s2">&quot;IMAGEMAGICK_BINARY environment variable not set.&quot;</span>
+                <span class="s2">&quot;Need this to use MagicTextClip.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">temptxt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">temptxt_fd</span><span class="p">,</span> <span class="n">temptxt</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>  <span class="c1"># only in Python3 will this work</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">temptxt_fd</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;UTF8&quot;</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># oops, fall back to Python2</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">temptxt_fd</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">temptxt_fd</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;@&quot;</span> <span class="o">+</span> <span class="n">temptxt</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># use a file instead of a text.</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;@&quot;</span> <span class="o">+</span> <span class="n">filename</span>
+
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="p">)</span>
+
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">IMAGEMAGICK_BINARY</span><span class="p">,</span>
+            <span class="s2">&quot;-background&quot;</span><span class="p">,</span>
+            <span class="n">bg_color</span><span class="p">,</span>
+            <span class="s2">&quot;-fill&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="p">,</span>
+            <span class="s2">&quot;-font&quot;</span><span class="p">,</span>
+            <span class="n">font</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">font_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-pointsize&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">font_size</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">kerning</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-kerning&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%0.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">kerning</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">stroke_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-stroke&quot;</span><span class="p">,</span> <span class="n">stroke_color</span><span class="p">,</span> <span class="s2">&quot;-strokewidth&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%.01f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">stroke_width</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-size&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">x</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="k">if</span> <span class="n">text_align</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-gravity&quot;</span><span class="p">,</span> <span class="n">text_align</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">interline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-interline-spacing&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">interline</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">tempfilename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tempfile_fd</span><span class="p">,</span> <span class="n">tempfilename</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">tempfile_fd</span><span class="p">)</span>
+
+        <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">text</span><span class="p">),</span>
+            <span class="s2">&quot;-type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;truecolormatte&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PNG32:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tempfilename</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">print_cmd</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subprocess_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;MoviePy Error: creation of </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> failed because of the &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;following error:</span><span class="se">\n\n</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">.&quot;</span>
+                <span class="s2">&quot;This error can be due to the fact that ImageMagick &quot;</span>
+                <span class="s2">&quot;is not installed on your computer, or (for Windows &quot;</span>
+                <span class="s2">&quot;users) that you didn&#39;t specify the path to the &quot;</span>
+                <span class="s2">&quot;ImageMagick binary. Check the documentation.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+
+        <span class="n">ImageClip</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tempfilename</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="n">transparent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stroke_color</span> <span class="o">=</span> <span class="n">stroke_color</span>
+
+        <span class="k">if</span> <span class="n">remove_temp</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tempfilename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tempfilename</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tempfilename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">temptxt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">temptxt</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">temptxt</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BitmapClip"><a class="viewcode-back" href="../../../reference/reference/moviepy.video.VideoClip.BitmapClip.html#moviepy.video.VideoClip.BitmapClip">[docs]</a><span class="k">class</span> <span class="nc">BitmapClip</span><span class="p">(</span><span class="n">VideoClip</span><span class="p">):</span>

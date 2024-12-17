@@ -386,7 +386,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="outplace"><a class="viewcode-back" href="../../reference/reference/moviepy.decorators.outplace.html#moviepy.decorators.outplace">[docs]</a><span class="nd">@decorator</span><span class="o">.</span><span class="n">decorator</span>
-<span class="k">def</span> <span class="nf">outplace</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">clip</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">outplace</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">clip</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Applies ``func(clip.copy(), *args, **kwargs)`` and returns ``clip.copy()``.&quot;&quot;&quot;</span>
     <span class="n">new_clip</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">func</span><span class="p">(</span><span class="n">new_clip</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -402,7 +402,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="apply_to_mask"><a class="viewcode-back" href="../../reference/reference/moviepy.decorators.apply_to_mask.html#moviepy.decorators.apply_to_mask">[docs]</a><span class="nd">@decorator</span><span class="o">.</span><span class="n">decorator</span>
-<span class="k">def</span> <span class="nf">apply_to_mask</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">clip</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">apply_to_mask</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">clip</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Applies the same function ``func`` to the mask of the clip created with</span>
 <span class="sd">    ``func``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -413,7 +413,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="apply_to_audio"><a class="viewcode-back" href="../../reference/reference/moviepy.decorators.apply_to_audio.html#moviepy.decorators.apply_to_audio">[docs]</a><span class="nd">@decorator</span><span class="o">.</span><span class="n">decorator</span>
-<span class="k">def</span> <span class="nf">apply_to_audio</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">clip</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">apply_to_audio</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">clip</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Applies the function ``func`` to the audio of the clip created with ``func``.&quot;&quot;&quot;</span>
     <span class="n">new_clip</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">new_clip</span><span class="p">,</span> <span class="s2">&quot;audio&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
@@ -473,7 +473,7 @@ document.write(`
     <span class="k">return</span> <span class="n">decorator</span><span class="o">.</span><span class="n">decorator</span><span class="p">(</span><span class="n">wrapper</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="convert_parameter_to_seconds"><a class="viewcode-back" href="../../reference/reference/moviepy.decorators.convert_parameter_to_seconds.html#moviepy.decorators.convert_parameter_to_seconds">[docs]</a><span class="k">def</span> <span class="nf">convert_parameter_to_seconds</span><span class="p">(</span><span class="n">varnames</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_parameter_to_seconds"><a class="viewcode-back" href="../../reference/reference/moviepy.decorators.convert_parameter_to_seconds.html#moviepy.decorators.convert_parameter_to_seconds">[docs]</a><span class="k">def</span> <span class="nf">convert_parameter_to_seconds</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Clip&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts the specified variables to seconds.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">preprocess_args</span><span class="p">(</span><span class="n">convert_to_seconds</span><span class="p">,</span> <span class="n">varnames</span><span class="p">)</span></div>
 

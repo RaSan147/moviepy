@@ -408,6 +408,7 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.VideoClip.ColorClip.html">moviepy.video.VideoClip.ColorClip</a></li>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.VideoClip.DataVideoClip.html">moviepy.video.VideoClip.DataVideoClip</a></li>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.VideoClip.ImageClip.html">moviepy.video.VideoClip.ImageClip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="moviepy.video.VideoClip.MagicTextClip.html">moviepy.video.VideoClip.MagicTextClip</a></li>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.VideoClip.TextClip.html">moviepy.video.VideoClip.TextClip</a></li>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.VideoClip.UpdatedVideoClip.html">moviepy.video.VideoClip.UpdatedVideoClip</a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#">moviepy.video.VideoClip.VideoClip</a></li>
@@ -650,6 +651,16 @@ possible unpickleables objects are not copied.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="moviepy.video.VideoClip.VideoClip.crop">
+<span class="sig-name descname"><span class="pre">crop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.crop" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a new clip in which just a rectangular subregion of the
+original clip is conserved. x1,y1 indicates the top left corner and
+x2,y2 is the lower right corner of the cropped region.
+All coordinates are in pixels. Float numbers are accepted.
+For info on the parameters, please see <code class="docutils literal notranslate"><span class="pre">vfx.Crop</span></code></p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="moviepy.video.VideoClip.VideoClip.cropped">
 <span class="sig-name descname"><span class="pre">cropped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/video/VideoClip.html#VideoClip.cropped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.cropped" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a new clip in which just a rectangular subregion of the
@@ -777,7 +788,7 @@ are complex. In this case, try reducing the <code class="docutils literal notran
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.video.VideoClip.VideoClip.resize">
-<span class="sig-name descname"><span class="pre">resize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/video/VideoClip.html#VideoClip.resize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.resize" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">resize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.resize" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a video clip that is a resized version of the clip.
 For info on the parameters, please see <code class="docutils literal notranslate"><span class="pre">vfx.Resize</span></code></p>
 </dd></dl>
@@ -820,7 +831,7 @@ saved.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.video.VideoClip.VideoClip.set_audio">
-<span class="sig-name descname"><span class="pre">set_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audioclip</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/video/VideoClip.html#VideoClip.set_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_audio" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audioclip</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_audio" title="Permalink to this definition">#</a></dt>
 <dd><p>Attach an AudioClip to the VideoClip.</p>
 <p>Returns a copy of the VideoClip instance, with the <cite>audio</cite>
 attribute set to <code class="docutils literal notranslate"><span class="pre">audio</span></code>, which must be an AudioClip instance.</p>
@@ -844,7 +855,7 @@ attribute set to <cite>mf</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.video.VideoClip.VideoClip.set_mask">
-<span class="sig-name descname"><span class="pre">set_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/video/VideoClip.html#VideoClip.set_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_mask" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#moviepy.video.VideoClip.VideoClip" title="moviepy.video.VideoClip.VideoClip"><span class="pre">VideoClip</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_mask" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the clip’s mask.</p>
 <p>Returns a copy of the VideoClip with the mask attribute set to
 <code class="docutils literal notranslate"><span class="pre">mask</span></code>, which must be a greyscale (values in 0-1) VideoClip.</p>
@@ -852,7 +863,7 @@ attribute set to <cite>mf</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.video.VideoClip.VideoClip.set_opacity">
-<span class="sig-name descname"><span class="pre">set_opacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opacity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/video/VideoClip.html#VideoClip.set_opacity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_opacity" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_opacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opacity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_opacity" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the opacity/transparency level of the clip.</p>
 <p>Returns a semi-transparent copy of the clip where the mask is
 multiplied by <code class="docutils literal notranslate"><span class="pre">op</span></code> (any float, normally between 0 and 1).</p>
@@ -860,7 +871,7 @@ multiplied by <code class="docutils literal notranslate"><span class="pre">op</s
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.video.VideoClip.VideoClip.set_pos">
-<span class="sig-name descname"><span class="pre">set_pos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/video/VideoClip.html#VideoClip.set_pos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_pos" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_pos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_pos" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the clip’s position in compositions.</p>
 <p>Sets the position that the clip will have when included
 in compositions. The argument <code class="docutils literal notranslate"><span class="pre">pos</span></code> can be either a couple
@@ -868,23 +879,23 @@ in compositions. The argument <code class="docutils literal notranslate"><span c
 location of the top left corner of the clip, and can be
 of several types.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="mi">45</span><span class="p">,</span><span class="mi">150</span><span class="p">))</span> <span class="c1"># x=45, y=150</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># clip horizontally centered, at the top of the picture</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="s2">&quot;center&quot;</span><span class="p">,</span><span class="s2">&quot;top&quot;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># clip is at 40% of the width, 70% of the height:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.7</span><span class="p">),</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># clip&#39;s position is horizontally centered, and moving up !</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="o">+</span><span class="n">t</span><span class="p">)</span> <span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="mi">45</span><span class="p">,</span><span class="mi">150</span><span class="p">))</span> <span class="c1"># x=45, y=150</span>
+
+<span class="c1"># clip horizontally centered, at the top of the picture</span>
+<span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="s2">&quot;center&quot;</span><span class="p">,</span><span class="s2">&quot;top&quot;</span><span class="p">))</span>
+
+<span class="c1"># clip is at 40% of the width, 70% of the height:</span>
+<span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.7</span><span class="p">),</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># clip&#39;s position is horizontally centered, and moving up !</span>
+<span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="o">+</span><span class="n">t</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="moviepy.video.VideoClip.VideoClip.set_position">
-<span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/video/VideoClip.html#VideoClip.set_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_position" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#moviepy.video.VideoClip.VideoClip.set_position" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the clip’s position in compositions.</p>
 <p>Sets the position that the clip will have when included
 in compositions. The argument <code class="docutils literal notranslate"><span class="pre">pos</span></code> can be either a couple
@@ -892,16 +903,16 @@ in compositions. The argument <code class="docutils literal notranslate"><span c
 location of the top left corner of the clip, and can be
 of several types.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="mi">45</span><span class="p">,</span><span class="mi">150</span><span class="p">))</span> <span class="c1"># x=45, y=150</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># clip horizontally centered, at the top of the picture</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="s2">&quot;center&quot;</span><span class="p">,</span><span class="s2">&quot;top&quot;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># clip is at 40% of the width, 70% of the height:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.7</span><span class="p">),</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># clip&#39;s position is horizontally centered, and moving up !</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="o">+</span><span class="n">t</span><span class="p">)</span> <span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="mi">45</span><span class="p">,</span><span class="mi">150</span><span class="p">))</span> <span class="c1"># x=45, y=150</span>
+
+<span class="c1"># clip horizontally centered, at the top of the picture</span>
+<span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="s2">&quot;center&quot;</span><span class="p">,</span><span class="s2">&quot;top&quot;</span><span class="p">))</span>
+
+<span class="c1"># clip is at 40% of the width, 70% of the height:</span>
+<span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">((</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.7</span><span class="p">),</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># clip&#39;s position is horizontally centered, and moving up !</span>
+<span class="n">clip</span><span class="o">.</span><span class="n">with_position</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="o">+</span><span class="n">t</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1263,6 +1274,7 @@ output file in them.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.video.VideoClip.VideoClip.aspect_ratio"><code class="docutils literal notranslate"><span class="pre">VideoClip.aspect_ratio</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.video.VideoClip.VideoClip.blit_on"><code class="docutils literal notranslate"><span class="pre">VideoClip.blit_on()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.video.VideoClip.VideoClip.copy"><code class="docutils literal notranslate"><span class="pre">VideoClip.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.video.VideoClip.VideoClip.crop"><code class="docutils literal notranslate"><span class="pre">VideoClip.crop()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.video.VideoClip.VideoClip.cropped"><code class="docutils literal notranslate"><span class="pre">VideoClip.cropped()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.video.VideoClip.VideoClip.display_in_notebook"><code class="docutils literal notranslate"><span class="pre">VideoClip.display_in_notebook()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.video.VideoClip.VideoClip.fill_array"><code class="docutils literal notranslate"><span class="pre">VideoClip.fill_array()</span></code></a></li>
