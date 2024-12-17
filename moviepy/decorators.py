@@ -9,7 +9,7 @@ from moviepy.tools import convert_to_seconds
 
 
 @decorator.decorator
-def outplace(func, clip, *args, **kwargs):
+def outplace(func, clip, *args, **kwargs) -> "Clip":
     """Applies ``func(clip.copy(), *args, **kwargs)`` and returns ``clip.copy()``."""
     new_clip = clip.copy()
     func(new_clip, *args, **kwargs)
@@ -25,7 +25,7 @@ def convert_masks_to_RGB(func, clip, *args, **kwargs):
 
 
 @decorator.decorator
-def apply_to_mask(func, clip, *args, **kwargs):
+def apply_to_mask(func, clip, *args, **kwargs) -> "Clip":
     """Applies the same function ``func`` to the mask of the clip created with
     ``func``.
     """
@@ -36,7 +36,7 @@ def apply_to_mask(func, clip, *args, **kwargs):
 
 
 @decorator.decorator
-def apply_to_audio(func, clip, *args, **kwargs):
+def apply_to_audio(func, clip, *args, **kwargs) -> "Clip":
     """Applies the function ``func`` to the audio of the clip created with ``func``."""
     new_clip = func(clip, *args, **kwargs)
     if getattr(new_clip, "audio", None):
@@ -96,7 +96,7 @@ def preprocess_args(fun, varnames):
     return decorator.decorator(wrapper)
 
 
-def convert_parameter_to_seconds(varnames):
+def convert_parameter_to_seconds(varnames) -> "Clip":
     """Converts the specified variables to seconds."""
     return preprocess_args(convert_to_seconds, varnames)
 

@@ -41,6 +41,7 @@ from moviepy.video.fx.Rotate import Rotate
 from moviepy.video.io.ffmpeg_writer import ffmpeg_write_video
 from moviepy.video.io.gif_writers import write_gif_with_imageio
 from moviepy.video.tools.drawing import blit
+from moviepy.tools import subprocess_call
 
 
 class VideoClip(Clip):
@@ -876,18 +877,8 @@ class VideoClip(Clip):
 
         return self
 
-    @outplace
-    def set_audio(self, audioclip):
-        """Attach an AudioClip to the VideoClip.
+    set_audio = with_audio
 
-        Returns a copy of the VideoClip instance, with the `audio`
-        attribute set to ``audio``, which must be an AudioClip instance.
-        """
-        self.audio = audioclip
-
-        return self
-
-    
 
     @outplace
     def with_mask(self, mask: Union["VideoClip", str] = "auto"):
@@ -913,17 +904,7 @@ class VideoClip(Clip):
         self.mask = None
         return self
 
-    @outplace
-    def set_mask(self, mask):
-        """Set the clip's mask.
-
-        Returns a copy of the VideoClip with the mask attribute set to
-        ``mask``, which must be a greyscale (values in 0-1) VideoClip.
-        """
-        assert mask is None or mask.is_mask
-        self.mask = mask
-
-        return self
+    set_mask = with_mask
 
     @add_mask_if_none
     @outplace
@@ -937,17 +918,7 @@ class VideoClip(Clip):
 
         return self
 
-    @add_mask_if_none
-    @outplace
-    def set_opacity(self, opacity):
-        """Set the opacity/transparency level of the clip.
-
-        Returns a semi-transparent copy of the clip where the mask is
-        multiplied by ``op`` (any float, normally between 0 and 1).
-        """
-        self.mask = self.mask.image_transform(lambda pic: opacity * pic)
-
-        return self
+    set_opacity = with_opacity
 
     @apply_to_mask
     @outplace
@@ -986,73 +957,8 @@ class VideoClip(Clip):
         return self
 
     
-    @apply_to_mask
-    @outplace
-    def set_pos(self, pos, relative=False):
-        """Set the clip's position in compositions.
-
-        Sets the position that the clip will have when included
-        in compositions. The argument ``pos`` can be either a couple
-        ``(x,y)`` or a function ``t-> (x,y)``. `x` and `y` mark the
-        location of the top left corner of the clip, and can be
-        of several types.
-
-        Examples
-        --------
-
-        >>> clip.with_position((45,150)) # x=45, y=150
-        >>>
-        >>> # clip horizontally centered, at the top of the picture
-        >>> clip.with_position(("center","top"))
-        >>>
-        >>> # clip is at 40% of the width, 70% of the height:
-        >>> clip.with_position((0.4,0.7), relative=True)
-        >>>
-        >>> # clip's position is horizontally centered, and moving up !
-        >>> clip.with_position(lambda t: ('center', 50+t) )
-
-        """
-        self.relative_pos = relative
-        if hasattr(pos, "__call__"):
-            self.pos = pos
-        else:
-            self.pos = lambda t: pos
-
-        return self
-
-    @apply_to_mask
-    @outplace
-    def set_position(self, pos, relative=False):
-        """Set the clip's position in compositions.
-
-        Sets the position that the clip will have when included
-        in compositions. The argument ``pos`` can be either a couple
-        ``(x,y)`` or a function ``t-> (x,y)``. `x` and `y` mark the
-        location of the top left corner of the clip, and can be
-        of several types.
-
-        Examples
-        --------
-
-        >>> clip.with_position((45,150)) # x=45, y=150
-        >>>
-        >>> # clip horizontally centered, at the top of the picture
-        >>> clip.with_position(("center","top"))
-        >>>
-        >>> # clip is at 40% of the width, 70% of the height:
-        >>> clip.with_position((0.4,0.7), relative=True)
-        >>>
-        >>> # clip's position is horizontally centered, and moving up !
-        >>> clip.with_position(lambda t: ('center', 50+t) )
-
-        """
-        self.relative_pos = relative
-        if hasattr(pos, "__call__"):
-            self.pos = pos
-        else:
-            self.pos = lambda t: pos
-
-    
+    set_position = with_position
+    set_pos = with_position
 
     @apply_to_mask
     @outplace
@@ -1078,12 +984,6 @@ class VideoClip(Clip):
                 )
             ]
         )
-
-    def resize(self, new_size=None, height=None, width=None, apply_to_mask=True):
-        """Returns a video clip that is a resized version of the clip.
-        For info on the parameters, please see ``vfx.Resize``
-        """
-        return self.resized(new_size, height, width, apply_to_mask)
 
     def rotated(
         self,
@@ -1113,6 +1013,8 @@ class VideoClip(Clip):
                 )
             ]
         )
+
+    resize = resized
 
     def cropped(
         self,
@@ -1147,6 +1049,8 @@ class VideoClip(Clip):
         )
 
         return self
+
+    crop = cropped
 
 
     @apply_to_mask
@@ -1604,7 +1508,7 @@ class TextClip(ImageClip):
     @convert_path_to_string("filename")
     def __init__(
         self,
-        font="Arial",
+        font=None,
         text=None,
         filename=None,
         font_size=None,
@@ -1948,123 +1852,18 @@ class TextClip(ImageClip):
         # middle line.
         y += text_height / 2
 
-        def multiline_text(
-            self: ImageDraw.ImageDraw,
-            xy: tuple[float, float],
-            text: str,
-            fill=None,
-            font: Union[
-            ImageFont.ImageFont,
-            ImageFont.FreeTypeFont,
-            ImageFont.TransposedFont,
-            None
-            ] = None,
-            anchor=None,
-            spacing=4,
-            kerning=0,
-            align="left",
-            direction=None,
-            features=None,
-            language=None,
-            stroke_width=0,
-            stroke_fill=None,
-            embedded_color=False,
-            *,
-            font_size=None,
-        ) -> None:
-            if direction == "ttb":
-                msg = "ttb direction is unsupported for multiline text"
-                raise ValueError(msg)
-
-            if anchor is None:
-                anchor = "la"
-            elif len(anchor) != 2:
-                msg = "anchor must be a 2 character string"
-                raise ValueError(msg)
-            elif anchor[1] in "tb":
-                msg = "anchor not supported for multiline text"
-                raise ValueError(msg)
-
-            if font is None:
-                font = self._getfont(font_size)
-
-            widths = []
-            max_width: float = 0
-            lines = self._multiline_split(text)
-            line_spacing = self._multiline_spacing(font, spacing, stroke_width)
-            for line in lines:
-                line_width = self.textlength(
-                    line, font, direction=direction, features=features, language=language
-                ) + kerning*len(line)
-                widths.append(line_width)
-                max_width = max(max_width, line_width)
-
-            top = xy[1]
-            if anchor[1] == "m":
-                top -= (len(lines) - 1) * line_spacing / 2.0
-            elif anchor[1] == "d":
-                top -= (len(lines) - 1) * line_spacing
-
-            for idx, line in enumerate(lines):
-                left = xy[0]
-                width_difference = max_width - widths[idx]
-
-                # first align left by anchor
-                if anchor[0] == "m":
-                    left -= width_difference / 2.0
-                elif anchor[0] == "r":
-                    left -= width_difference
-
-                # then align by align parameter
-                if align == "left":
-                    pass
-                elif align == "center":
-                    left += width_difference / 2.0
-                elif align == "right":
-                    left += width_difference
-                else:
-                    msg = 'align must be "left", "center" or "right"'
-                    raise ValueError(msg)
-
-                line_upto = ""
-                last_len = 0
-                for c in line:
-                    self.text(
-                        (left, top),
-                        c,
-                        fill,
-                        font,
-                        direction=direction,
-                        features=features,
-                        language=language,
-                        stroke_width=stroke_width,
-                        stroke_fill=stroke_fill,
-                        embedded_color=embedded_color,
-                    )
-
-                    line_upto += c
-                    new_len = self.textlength(
-                        line_upto, font, direction=direction, features=features, language=language
-                    )
-                    change = new_len - last_len
-                    last_len = new_len
-                    left += change + kerning
-                
-                top += line_spacing
-
-        multiline_text(
-            draw,
-            (x, y),
-            text,
+        draw.multiline_text(
+            xy=(x, y),
+            text=text,
             fill=color,
             font=pil_font,
             spacing=interline,
-            kerning=kerning,
             align=text_align,
             stroke_width=stroke_width,
             stroke_fill=stroke_color,
             anchor="lm",
         )
+
 
         # We just need the image as a numpy array
         img_numpy = np.array(img)
@@ -2075,6 +1874,183 @@ class TextClip(ImageClip):
         self.text = text
         self.color = color
         self.stroke_color = stroke_color
+
+
+
+class MagicTextClip(ImageClip):
+    """Class for autogenerated text clips.
+
+    Creates an ImageClip originating from a script-generated text image.
+    Requires ImageMagick.
+
+    Parameters
+    ----------
+
+    text
+      A string of the text to write. Can be replaced by argument
+      ``filename``.
+
+    filename
+      The name of a file in which there is the text to write,
+      as a string or a path-like object.
+      Can be provided instead of argument ``txt``
+
+    size
+      Size of the picture in pixels. Can be auto-set if
+      method='label', but mandatory if method='caption'.
+      the height can be None, it will then be auto-determined.
+
+    bg_color
+      Color of the background. See ``TextClip.list('color')``
+      for a list of acceptable names.
+
+    color
+      Color of the text. See ``TextClip.list('color')`` for a
+      list of acceptable names.
+
+    font
+      Name of the font to use. See ``TextClip.list('font')`` for
+      the list of fonts you can use on your computer.
+
+    stroke_color
+      Color of the stroke (=contour line) of the text. If ``None``,
+      there will be no stroke.
+
+    stroke_width
+      Width of the stroke, in pixels. Can be a float, like 1.5.
+
+    method
+      Either 'label' (default, the picture will be autosized so as to fit
+      exactly the size) or 'caption' (the text will be drawn in a picture
+      with fixed size provided with the ``size`` argument). If `caption`,
+      the text will be wrapped automagically (sometimes it is buggy, not
+      my fault, complain to the ImageMagick crew) and can be aligned or
+      centered (see parameter ``align``).
+
+    kerning
+      Changes the default spacing between letters. For
+      instance ``kerning=-1`` will make the letters 1 pixel nearer from
+      ach other compared to the default spacing.
+
+    text_align
+      center | East | West | South | North . Will only work if ``method``
+      is set to ``caption``
+
+    transparent
+      ``True`` (default) if you want to take into account the
+      transparency in the image.
+    """
+
+    @convert_path_to_string("filename")
+    def __init__(
+        self,
+        text=None,
+        filename=None,
+        size=None,
+        color="black",
+        bg_color="transparent",
+        font_size=None,
+        font="Courier",
+        stroke_color=None,
+        stroke_width=1,
+        method="label",
+        kerning=None,
+        text_align="center",
+        interline=None,
+        tempfilename=None,
+        temptxt=None,
+        transparent=True,
+        remove_temp=True,
+        print_cmd=False,
+    ):
+
+        import tempfile
+        IMAGEMAGICK_BINARY = os.getenv("IMAGEMAGICK_BINARY", None)
+        if IMAGEMAGICK_BINARY is None:
+            raise IOError(
+                "IMAGEMAGICK_BINARY environment variable not set."
+                "Need this to use MagicTextClip."
+            )
+
+        if text is not None:
+            if temptxt is None:
+                temptxt_fd, temptxt = tempfile.mkstemp(suffix=".txt")
+                try:  # only in Python3 will this work
+                    os.write(temptxt_fd, bytes(text, "UTF8"))
+                except TypeError:  # oops, fall back to Python2
+                    os.write(temptxt_fd, text)
+                os.close(temptxt_fd)
+            text = "@" + temptxt
+        else:
+            # use a file instead of a text.
+            text = "@" + filename
+
+        if size is not None:
+            size = (
+                "" if size[0] is None else str(size[0]),
+                "" if size[1] is None else str(size[1]),
+            )
+
+        cmd = [
+            IMAGEMAGICK_BINARY,
+            "-background",
+            bg_color,
+            "-fill",
+            color,
+            "-font",
+            font,
+        ]
+
+        if font_size is not None:
+            cmd += ["-pointsize", "%d" % font_size]
+        if kerning is not None:
+            cmd += ["-kerning", "%0.1f" % kerning]
+        if stroke_color is not None:
+            cmd += ["-stroke", stroke_color, "-strokewidth", "%.01f" % stroke_width]
+        if size is not None:
+            cmd += ["-size", "%sx%s" % (size[0], size[1])]
+        if text_align is not None:
+            cmd += ["-gravity", text_align]
+        if interline is not None:
+            cmd += ["-interline-spacing", "%d" % interline]
+
+        if tempfilename is None:
+            tempfile_fd, tempfilename = tempfile.mkstemp(suffix=".png")
+            os.close(tempfile_fd)
+
+        cmd += [
+            "%s:%s" % (method, text),
+            "-type",
+            "truecolormatte",
+            "PNG32:%s" % tempfilename,
+        ]
+
+        if print_cmd:
+            print(cmd)
+
+        try:
+            subprocess_call(cmd, logger=None)
+        except (IOError, OSError) as err:
+            error = (
+                f"MoviePy Error: creation of {filename} failed because of the "
+                f"following error:\n\n{err}.\n\n."
+                "This error can be due to the fact that ImageMagick "
+                "is not installed on your computer, or (for Windows "
+                "users) that you didn't specify the path to the "
+                "ImageMagick binary. Check the documentation."
+            )
+            raise IOError(error)
+
+        ImageClip.__init__(self, tempfilename, transparent=transparent)
+        self.text = text
+        self.color = color
+        self.stroke_color = stroke_color
+
+        if remove_temp:
+            if tempfilename is not None and os.path.exists(tempfilename):
+                os.remove(tempfilename)
+            if temptxt is not None and os.path.exists(temptxt):
+                os.remove(temptxt)
 
 
 class BitmapClip(VideoClip):

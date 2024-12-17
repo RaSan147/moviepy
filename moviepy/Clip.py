@@ -188,7 +188,7 @@ class Clip:
             keep_duration=keep_duration,
         )
 
-    def with_effects(self, effects: List["Effect"]):
+    def with_effects(self, effects: List["Effect"]) -> "Clip":
         """Return a copy of the current clip with the effects applied
 
         >>> new_clip = clip.with_effects([vfx.Resize(0.2, method="bilinear")])

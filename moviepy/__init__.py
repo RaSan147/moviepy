@@ -31,6 +31,7 @@ from moviepy.video.VideoClip import (
     TextClip,
     UpdatedVideoClip,
     VideoClip,
+    MagicTextClip,
 )
 
 
