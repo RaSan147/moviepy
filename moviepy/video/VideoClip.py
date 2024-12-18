@@ -1956,7 +1956,7 @@ class MagicTextClip(ImageClip):
         method="label",
         kerning=None,
         text_align="center",
-        interline=None,
+        interline=4,
         tempfilename=None,
         temptxt=None,
         transparent=True,
@@ -2012,6 +2012,7 @@ class MagicTextClip(ImageClip):
         if text_align is not None:
             cmd += ["-gravity", text_align]
         if interline is not None:
+            interline -= 14 # ImageMagick's interline is not the same as moviepy's
             cmd += ["-interline-spacing", "%d" % interline]
 
         if tempfilename is None:
