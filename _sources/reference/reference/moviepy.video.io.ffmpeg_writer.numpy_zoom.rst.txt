@@ -1,0 +1,6 @@
+moviepy.video.io.ffmpeg\_writer.numpy\_zoom
+===========================================
+
+.. currentmodule:: moviepy.video.io.ffmpeg_writer
+
+.. autofunction:: numpy_zoom

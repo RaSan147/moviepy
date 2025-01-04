@@ -607,6 +607,66 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
+<span class="n">_N_1_1D_CACHE</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">zoom</span>
+
+    <span class="k">def</span> <span class="nf">_numpy_zoom</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">zoom</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">new_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_numpy_zoom</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resize an image (numpy array) to a new shape using nearest neighbor.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            img (numpy.ndarray): Input image, shape (height, width) or (height, width, channels).</span>
+<span class="sd">            new_shape (tuple): Target shape (new_height, new_width).</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: Resized image with shape `new_shape`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">old_shape</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># Get the height and width of the image</span>
+        <span class="n">row_ratio</span> <span class="o">=</span> <span class="n">new_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">old_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Scaling factor for height</span>
+        <span class="n">col_ratio</span> <span class="o">=</span> <span class="n">new_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">old_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Scaling factor for width</span>
+        
+        <span class="c1"># Create a grid for the new indices</span>
+        <span class="n">row_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">new_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">row_ratio</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">col_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">new_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">col_ratio</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        
+        <span class="c1"># Use the indices to map the new image</span>
+        <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># For color images (with channels)</span>
+            <span class="k">return</span> <span class="n">img</span><span class="p">[</span><span class="n">row_indices</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">col_indices</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># For grayscale images</span>
+            <span class="k">return</span> <span class="n">img</span><span class="p">[</span><span class="n">row_indices</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">col_indices</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="numpy_zoom"><a class="viewcode-back" href="../../../../reference/reference/moviepy.video.io.ffmpeg_writer.numpy_zoom.html#moviepy.video.io.ffmpeg_writer.numpy_zoom">[docs]</a><span class="k">def</span> <span class="nf">numpy_zoom</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resize an image (numpy array) to a new shape using nearest neighbor.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        img (numpy.ndarray): Input image, shape (height, width) or (height, width, channels).</span>
+<span class="sd">        new_shape (tuple): Target shape (new_height, new_width).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray: Resized image with shape `new_shape`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_N_1_1D_CACHE</span>
+    <span class="c1"># cache 255 array for current shape, 255 = dict{shape: array} if img is [[255]]</span>
+    <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">255</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="ow">in</span> <span class="n">_N_1_1D_CACHE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_N_1_1D_CACHE</span><span class="p">[(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_N_1_1D_CACHE</span><span class="p">[(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_N_1_1D_CACHE</span><span class="p">[(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])]</span>
+
+    <span class="k">return</span> <span class="n">_numpy_zoom</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="ffmpeg_write_video"><a class="viewcode-back" href="../../../../reference/reference/moviepy.video.io.ffmpeg_writer.ffmpeg_write_video.html#moviepy.video.io.ffmpeg_writer.ffmpeg_write_video">[docs]</a><span class="k">def</span> <span class="nf">ffmpeg_write_video</span><span class="p">(</span>
     <span class="n">clip</span><span class="p">,</span>
     <span class="n">filename</span><span class="p">,</span>
@@ -657,7 +717,22 @@ document.write(`
                 <span class="n">mask</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">*</span> <span class="n">clip</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">get_frame</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">mask</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s2">&quot;uint8&quot;</span><span class="p">:</span>
                     <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
-                <span class="n">frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">([</span><span class="n">frame</span><span class="p">,</span> <span class="n">mask</span><span class="p">])</span>
+                <span class="c1"># print(&quot;\nmask&quot;)</span>
+                <span class="c1"># print(mask)</span>
+                <span class="c1"># print(mask.shape)</span>
+
+                <span class="c1"># Resize the mask to match the frame dimensions</span>
+                <span class="n">mask_resized</span> <span class="o">=</span> <span class="n">numpy_zoom</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">mask_resized</span> <span class="o">=</span> <span class="n">mask_resized</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>  <span class="c1"># Ensure it&#39;s uint8</span>
+                <span class="c1"># print(&quot;\nmask_resized&quot;)</span>
+                <span class="c1"># print(mask_resized)</span>
+                <span class="c1"># print(mask_resized.shape)</span>
+                
+                <span class="c1"># print(&quot;\nframe&quot;)</span>
+                <span class="c1"># print(frame)</span>
+                <span class="c1"># print(frame.shape)</span>
+                <span class="c1"># print(&quot;\n&quot;)</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">([</span><span class="n">frame</span><span class="p">,</span> <span class="n">mask_resized</span><span class="p">])</span>
 
             <span class="n">writer</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
 
