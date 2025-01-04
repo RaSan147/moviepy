@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>moviepy.video.tools.subtitles &#8212; MoviePy  documentation</title>
+    <title>moviepy.tools.ffmpeg_escape_filename &#8212; MoviePy  documentation</title>
   
   
   
@@ -41,11 +41,11 @@
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/reference/moviepy.video.tools.subtitles';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/reference/moviepy.tools.ffmpeg_escape_filename';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="moviepy.video.tools.subtitles.SubtitlesClip" href="moviepy.video.tools.subtitles.SubtitlesClip.html" />
-    <link rel="prev" title="moviepy.video.tools.interpolators.Trajectory" href="moviepy.video.tools.interpolators.Trajectory.html" />
+    <link rel="next" title="moviepy.tools.find_extension" href="moviepy.tools.find_extension.html" />
+    <link rel="prev" title="moviepy.tools.deprecated_version_of" href="moviepy.tools.deprecated_version_of.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -392,18 +392,18 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="moviepy.editor.html">moviepy.editor</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="moviepy.tools.html">moviepy.tools</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="moviepy.tools.html">moviepy.tools</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="moviepy.tools.close_all_clips.html">moviepy.tools.close_all_clips</a></li>
 <li class="toctree-l3"><a class="reference internal" href="moviepy.tools.convert_to_seconds.html">moviepy.tools.convert_to_seconds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="moviepy.tools.cross_platform_popen_params.html">moviepy.tools.cross_platform_popen_params</a></li>
 <li class="toctree-l3"><a class="reference internal" href="moviepy.tools.deprecated_version_of.html">moviepy.tools.deprecated_version_of</a></li>
-<li class="toctree-l3"><a class="reference internal" href="moviepy.tools.ffmpeg_escape_filename.html">moviepy.tools.ffmpeg_escape_filename</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">moviepy.tools.ffmpeg_escape_filename</a></li>
 <li class="toctree-l3"><a class="reference internal" href="moviepy.tools.find_extension.html">moviepy.tools.find_extension</a></li>
 <li class="toctree-l3"><a class="reference internal" href="moviepy.tools.no_display_available.html">moviepy.tools.no_display_available</a></li>
 <li class="toctree-l3"><a class="reference internal" href="moviepy.tools.subprocess_call.html">moviepy.tools.subprocess_call</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="moviepy.video.html">moviepy.video</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="moviepy.video.html">moviepy.video</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="moviepy.video.VideoClip.html">moviepy.video.VideoClip</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.VideoClip.BitmapClip.html">moviepy.video.VideoClip.BitmapClip</a></li>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.VideoClip.ColorClip.html">moviepy.video.VideoClip.ColorClip</a></li>
@@ -467,12 +467,12 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.io.gif_writers.html">moviepy.video.io.gif_writers</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="moviepy.video.tools.html">moviepy.video.tools</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="moviepy.video.tools.html">moviepy.video.tools</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.tools.credits.html">moviepy.video.tools.credits</a></li>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.tools.cuts.html">moviepy.video.tools.cuts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.tools.drawing.html">moviepy.video.tools.drawing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="moviepy.video.tools.interpolators.html">moviepy.video.tools.interpolators</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">moviepy.video.tools.subtitles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="moviepy.video.tools.subtitles.html">moviepy.video.tools.subtitles</a></li>
 </ul>
 </li>
 </ul>
@@ -525,9 +525,9 @@ document.write(`
     <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
     
     
-    <li class="breadcrumb-item"><a href="moviepy.video.tools.html" class="nav-link">moviepy.video.tools</a></li>
+    <li class="breadcrumb-item"><a href="moviepy.tools.html" class="nav-link">moviepy.tools</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">moviepy.video.tools.subtitles</li>
+    <li class="breadcrumb-item active" aria-current="page">moviepy.tools.ffmpeg_escape_filename</li>
   </ul>
 </nav>
 </div>
@@ -544,25 +544,15 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="module-moviepy.video.tools.subtitles">
-<span id="moviepy-video-tools-subtitles"></span><h1>moviepy.video.tools.subtitles<a class="headerlink" href="#module-moviepy.video.tools.subtitles" title="Permalink to this heading">#</a></h1>
-<p>Experimental module for subtitles support.</p>
-<p class="rubric">Classes</p>
-<table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="moviepy.video.tools.subtitles.SubtitlesClip.html#moviepy.video.tools.subtitles.SubtitlesClip" title="moviepy.video.tools.subtitles.SubtitlesClip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubtitlesClip</span></code></a>(subtitles[, font, ...])</p></td>
-<td><p>A Clip that serves as &quot;subtitle track&quot; in videos.</p></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Functions</p>
-<table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="moviepy.video.tools.subtitles.file_to_subtitles.html#moviepy.video.tools.subtitles.file_to_subtitles" title="moviepy.video.tools.subtitles.file_to_subtitles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_to_subtitles</span></code></a>(filename[, encoding])</p></td>
-<td><p>Converts a srt file into subtitles.</p></td>
-</tr>
-</tbody>
-</table>
+  <section id="moviepy-tools-ffmpeg-escape-filename">
+<h1>moviepy.tools.ffmpeg_escape_filename<a class="headerlink" href="#moviepy-tools-ffmpeg-escape-filename" title="Permalink to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="moviepy.tools.ffmpeg_escape_filename">
+<span class="sig-prename descclassname"><span class="pre">moviepy.tools.</span></span><span class="sig-name descname"><span class="pre">ffmpeg_escape_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/moviepy/tools.html#ffmpeg_escape_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moviepy.tools.ffmpeg_escape_filename" title="Permalink to this definition">#</a></dt>
+<dd><p>Escape a filename that we want to pass to the ffmpeg command line</p>
+<p>That will ensure the filename doesn’t start with a ‘-’ (which would raise an error)</p>
+</dd></dl>
+
 </section>
 
 
@@ -574,20 +564,20 @@ document.write(`
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="moviepy.video.tools.interpolators.Trajectory.html"
+       href="moviepy.tools.deprecated_version_of.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">moviepy.video.tools.interpolators.Trajectory</p>
+        <p class="prev-next-title">moviepy.tools.deprecated_version_of</p>
       </div>
     </a>
     <a class="right-next"
-       href="moviepy.video.tools.subtitles.SubtitlesClip.html"
+       href="moviepy.tools.find_extension.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">moviepy.video.tools.subtitles.SubtitlesClip</p>
+        <p class="prev-next-title">moviepy.tools.find_extension</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -601,9 +591,19 @@ document.write(`
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
   <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#moviepy.tools.ffmpeg_escape_filename"><code class="docutils literal notranslate"><span class="pre">ffmpeg_escape_filename()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Zulko/moviepy/edit/master/docs/reference/reference/moviepy.video.tools.subtitles.rst">
+    <a href="https://github.com/Zulko/moviepy/edit/master/docs/reference/reference/moviepy.tools.ffmpeg_escape_filename.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -617,7 +617,7 @@ document.write(`
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
-    <a href="../../_sources/reference/reference/moviepy.video.tools.subtitles.rst.txt">
+    <a href="../../_sources/reference/reference/moviepy.tools.ffmpeg_escape_filename.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

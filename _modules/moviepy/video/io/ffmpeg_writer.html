@@ -386,7 +386,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">proglog</span> <span class="kn">import</span> <span class="n">proglog</span>
 
 <span class="kn">from</span> <span class="nn">moviepy.config</span> <span class="kn">import</span> <span class="n">FFMPEG_BINARY</span>
-<span class="kn">from</span> <span class="nn">moviepy.tools</span> <span class="kn">import</span> <span class="n">cross_platform_popen_params</span>
+<span class="kn">from</span> <span class="nn">moviepy.tools</span> <span class="kn">import</span> <span class="n">cross_platform_popen_params</span><span class="p">,</span> <span class="n">ffmpeg_escape_filename</span>
 
 
 <div class="viewcode-block" id="FFMPEG_VideoWriter"><a class="viewcode-back" href="../../../../reference/reference/moviepy.video.io.ffmpeg_writer.FFMPEG_VideoWriter.html#moviepy.video.io.ffmpeg_writer.FFMPEG_VideoWriter">[docs]</a><span class="k">class</span> <span class="nc">FFMPEG_VideoWriter</span><span class="p">:</span>
@@ -502,7 +502,7 @@ document.write(`
             <span class="s2">&quot;-&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">audiofile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="n">audiofile</span><span class="p">,</span> <span class="s2">&quot;-acodec&quot;</span><span class="p">,</span> <span class="s2">&quot;copy&quot;</span><span class="p">])</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="n">ffmpeg_escape_filename</span><span class="p">(</span><span class="n">audiofile</span><span class="p">),</span> <span class="s2">&quot;-acodec&quot;</span><span class="p">,</span> <span class="s2">&quot;copy&quot;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">codec</span> <span class="o">==</span> <span class="s2">&quot;h264_nvenc&quot;</span><span class="p">)</span> <span class="p">:</span>
             <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-c:v&quot;</span><span class="p">,</span> <span class="n">codec</span><span class="p">])</span>
@@ -524,7 +524,7 @@ document.write(`
 
         <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ffmpeg_o_params</span><span class="p">)</span>
 
-        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">filename</span><span class="p">])</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">ffmpeg_escape_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)])</span>
 
         <span class="n">popen_params</span> <span class="o">=</span> <span class="n">cross_platform_popen_params</span><span class="p">(</span>
             <span class="p">{</span><span class="s2">&quot;stdout&quot;</span><span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span> <span class="s2">&quot;stderr&quot;</span><span class="p">:</span> <span class="n">logfile</span><span class="p">,</span> <span class="s2">&quot;stdin&quot;</span><span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">}</span>
@@ -778,7 +778,7 @@ document.write(`
         <span class="n">pixel_format</span><span class="p">,</span>
         <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
         <span class="s2">&quot;-&quot;</span><span class="p">,</span>
-        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">ffmpeg_escape_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
     <span class="p">]</span>
 
     <span class="k">if</span> <span class="n">logfile</span><span class="p">:</span>
