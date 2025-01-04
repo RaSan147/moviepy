@@ -9,7 +9,7 @@ import numpy as np
 from proglog import proglog
 
 from moviepy.config import FFMPEG_BINARY
-from moviepy.tools import cross_platform_popen_params
+from moviepy.tools import cross_platform_popen_params, ffmpeg_escape_filename
 
 
 class FFMPEG_VideoWriter:
@@ -125,7 +125,7 @@ class FFMPEG_VideoWriter:
             "-",
         ]
         if audiofile is not None:
-            cmd.extend(["-i", audiofile, "-acodec", "copy"])
+            cmd.extend(["-i", ffmpeg_escape_filename(audiofile), "-acodec", "copy"])
 
         if (codec == "h264_nvenc") :
             cmd.extend(["-c:v", codec])
@@ -147,7 +147,7 @@ class FFMPEG_VideoWriter:
 
         cmd.extend(ffmpeg_o_params)
 
-        cmd.extend([filename])
+        cmd.extend([ffmpeg_escape_filename(filename)])
 
         popen_params = cross_platform_popen_params(
             {"stdout": sp.DEVNULL, "stderr": logfile, "stdin": sp.PIPE}
@@ -401,7 +401,7 @@ def ffmpeg_write_image(filename, image, logfile=False, pixel_format=None):
         pixel_format,
         "-i",
         "-",
-        filename,
+        ffmpeg_escape_filename(filename),
     ]
 
     if logfile:
