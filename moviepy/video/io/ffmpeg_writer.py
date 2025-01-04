@@ -230,6 +230,66 @@ class FFMPEG_VideoWriter:
         self.close()
 
 
+_N_1_1D_CACHE = dict()
+
+
+try:
+    from scipy.ndimage import zoom
+
+    def _numpy_zoom(img, new_shape):
+        return zoom(img, (new_shape[0] / img.shape[0], new_shape[1] / img.shape[1]), order=0)
+
+except ImportError:
+    def _numpy_zoom(img, new_shape):
+        """
+        Resize an image (numpy array) to a new shape using nearest neighbor.
+        
+        Parameters:
+            img (numpy.ndarray): Input image, shape (height, width) or (height, width, channels).
+            new_shape (tuple): Target shape (new_height, new_width).
+        
+        Returns:
+            numpy.ndarray: Resized image with shape `new_shape`.
+        """
+        old_shape = img.shape[:2]  # Get the height and width of the image
+        row_ratio = new_shape[0] / old_shape[0]  # Scaling factor for height
+        col_ratio = new_shape[1] / old_shape[1]  # Scaling factor for width
+        
+        # Create a grid for the new indices
+        row_indices = (np.arange(new_shape[0]) / row_ratio).astype(int)
+        col_indices = (np.arange(new_shape[1]) / col_ratio).astype(int)
+        
+        # Use the indices to map the new image
+        if img.ndim == 3:  # For color images (with channels)
+            return img[row_indices[:, None], col_indices]
+        else:  # For grayscale images
+            return img[row_indices[:, None], col_indices]
+
+
+def numpy_zoom(img, new_shape):
+    """
+    Resize an image (numpy array) to a new shape using nearest neighbor.
+    
+    Parameters:
+        img (numpy.ndarray): Input image, shape (height, width) or (height, width, channels).
+        new_shape (tuple): Target shape (new_height, new_width).
+    
+    Returns:
+        numpy.ndarray: Resized image with shape `new_shape`.
+    """
+    global _N_1_1D_CACHE
+    # cache 255 array for current shape, 255 = dict{shape: array} if img is [[255]]
+    if img.shape == (1, 1) and img[0, 0] == 255:
+        if (new_shape, img[0, 0]) in _N_1_1D_CACHE:
+            return _N_1_1D_CACHE[(new_shape, img[0, 0])]
+        else:
+            _N_1_1D_CACHE[(new_shape, img[0, 0])] = np.full(new_shape, 255, dtype=np.uint8)
+            return _N_1_1D_CACHE[(new_shape, img[0, 0])]
+
+    return _numpy_zoom(img, new_shape).astype(np.uint8)
+
+
+
 def ffmpeg_write_video(
     clip,
     filename,
@@ -280,7 +340,22 @@ def ffmpeg_write_video(
                 mask = 255 * clip.mask.get_frame(t)
                 if mask.dtype != "uint8":
                     mask = mask.astype("uint8")
-                frame = np.dstack([frame, mask])
+                # print("\nmask")
+                # print(mask)
+                # print(mask.shape)
+
+                # Resize the mask to match the frame dimensions
+                mask_resized = numpy_zoom(mask, frame.shape[:2])
+                mask_resized = mask_resized.astype("uint8")  # Ensure it's uint8
+                # print("\nmask_resized")
+                # print(mask_resized)
+                # print(mask_resized.shape)
+                
+                # print("\nframe")
+                # print(frame)
+                # print(frame.shape)
+                # print("\n")
+                frame = np.dstack([frame, mask_resized])
 
             writer.write_frame(frame)
 
