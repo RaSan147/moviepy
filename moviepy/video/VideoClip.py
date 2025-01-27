@@ -1994,7 +1994,7 @@ class MagicTextClip(ImageClip):
         cmd = [
             IMAGEMAGICK_BINARY,
             "-background",
-            bg_color,
+            bg_color if bg_color else "transparent",
             "-fill",
             color,
             "-font",
