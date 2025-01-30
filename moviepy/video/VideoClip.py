@@ -1962,6 +1962,7 @@ class MagicTextClip(ImageClip):
         transparent=True,
         remove_temp=True,
         print_cmd=False,
+        fontsize=None,
     ):
 
         import tempfile
@@ -2000,6 +2001,8 @@ class MagicTextClip(ImageClip):
             "-font",
             font,
         ]
+
+        font_size = font_size or fontsize # for backward compatibility
 
         if font_size is not None:
             cmd += ["-pointsize", "%d" % font_size]
