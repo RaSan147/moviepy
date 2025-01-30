@@ -34,7 +34,7 @@ from moviepy.decorators import (
     requires_fps,
     use_clip_fps_by_default,
 )
-from moviepy.tools import compute_position, extensions_dict, find_extension
+from moviepy.tools import compute_position, extensions_dict, find_extension, subprocess_call
 from moviepy.video.fx.Crop import Crop
 from moviepy.video.fx.Resize import Resize
 from moviepy.video.fx.Rotate import Rotate
@@ -929,18 +929,8 @@ class VideoClip(Clip):
 
         return self
 
-    
-    @outplace
-    def set_make_frame(self, mf):
-        """Change the clip's ``get_frame``.
+    set_make_frame = with_updated_frame_function
 
-        Returns a copy of the VideoClip instance, with the make_frame
-        attribute set to `mf`.
-        """
-        self.make_frame = mf
-        self.size = self.get_frame(0).shape[:2][::-1]
-
-        return self
 
     @outplace
     def with_audio(self, audioclip):
@@ -1056,6 +1046,8 @@ class VideoClip(Clip):
         """
         self.layer_index = index
 
+        return self
+
     def resized(self, new_size=None, height=None, width=None, apply_to_mask=True):
         """Returns a video clip that is a resized version of the clip.
         For info on the parameters, please see ``vfx.Resize``
@@ -1134,22 +1126,7 @@ class VideoClip(Clip):
             ]
         )
 
-        return self
-
     crop = cropped
-
-
-    @apply_to_mask
-    @outplace
-    def set_layer(self, layer):
-        """Set the clip's layer in compositions. Clips with a greater ``layer``
-        attribute will be displayed on top of others.
-
-        Note: Only has effect when the clip is used in a CompositeVideoClip.
-        """
-        self.layer = layer
-
-        return self
 
 
     # --------------------------------------------------------------
@@ -1586,9 +1563,6 @@ class TextClip(ImageClip):
     interline
       Interline spacing. Default to ``4``.
 
-    kerning
-        Space between letters. Default to ``0``.
-
     transparent
       ``True`` (default) if you want to take into account the
       transparency in the image.
@@ -1635,10 +1609,13 @@ class TextClip(ImageClip):
         horizontal_align="center",
         vertical_align="center",
         interline=4,
-        kerning=0,
         transparent=True,
         duration=None,
     ):
+
+        font_size = font_size or fontsize
+        text_align = align or text_align
+
         if font is not None:
             try:
                 _ = ImageFont.truetype(font)
@@ -1780,13 +1757,12 @@ class TextClip(ImageClip):
             stroke_width=stroke_width,
             align=text_align,
             spacing=interline,
-            kerning=kerning,
             max_width=img_width,
         )
 
         x = 0
         if horizontal_align == "right":
-            x = img_width - left_margin - right_margin - text_width
+            x = img_width - text_width - left_margin - right_margin
         elif horizontal_align == "center":
             x = (img_width - left_margin - right_margin - text_width) / 2
 
@@ -1821,7 +1797,6 @@ class TextClip(ImageClip):
             stroke_fill=stroke_color,
             anchor="ls",
         )
-
 
         # We just need the image as a numpy array
         img_numpy = np.array(img)
