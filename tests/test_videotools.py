@@ -6,10 +6,12 @@ import os
 import shutil
 import sys
 
+
+
+import pytest;#pytest.skip(allow_module_level=True)
 import numpy as np
 
-import pytest
-
+from moviepy.np_handler import np_get, np_ndarray_instance
 from moviepy import *
 from moviepy.audio.tools.cuts import find_audio_period
 from moviepy.video.tools.credits import CreditsClip
@@ -188,6 +190,7 @@ def test_FramesMatches_from_clip(
 
     for i, match in enumerate(matching_frames):
         for j, n in enumerate(match):
+            n = np_get(n)
             assert round(n, 4) == expected_matches[i][j]
 
 
@@ -631,7 +634,7 @@ def test_color_gradient(
     offset,
     expected_result,
 ):
-    if isinstance(expected_result, np.ndarray):
+    if isinstance(expected_result, np_ndarray_instance):
         result = color_gradient(
             size,
             p1,
@@ -644,6 +647,8 @@ def test_color_gradient(
             offset=offset,
         )
 
+        result = np_get(result)
+
         assert expected_result.shape == result.shape
         assert np.array_equal(result, expected_result)
 
@@ -655,6 +660,7 @@ def test_color_gradient(
                 color=color_1,
                 bg_color=color_2,
             )
+            circle_result = np_get(circle_result)
             assert np.array_equal(result, circle_result)
     else:
         if isinstance(expected_result, (list, tuple)):
@@ -815,6 +821,7 @@ def test_color_split(
         color_2=color_2,
         gradient_width=gradient_width,
     )
+    result = np_get(result)
 
     assert np.array_equal(result, expected_result)
 
@@ -883,8 +890,12 @@ def test_Interpolator(ttss, tt, ss, left, right, interpolation_results):
 )
 def test_Trajectory(tt, xx, yy, interpolation_results):
     trajectory = Trajectory(tt, xx, yy)
+    trajectory = np_get(trajectory)
+
     for value, expected_result in interpolation_results.items():
-        assert np.array_equal(trajectory(value), np.array(expected_result))
+        result = trajectory(value)
+        result = np_get(result)
+        assert np.array_equal(result, np.array(expected_result))
 
 
 def test_Trajectory_addx():
@@ -918,10 +929,13 @@ def test_Trajectory_from_to_file(util):
         f.write(trajectory_file_content)
 
     trajectory = Trajectory.from_file(filename)
+    xx = np_get(trajectory.xx)
+    yy = np_get(trajectory.yy)
+    tt = np_get(trajectory.tt)
 
-    assert np.array_equal(trajectory.xx, np.array([554, 474, 384]))
-    assert np.array_equal(trajectory.yy, np.array([100, 90, 91]))
-    assert np.array_equal(trajectory.tt, np.array([0, 0.166, 0.333]))
+    assert np.array_equal(xx, np.array([554, 474, 384]))
+    assert np.array_equal(yy, np.array([100, 90, 91]))
+    assert np.array_equal(tt, np.array([0, 0.166, 0.333]))
 
     trajectory.to_file(filename)
 

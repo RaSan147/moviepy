@@ -2,7 +2,7 @@ import numbers
 from dataclasses import dataclass
 from typing import Union
 
-import numpy as np
+from moviepy.np_handler import np, np_get
 from PIL import Image
 
 from moviepy.Effect import Effect
@@ -48,6 +48,7 @@ class Resize(Effect):
     def resizer(self, pic, new_size):
         """Resize the image using PIL."""
         new_size = list(map(int, new_size))
+        pic = np_get(pic)
         pil_img = Image.fromarray(pic)
         resized_pil = pil_img.resize(new_size, Image.Resampling.LANCZOS)
         return np.array(resized_pil)

@@ -3,8 +3,8 @@
 import subprocess as sp
 import warnings
 
-import numpy as np
 
+from moviepy.np_handler import np, np_get, np_ndarray_instance
 from moviepy.config import FFMPEG_BINARY
 from moviepy.tools import cross_platform_popen_params, ffmpeg_escape_filename
 from moviepy.video.io.ffmpeg_reader import ffmpeg_parse_infos
@@ -65,6 +65,7 @@ class FFMPEG_AudioReader:
 
         self.n_frames = int(self.fps * self.duration)
         self.buffersize = min(self.n_frames + 1, buffersize)
+
         self.buffer = None
         self.buffer_startframe = 1
         self.initialize()
@@ -151,7 +152,7 @@ class FFMPEG_AudioReader:
 
         """
         # chunksize is not being autoconverted from float to int
-        chunksize = int(round(chunksize))
+        chunksize = int(np.round(chunksize))
         s = self.proc.stdout.read(self.nchannels * chunksize * self.nbytes)
         data_type = {1: "int8", 2: "int16", 4: "int32"}[self.nbytes]
         if hasattr(np, "frombuffer"):
@@ -196,7 +197,7 @@ class FFMPEG_AudioReader:
           timestamp is returned. If `tt` is a NumPy array of timestamps, an
           array of frames corresponding to each timestamp is returned.
         """
-        if isinstance(tt, np.ndarray):
+        if isinstance(tt, np_ndarray_instance):
             # lazy implementation, but should not cause problems in
             # 99.99 %  of the cases
 
@@ -270,7 +271,10 @@ class FFMPEG_AudioReader:
     def buffer_around(self, frame_number):
         """Fill the buffer with frames, centered on frame_number if possible."""
         # start-frame for the buffer
+        frame_number = np_get(frame_number)
+
         new_bufferstart = max(0, frame_number - self.buffersize // 2)
+
 
         if self.buffer is not None:
             current_f_end = self.buffer_startframe + self.buffersize

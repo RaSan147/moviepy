@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import Union
 
-import numpy as np
-
+from moviepy.np_handler import np, np_ndarray, np_ndarray_instance
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
 from moviepy.video.VideoClip import ImageClip
@@ -32,7 +31,7 @@ class MasksAnd(Effect):
         [[[0 0 0]]]
     """
 
-    other_clip: Union[Clip, np.ndarray]
+    other_clip: Union[Clip, np_ndarray]
 
     def apply(self, clip: Clip) -> Clip:
         """Apply the effect to the clip."""
@@ -40,13 +39,13 @@ class MasksAnd(Effect):
         if isinstance(self.other_clip, ImageClip):
             self.other_clip = self.other_clip.img
 
-        if isinstance(self.other_clip, np.ndarray):
+        if isinstance(self.other_clip, np_ndarray_instance):
             return clip.image_transform(
                 lambda frame: np.minimum(frame, self.other_clip)
             )
         else:
             return clip.transform(
                 lambda get_frame, t: np.minimum(
-                    get_frame(t), self.other_clip.get_frame(t)
+                    np.array(get_frame(t)), np.array(self.other_clip.get_frame(t))
                 )
             )

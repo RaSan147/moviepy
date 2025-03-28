@@ -4,8 +4,10 @@ import os
 
 import numpy as np
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
 
+
+from moviepy.np_handler import np_ndarray_instance
 from moviepy.audio.AudioClip import (
     AudioArrayClip,
     AudioClip,
@@ -13,6 +15,7 @@ from moviepy.audio.AudioClip import (
     concatenate_audioclips,
 )
 from moviepy.audio.io.AudioFileClip import AudioFileClip
+from moviepy.np_handler import np_get
 
 
 def test_audioclip(util, mono_wave):
@@ -46,7 +49,7 @@ def test_audioclip_io(util):
     clip = AudioFileClip(filename)
     output_array = clip.to_soundarray()
     np.testing.assert_array_almost_equal(
-        output_array[: len(input_array)], input_array, decimal=4
+        np_get(output_array[: len(input_array)]), input_array, decimal=4
     )
     assert (output_array[len(input_array) :] == 0).all()
 
@@ -198,12 +201,14 @@ def test_audioclip_stereo_max_volume(nchannels, channel_muted):
                 # if muted channel is right, [sound, 0, sound, 0...]
                 frame.append(np.sin(440 * 2 * np.pi * t))
                 frame.append(np.sin(t * 0))
+
+        frame = np_get(frame)
         return np.array(frame).T
 
     clip = AudioClip(frame_function, fps=44100, duration=1)
     max_volume = clip.max_volume(stereo=True)
     # if `stereo == True`, `AudioClip.max_volume` returns a Numpy array`
-    assert isinstance(max_volume, np.ndarray)
+    assert isinstance(max_volume, np_ndarray_instance)
     assert len(max_volume) == nchannels
 
     # check channels muted and with sound

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-import numpy as np
 
+from moviepy.np_handler import np
 from moviepy.Effect import Effect
 
 

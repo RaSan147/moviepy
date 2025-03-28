@@ -41,4 +41,4 @@ class MultiplyStereoVolume(Effect):
                     frame[:, i] *= self.left if i % 2 == 0 else self.right
             return frame
 
-        return clip.transform(stereo_volume)
+        return clip.transform(stereo_volume, print_debug=True)

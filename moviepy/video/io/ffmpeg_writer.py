@@ -5,9 +5,10 @@ out of VideoClips
 
 import subprocess as sp
 
-import numpy as np
+
 from proglog import proglog
 
+from moviepy.np_handler import np, np_get
 from moviepy.config import FFMPEG_BINARY
 from moviepy.tools import cross_platform_popen_params, ffmpeg_escape_filename
 
@@ -273,6 +274,10 @@ except ImportError:
         # Create a grid for the new indices
         row_indices = (np.arange(new_shape[0]) / row_ratio).astype(int)
         col_indices = (np.arange(new_shape[1]) / col_ratio).astype(int)
+
+        # cupy -> numpy
+        row_indices = np_get(row_indices)
+        col_indices = np_get(col_indices)
         
         # Use the indices to map the new image
         if img.ndim == 3:  # For color images (with channels)

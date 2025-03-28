@@ -5,8 +5,7 @@ import re
 import subprocess as sp
 import warnings
 
-import numpy as np
-
+from moviepy.np_handler import np
 from moviepy.config import FFMPEG_BINARY  # ffmpeg, ffmpeg.exe, etc...
 from moviepy.tools import (
     convert_to_seconds,

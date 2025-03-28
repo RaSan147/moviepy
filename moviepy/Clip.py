@@ -8,9 +8,9 @@ from numbers import Real
 from operator import add
 from typing import TYPE_CHECKING, List
 
-import numpy as np
 import proglog
 
+from moviepy.np_handler import np, np_get, np_ndarray, np_ndarray_instance, _np, np_convert
 
 if TYPE_CHECKING:
     from moviepy.Effect import Effect
@@ -64,7 +64,7 @@ class Clip:
         return _copy.copy(self)
 
     @convert_parameter_to_seconds(["t"])
-    def get_frame(self, t):
+    def get_frame(self, t) -> np_ndarray:
         """Gets a numpy array representing the RGB picture of the clip,
         or (mono or stereo) value for a sound clip, at time ``t``.
 
@@ -75,18 +75,25 @@ class Clip:
           Moment of the clip whose frame will be returned.
         """
         # Coming soon: smart error handling for debugging at this point
-        if self.memoize:
-            if t == self.memoized_t:
-                return self.memoized_frame
-            else:
-                frame = self.frame_function(t)
-                self.memoized_t = t
-                self.memoized_frame = frame
-                return frame
-        else:
-            return self.frame_function(t)
+        _t = t
+        t = np_convert(t) # convert to cu/numpy array if needed
 
-    def transform(self, func, apply_to=None, keep_duration=True):
+        if self.memoize and t == self.memoized_t:
+                return self.memoized_frame
+        try:
+            frame = self.frame_function(t)
+        except TypeError:
+            t = np_get(_t)
+            frame = self.frame_function(t)
+
+        frame = np_convert(frame)
+
+        if self.memoize:
+            self.memoized_t = t
+            self.memoized_frame = frame
+        return frame
+
+    def transform(self, func, apply_to=None, keep_duration=True, print_debug=False):
         """General processing of a clip.
 
         Returns a new Clip whose frames are a transformation
@@ -128,6 +135,12 @@ class Clip:
 
         # mf = copy(self.frame_function)
         new_clip = self.with_updated_frame_function(lambda t: func(self.get_frame, t))
+
+        if print_debug:
+            wave = new_clip.to_soundarray()
+            print(wave)
+            print(type(wave))
+            print(len(wave))
 
         if not keep_duration:
             new_clip.duration = None
@@ -434,7 +447,7 @@ class Clip:
         array, returns False if none of the ``t`` is in the clip, else returns a
         vector [b_1, b_2, b_3...] where b_i is true if tti is in the clip.
         """
-        if isinstance(t, np.ndarray):
+        if isinstance(t, np_ndarray_instance):
             # is the whole list of t outside the clip ?
             tmin, tmax = t.min(), t.max()
 
@@ -654,7 +667,7 @@ class Clip:
         array, returns False if none of the ``t`` is in the clip, else returns a
         vector [b_1, b_2, b_3...] where b_i is true if tti is in the clip.
         """
-        if isinstance(t, np.ndarray):
+        if isinstance(t, np_ndarray_instance):
             # is the whole list of t outside the clip ?
             tmin, tmax = t.min(), t.max()
 
@@ -697,6 +710,9 @@ class Clip:
 
         # Make sure that each frame is the same
         for frame1, frame2 in zip(self.iter_frames(), other.iter_frames()):
+            frame1 = np.array(frame1)
+            frame2 = np.array(frame2)
+            
             if not np.array_equal(frame1, frame2):
                 return False
 

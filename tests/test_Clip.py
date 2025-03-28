@@ -2,9 +2,8 @@
 
 import copy
 
-import numpy as np
-
-import pytest
+from moviepy.np_handler import np, np_ndarray_instance
+import pytest;#pytest.skip(allow_module_level=True)
 
 from moviepy.Clip import Clip
 from moviepy.video.VideoClip import BitmapClip, ColorClip
@@ -252,7 +251,7 @@ def test_clip_memoize():
 
     assert memoize_clip.get_frame(5) == "foo"
 
-    assert isinstance(memoize_clip.get_frame(1), np.ndarray)
+    assert isinstance(memoize_clip.get_frame(1), np_ndarray_instance)
 
 
 if __name__ == "__main__":

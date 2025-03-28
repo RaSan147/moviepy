@@ -16,6 +16,7 @@ import numpy as np
 
 import pytest
 
+from moviepy.np_handler import np_get
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 
@@ -38,6 +39,7 @@ def get_video(start_time=0, end_time=1):
 @functools.lru_cache(maxsize=None)
 def get_stereo_wave(left_freq=440, right_freq=220):
     def make_stereo_frame(t):
+        t = np_get(t)
         return np.array(
             [np.sin(left_freq * 2 * np.pi * t), np.sin(right_freq * 2 * np.pi * t)]
         ).T.copy(order="C")

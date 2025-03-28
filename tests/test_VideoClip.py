@@ -6,7 +6,8 @@ import os
 import numpy as np
 from PIL import Image
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
+
 
 from moviepy import *
 from moviepy.tools import convert_to_seconds

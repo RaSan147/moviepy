@@ -6,10 +6,12 @@ import time
 
 import numpy as np
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
+
 
 from moviepy.audio.AudioClip import AudioClip
 from moviepy.config import FFMPEG_BINARY
+from moviepy.np_handler import np_get
 from moviepy.tools import ffmpeg_escape_filename
 from moviepy.video.compositing.CompositeVideoClip import clips_array
 from moviepy.video.io.ffmpeg_reader import (
@@ -608,21 +610,25 @@ def test_sequential_frame_pos():
 
     # Get first frame
     frame_1 = reader.get_frame(0)
+    frame_1 = np_get(frame_1)
     assert reader.pos == 1
     assert np.array_equal(frame_1, [[[254, 0, 0]]])
 
     # Get a specific sequential frame
     frame_2 = reader.get_frame(1)
+    frame_2 = np_get(frame_2)
     assert reader.pos == 2
     assert np.array_equal(frame_2, [[[0, 255, 1]]])
 
     # Get next frame. Note `.read_frame()` instead of `.get_frame()`
     frame_3 = reader.read_frame()
+    frame_3 = np_get(frame_3)
     assert reader.pos == 3
     assert np.array_equal(frame_3, [[[0, 0, 255]]])
 
     # Skip a frame
     skip_frame = reader.get_frame(4)
+    skip_frame = np_get(skip_frame)
     assert reader.pos == 5
     assert np.array_equal(skip_frame, [[[255, 255, 255]]])
 
@@ -633,21 +639,25 @@ def test_unusual_order_frame_pos():
 
     # Go straight to end
     end_frame = reader.get_frame(4)
+    end_frame = np_get(end_frame)
     assert reader.pos == 5
     assert np.array_equal(end_frame, [[[255, 255, 255]]])
 
     # Repeat the previous frame
     second_end_frame = reader.get_frame(4)
+    second_end_frame = np_get(second_end_frame)
     assert reader.pos == 5
     assert np.array_equal(second_end_frame, [[[255, 255, 255]]])
 
     # Go backwards
     previous_frame = reader.get_frame(3)
+    previous_frame = np_get(previous_frame)
     assert reader.pos == 4
     assert np.array_equal(previous_frame, [[[0, 0, 0]]])
 
     # Go back to start
     start_frame = reader.get_frame(0)
+    start_frame = np_get(start_frame)
     assert reader.pos == 1
     assert np.array_equal(start_frame, [[[254, 0, 0]]])
 
@@ -678,15 +688,18 @@ def test_large_small_skip_equal():
     for t in np.arange(0, 10, 1 / 24):
         sequential_reader.get_frame(t)
     sequential_final_frame = sequential_reader.get_frame(10)
+    sequential_final_frame = np_get(sequential_final_frame)
 
     # Read in increments of 24 frames
     for t in range(10):
         small_skip_reader.get_frame(t)
     small_skip_final_frame = small_skip_reader.get_frame(10)
+    small_skip_final_frame = np_get(small_skip_final_frame)
 
     # Jumps straight forward 240 frames. This is greater than 100 so it uses
     # FFmpeg to reseek at the right position.
     large_skip_final_frame = large_skip_reader.get_frame(10)
+    large_skip_final_frame = np_get(large_skip_final_frame)
 
     assert (
         sequential_reader.pos == small_skip_reader.pos == large_skip_reader.pos == 241
@@ -700,9 +713,12 @@ def test_large_small_skip_equal():
 def test_seeking_beyond_file_end():
     reader = FFMPEG_VideoReader("media/test_video.mp4")
     frame_1 = reader.get_frame(0)
+    frame_1 = np_get(frame_1)
 
     with pytest.warns(UserWarning, match="Using the last valid frame instead"):
         end_of_file_frame = reader.get_frame(5)
+        end_of_file_frame = np_get(end_of_file_frame)
+
     assert np.array_equal(frame_1, end_of_file_frame)
     assert reader.pos == 6
 
@@ -710,9 +726,11 @@ def test_seeking_beyond_file_end():
     # (which triggers different behaviour in `.get_frame()`
     reader = FFMPEG_VideoReader("media/big_buck_bunny_0_30.webm")
     frame_1 = reader.get_frame(0)
+    frame_1 = np_get(frame_1)
 
     with pytest.warns(UserWarning, match="Using the last valid frame instead"):
         end_of_file_frame = reader.get_frame(30)
+        end_of_file_frame = np_get(end_of_file_frame)
     assert np.array_equal(frame_1, end_of_file_frame)
     assert reader.pos == 30 * 24 + 1
 
@@ -828,7 +846,9 @@ def test_frame_seek():
 
     # Get first frame and second frame
     frame = reader.get_frame(0)
+    frame = np_get(frame)
     frame2 = reader.get_frame(0.34)
+    frame2 = np_get(frame2)
 
     assert not np.array_equal(frame, frame2)
 

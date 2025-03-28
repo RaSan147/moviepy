@@ -6,16 +6,19 @@
 
 import copy as _copy
 import os
+from pathlib import Path
 import threading
 from numbers import Real
+import traceback
 from typing import TYPE_CHECKING, Callable, List, Union
 
-import numpy as np
 import proglog
+
 from imageio.v2 import imread as imread_v2
 from imageio.v3 import imwrite
 from PIL import Image, ImageDraw, ImageFont
 
+from moviepy.np_handler import np, np_get, np_ndarray, np_ndarray_instance
 from moviepy.video.io.ffplay_previewer import ffplay_preview_video
 
 
@@ -199,7 +202,7 @@ class VideoClip(Clip):
         else:
             im = im.astype("uint8")
 
-        imwrite(filename, im)
+        imwrite(filename, np_get(im))
 
     @requires_duration
     @use_clip_fps_by_default
@@ -567,8 +570,9 @@ class VideoClip(Clip):
         #   from mpy.video.compositing.CompositeVideoClip import CompositeVideoClip
         #   clip = CompositeVideoClip([self.with_position((0, 0))])
 
-        frame = clip.get_frame(t)
-        pil_img = Image.fromarray(frame.astype("uint8"))
+        frame = clip.get_frame(t).astype("uint8")
+        frame = np_get(frame)
+        pil_img = Image.fromarray(frame)
 
         pil_img.show()
 
@@ -746,10 +750,12 @@ class VideoClip(Clip):
 
         # GET IMAGE AND MASK IF ANY
         clip_frame = self.get_frame(ct).astype("uint8")
+        clip_frame = np_get(clip_frame)
         clip_img = Image.fromarray(clip_frame)
 
         if self.mask is not None:
             clip_mask = (self.mask.get_frame(ct) * 255).astype("uint8")
+            clip_mask = np_get(clip_mask)
             clip_mask_img = Image.fromarray(clip_mask).convert("L")
 
             # Resize clip_mask_img to match clip_img, always use top left corner
@@ -797,7 +803,7 @@ class VideoClip(Clip):
         result = Image.alpha_composite(background, canvas)
         return result
 
-    def compose_mask(self, background_mask: np.ndarray, t: float) -> np.ndarray:
+    def compose_mask(self, background_mask: np_ndarray, t: float) -> np_ndarray:
         """Returns the result of the clip's mask at time `t` composited
         on the given `background_mask`, the position of the clip being given
         by the clip's ``pos`` attribute. Meant for compositing.
@@ -917,7 +923,7 @@ class VideoClip(Clip):
 
     @outplace
     def with_updated_frame_function(
-        self, frame_function: Callable[[float], np.ndarray]
+        self, frame_function: Callable[[float], np_ndarray]
     ):
         """Change the clip's ``get_frame``.
 
@@ -1357,9 +1363,11 @@ class ImageClip(VideoClip):
     ):
         VideoClip.__init__(self, is_mask=is_mask, duration=duration)
 
-        if not isinstance(img, np.ndarray):
+        if not isinstance(img, np_ndarray_instance):
             # img is a string or path-like object, so read it in from disk
             img = imread_v2(img)  # We use v2 imread cause v3 fail with gif
+
+            img = np.array(img)  # Convert to numpy array
 
         if len(img.shape) == 3:  # img is (now) a RGB(a) numpy array
             if img.shape[2] == 4:

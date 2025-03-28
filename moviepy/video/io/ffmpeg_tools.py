@@ -248,7 +248,12 @@ def ffmpeg_version():
 
     # Extract the version number from the first line of output
     full_version = result.stdout.splitlines()[0].split()[2]
-    numeric_version = re.match(r"^[0-9.]+", full_version).group(0)
+
+    numeric_version = re.match(r"^[0-9.]+", full_version)
+    if numeric_version:
+        numeric_version = numeric_version.group(0)
+    else:
+        numeric_version = "7.0.0"
     return (full_version, numeric_version)
 
 

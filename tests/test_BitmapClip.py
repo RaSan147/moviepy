@@ -1,9 +1,9 @@
 """BitmapClip tests."""
 
-import numpy as np
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
 
+from moviepy.np_handler import np
 from moviepy.video.VideoClip import BitmapClip
 
 

@@ -1,6 +1,7 @@
 """Classes for easy interpolation of trajectories and curves."""
 
-import numpy as np
+
+from moviepy.np_handler import np
 
 
 class Interpolator:
@@ -58,6 +59,7 @@ class Interpolator:
         t : float
           Time frame for which the correspondent value will be returned.
         """
+        t = np.array(t)
         return np.interp(t, self.tt, self.ss, self.left, self.right)
 
 
@@ -232,7 +234,9 @@ class Trajectory:
         """
         arr = np.loadtxt(filename, delimiter="\t").T
         Nlines = arr.shape[0]
+
+        n_splits = int(Nlines / 3)
         return [
             Trajectory(tt=1.0 * a[0] / 1000, xx=a[1], yy=a[2])
-            for a in np.split(arr, Nlines / 3)
+            for a in np.split(arr, n_splits)
         ]

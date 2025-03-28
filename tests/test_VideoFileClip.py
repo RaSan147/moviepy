@@ -3,7 +3,8 @@
 import copy
 import os
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
+
 
 from moviepy.video.compositing.CompositeVideoClip import clips_array
 from moviepy.video.io.VideoFileClip import VideoFileClip

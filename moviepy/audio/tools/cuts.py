@@ -1,7 +1,6 @@
 """Cutting utilities working with audio."""
 
-import numpy as np
-
+from moviepy.np_handler import np, np_get
 
 def find_audio_period(clip, min_time=0.1, max_time=2, time_resolution=0.01):
     """Finds the period, in seconds of an audioclip.
@@ -26,4 +25,4 @@ def find_audio_period(clip, min_time=0.1, max_time=2, time_resolution=0.01):
     corrs = np.correlate(v, v, mode="full")[-len(v) :]
     corrs[: int(min_time / chunk_duration)] = 0
     corrs[int(max_time / chunk_duration) :] = 0
-    return chunk_duration * np.argmax(corrs)
+    return np_get(chunk_duration * np.argmax(corrs))

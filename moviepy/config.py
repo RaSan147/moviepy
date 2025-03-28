@@ -3,6 +3,7 @@
 import os
 import subprocess as sp
 from pathlib import Path
+import shutil
 
 from moviepy.tools import cross_platform_popen_params
 
@@ -15,8 +16,20 @@ try:
 except ImportError:
     DOTENV = None
 
-FFMPEG_BINARY = os.getenv("FFMPEG_BINARY", "ffmpeg-imageio")
-FFPLAY_BINARY = os.getenv("FFPLAY_BINARY", "auto-detect")
+
+# use shutil.which to find the ffmpeg binary
+_ffmpeg_binary = shutil.which("ffmpeg")
+if _ffmpeg_binary:
+    FFMPEG_BINARY = _ffmpeg_binary
+else:
+    FFMPEG_BINARY = os.getenv("FFMPEG_BINARY", "ffmpeg-imageio")
+
+# use shutil.which to find the ffplay binary
+_ffplay_binary = shutil.which("ffplay")
+if _ffplay_binary:
+    FFPLAY_BINARY = _ffplay_binary
+else:
+    FFPLAY_BINARY = os.getenv("FFPLAY_BINARY", "auto-detect")
 
 IS_POSIX_OS = os.name == "posix"
 

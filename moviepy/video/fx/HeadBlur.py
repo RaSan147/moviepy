@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
+from moviepy.np_handler import np, np_get
 
 
 @dataclass
@@ -32,6 +32,7 @@ class HeadBlur(Effect):
             x1, x2 = max(0, x - self.radius), min(x + self.radius, w)
             y1, y2 = max(0, y - self.radius), min(y + self.radius, h)
 
+            im = np_get(im)
             image = Image.fromarray(im)
             mask = Image.new("RGB", image.size)
             draw = ImageDraw.Draw(mask)

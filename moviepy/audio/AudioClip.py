@@ -7,9 +7,10 @@
 import numbers
 import os
 
-import numpy as np
+
 import proglog
 
+from moviepy.np_handler import np, np_convert, np_get, np_ndarray_instance, _np
 from moviepy.audio.io.ffmpeg_audiowriter import ffmpeg_audiowrite
 from moviepy.audio.io.ffplay_audiopreviewer import ffplay_audiopreview
 from moviepy.Clip import Clip
@@ -74,6 +75,7 @@ class AudioClip(Clip):
         if frame_function is not None:
             self.frame_function = frame_function
             frame0 = self.get_frame(0)
+            frame0 = np_get(frame0)
             if hasattr(frame0, "__iter__"):
                 self.nchannels = len(list(frame0))
             else:
@@ -103,12 +105,13 @@ class AudioClip(Clip):
 
         nchunks = total_size // chunksize + 1
 
-        positions = np.linspace(0, total_size, nchunks + 1, endpoint=True, dtype=int)
+        positions = _np.linspace(0, total_size, nchunks + 1, endpoint=True, dtype=int)
 
         for i in logger.iter_bar(chunk=list(range(nchunks))):
             size = positions[i + 1] - positions[i]
             assert size <= chunksize
             timings = (1.0 / fps) * np.arange(positions[i], positions[i + 1])
+
             yield self.to_soundarray(
                 timings, nbytes=nbytes, quantize=quantize, fps=fps, buffersize=chunksize
             )
@@ -160,7 +163,7 @@ class AudioClip(Clip):
         snd_array = self.get_frame(tt)
 
         if quantize:
-            snd_array = np.maximum(-0.99, np.minimum(0.99, snd_array))
+            snd_array = np.maximum(-0.99, np.minimum(0.99, np.array(snd_array)))
             inttype = {1: "int8", 2: "int16", 4: "int32"}[nbytes]
             snd_array = (2 ** (8 * nbytes - 1) * snd_array).astype(inttype)
 
@@ -174,8 +177,12 @@ class AudioClip(Clip):
         # zero for each channel
         maxi = np.zeros(self.nchannels)
         for chunk in self.iter_chunks(chunksize=chunksize, logger=logger):
+            if isinstance(chunk, _np.ndarray):
+                # if chunk is a numpy array, convert to cupy
+                chunk = np.array(chunk)
             maxi = np.maximum(maxi, abs(chunk).max(axis=0))
 
+        maxi = np_get(maxi)
         # if mono returns float, otherwise array of volumes by channel
         return maxi if stereo else maxi[0]
 
@@ -333,7 +340,9 @@ class AudioArrayClip(AudioClip):
 
     def __init__(self, array, fps):
         Clip.__init__(self)
-        self.array = array
+        # array is a numpy array of shape (nframes, nchannels)
+        # convert it to cupy array
+        self.array = np.asarray(array)
         self.fps = fps
         self.duration = 1.0 * len(array) / fps
 
@@ -341,7 +350,7 @@ class AudioArrayClip(AudioClip):
             """Complicated, but must be able to handle the case where t
             is a list of the form sin(t).
             """
-            if isinstance(t, np.ndarray):
+            if isinstance(t, np_ndarray_instance):
                 array_inds = np.round(self.fps * t).astype(int)
                 in_array = (array_inds >= 0) & (array_inds < len(self.array))
                 result = np.zeros((len(t), 2))
@@ -407,12 +416,12 @@ class CompositeAudioClip(AudioClip):
         played_parts = [clip.is_playing(t) for clip in self.clips]
 
         sounds = [
-            clip.get_frame(t - clip.start) * np.array([part]).T
+            np.array(clip.get_frame(t - clip.start)) * np.array([part]).T
             for clip, part in zip(self.clips, played_parts)
             if (part is not False)
         ]
 
-        if isinstance(t, np.ndarray):
+        if isinstance(t, np_ndarray_instance):
             zero = np.zeros((len(t), self.nchannels))
         else:
             zero = np.zeros(self.nchannels)
@@ -431,7 +440,7 @@ def concatenate_audioclips(clips):
       List of audio clips, which will be played one after other.
     """
     # start, end/start2, end2/start3... end
-    starts_end = np.cumsum([0, *[clip.duration for clip in clips]])
+    starts_end = np.cumsum(np.array([0, *[clip.duration for clip in clips]]))
     newclips = [clip.with_start(t) for clip, t in zip(clips, starts_end[:-1])]
 
     return CompositeAudioClip(newclips).with_duration(starts_end[-1])

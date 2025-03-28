@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-import numpy as np
-
+from moviepy.np_handler import np
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
 
@@ -38,6 +37,9 @@ class MaskColor(Effect):
                 return 1.0 * (x != 0)
 
         def flim(im):
+            if not isinstance(im, np.ndarray):
+                im = np.array(im)
+            
             return hill(np.sqrt(((im - color) ** 2).sum(axis=2)))
 
         mask = clip.image_transform(flim)

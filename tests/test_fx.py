@@ -8,9 +8,11 @@ import random
 
 import numpy as np
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
+# 
 
 from moviepy import *
+from moviepy.np_handler import np_get
 from moviepy.tools import convert_to_seconds
 
 
@@ -566,7 +568,8 @@ def test_mask_and(image_from, duration, color, mask_color, expected_color):
     )
 
     assert masked_clip.duration == clip.duration
-    assert np.array_equal(masked_clip.get_frame(0)[0][0], np.array(expected_color))
+    color_received = np_get(masked_clip.get_frame(0)[0][0])
+    assert np.array_equal(color_received, np.array(expected_color))
 
     # test VideoClip as mask argument
     color_frame, mask_color_frame = (np.array([[color]]), np.array([[mask_color]]))
@@ -574,7 +577,8 @@ def test_mask_and(image_from, duration, color, mask_color, expected_color):
     mask_clip = VideoClip(lambda t: mask_color_frame).with_duration(duration)
     masked_clip = clip.with_effects([vfx.MasksAnd(mask_clip)])
 
-    assert np.array_equal(masked_clip.get_frame(0)[0][0], np.array(expected_color))
+    color_received = np_get(masked_clip.get_frame(0)[0][0])
+    assert np.array_equal(color_received, np.array(expected_color))
 
 
 def test_mask_color():
@@ -627,7 +631,8 @@ def test_mask_or(image_from, duration, color, mask_color, expected_color):
     )
 
     assert masked_clip.duration == clip.duration
-    assert np.array_equal(masked_clip.get_frame(0)[0][0], np.array(expected_color))
+    color_received = np_get(masked_clip.get_frame(0)[0][0])
+    assert np.array_equal(color_received, np.array(expected_color))
 
     # test VideoClip as mask argument
     color_frame, mask_color_frame = (np.array([[color]]), np.array([[mask_color]]))
@@ -635,7 +640,8 @@ def test_mask_or(image_from, duration, color, mask_color, expected_color):
     mask_clip = VideoClip(lambda t: mask_color_frame).with_duration(duration)
     masked_clip = clip.with_effects([vfx.MasksOr(mask_clip)])
 
-    assert np.array_equal(masked_clip.get_frame(0)[0][0], np.array(expected_color))
+    color_received = np_get(masked_clip.get_frame(0)[0][0])
+    assert np.array_equal(color_received, np.array(expected_color))
 
 
 def test_mirror_x():
@@ -1101,7 +1107,9 @@ def test_audio_normalize_muted():
     frame_function = lambda t: z_array
     clip = AudioClip(frame_function, duration=1, fps=44100)
     clip = clip.with_effects([afx.AudioNormalize()])
-    assert np.array_equal(clip.to_soundarray(), z_array)
+
+    received_array = np_get(clip.to_soundarray())
+    assert np.array_equal(received_array, z_array)
 
 
 @pytest.mark.parametrize(
@@ -1196,7 +1204,7 @@ def test_multiply_volume_audioclip(
             ]
         ).T.copy(order="C")
     else:
-        frame_function = lambda t: [np.sin(440 * 2 * np.pi * t)]
+        frame_function = lambda t: np.array([np.sin(440 * 2 * np.pi * t)])
 
     clip = AudioClip(
         frame_function,
@@ -1204,6 +1212,7 @@ def test_multiply_volume_audioclip(
         fps=22050,
     )
     clip_array = clip.to_soundarray()
+    clip_array = np_get(clip_array)
 
     clip_transformed = clip.with_effects(
         [
@@ -1215,6 +1224,7 @@ def test_multiply_volume_audioclip(
         ]
     )
     clip_transformed_array = clip_transformed.to_soundarray()
+    clip_transformed_array = np_get(clip_transformed_array)
 
     assert len(clip_transformed_array)
 
@@ -1248,6 +1258,7 @@ def test_multiply_volume_audioclip(
 
         assert len(left_channel_transformed)
         assert len(expected_left_channel_transformed)
+
         assert np.array_equal(
             left_channel_transformed,
             expected_left_channel_transformed,
@@ -1255,6 +1266,7 @@ def test_multiply_volume_audioclip(
 
         assert len(right_channel_transformed)
         assert len(expected_right_channel_transformed)
+
         assert np.array_equal(
             right_channel_transformed,
             expected_right_channel_transformed,
@@ -1262,6 +1274,13 @@ def test_multiply_volume_audioclip(
 
     else:
         # mono clip
+
+        print(
+            "Start time",
+            start_time,
+            "End time",
+            end_time,
+        )
 
         if start_time is None and end_time is None:
             expected_clip_transformed_array = clip_array * factor
@@ -1279,6 +1298,7 @@ def test_multiply_volume_audioclip(
                     expected_clip_transformed_array,
                     transformed_frame,
                 )
+
             expected_clip_transformed_array = np.array(
                 [
                     expected_clip_transformed_array,
@@ -1286,6 +1306,38 @@ def test_multiply_volume_audioclip(
             )
 
         assert len(expected_clip_transformed_array)
+
+        print(
+            "clip_array",
+            clip_array,
+            type(clip_array),
+            type(clip_array[0]),
+            (factor),
+            (type(factor)),
+            clip_array * factor,
+            type(clip_array * factor),
+            sep="\n",
+        )
+
+        print(
+            "expected_clip_transformed_array",
+            expected_clip_transformed_array,
+            type(expected_clip_transformed_array),
+            type(expected_clip_transformed_array[0]),
+        )
+
+        print(
+            "clip_transformed_array",
+            clip_transformed_array,
+            type(clip_transformed_array),
+            type(clip_transformed_array[0]),
+        )
+
+        print(
+            clip.nchannels,
+            clip_transformed.nchannels,
+            sep=" - - - ",
+        )
 
         assert np.array_equal(
             expected_clip_transformed_array,
@@ -1310,8 +1362,9 @@ def test_multiply_volume_videoclip():
         )
     )
     clip_soundarray = clip.audio.to_soundarray()
-
     assert len(clip_soundarray)
+
+    clip_soundarray = np_get(clip_soundarray)
 
     expected_silence = np.zeros(clip_soundarray.shape[1])
 
@@ -1337,12 +1390,19 @@ def test_multiply_stereo_volume():
 
     z_channel = np.zeros(len(left_channel_muted))
 
+    left_channel_muted = np_get(left_channel_muted)
+    right_channel_muted = np_get(right_channel_muted)
+    z_channel = np_get(z_channel)
+
     assert np.array_equal(left_channel_muted, z_channel)
     assert np.array_equal(right_channel_muted, z_channel)
 
     # stereo level doubled
     left_channel_doubled = clip_right_channel_muted.to_soundarray()[:, 0]
     expected_left_channel_doubled = clip.to_soundarray()[:, 0] * 2
+
+    left_channel_doubled = np_get(left_channel_doubled)
+    expected_left_channel_doubled = np_get(expected_left_channel_doubled)
     assert np.array_equal(left_channel_doubled, expected_left_channel_doubled)
 
     # mono muted
@@ -1351,7 +1411,12 @@ def test_multiply_stereo_volume():
     muted_mono_clip = mono_clip.with_effects([afx.MultiplyStereoVolume(left=0)])
     mono_channel_muted = muted_mono_clip.to_soundarray()
 
+    mono_channel_muted = np_get(mono_channel_muted)
+
     z_channel = np.zeros(len(mono_channel_muted))
+
+    print(np.array_equal(mono_channel_muted, z_channel))
+
     assert np.array_equal(mono_channel_muted, z_channel)
 
     # mono doubled
@@ -1360,7 +1425,10 @@ def test_multiply_stereo_volume():
         [afx.MultiplyStereoVolume(left=None, right=2)]
     )  # using right
     mono_channel_doubled = doubled_mono_clip.to_soundarray()
+    mono_channel_doubled = np_get(mono_channel_doubled)
     d_channel = mono_clip.to_soundarray() * 2
+    d_channel = np_get(d_channel)
+
     assert np.array_equal(mono_channel_doubled, d_channel)
 
 
@@ -1401,6 +1469,7 @@ def test_audio_delay(stereo_wave, duration, offset, n_repeats, decay):
         [afx.AudioDelay(offset=offset, n_repeats=n_repeats, decay=decay)]
     )
     delayed_clip_array = delayed_clip.to_soundarray()
+    delayed_clip_array = np_get(delayed_clip_array)
 
     # size of chunks with audios
     sound_chunk_size = clip_array.shape[0]
@@ -1419,12 +1488,16 @@ def test_audio_delay(stereo_wave, duration, offset, n_repeats, decay):
         # sound chunk
         sound_start_at = i * sound_chunk_size + i * muted_chunk_size
         sound_ends_at = sound_start_at + sound_chunk_size
+        
 
         # first sound chunk
         if i == 0:
+
+            temp_sound_array = clip.with_effects([afx.MultiplyVolume(decayments[i])]).to_soundarray()
+            temp_sound_array = np_get(temp_sound_array)
             assert np.array_equal(
                 delayed_clip_array[:, :][sound_start_at:sound_ends_at],
-                clip.with_effects([afx.MultiplyVolume(decayments[i])]).to_soundarray(),
+                temp_sound_array,
             )
 
         # muted chunk

@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
 
 from moviepy import *
 

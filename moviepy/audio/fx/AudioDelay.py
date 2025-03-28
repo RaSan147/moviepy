@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-import numpy as np
-
+from moviepy.np_handler import np
 from moviepy.audio.AudioClip import CompositeAudioClip
 from moviepy.audio.fx.MultiplyVolume import MultiplyVolume
 from moviepy.Clip import Clip

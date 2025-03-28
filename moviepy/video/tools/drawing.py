@@ -2,7 +2,7 @@
 methods that are difficult to do with the existing Python libraries.
 """
 
-import numpy as np
+from moviepy.np_handler import np, np_convert, np_get, _np
 
 
 def color_gradient(
@@ -108,7 +108,9 @@ def color_gradient(
         #   [229.5  25.5   0. ]]]
     """
     # np-arrayize and change x,y coordinates to y,x
-    w, h = size
+    w, h = np_get(size)
+
+    print(w, h, type(size), type(w), type(h))
 
     color_1 = np.array(color_1).astype(float)
     color_2 = np.array(color_2).astype(float)
@@ -139,7 +141,7 @@ def color_gradient(
 
     p1 = np.array(p1[::-1]).astype(float)
 
-    M = np.dstack(np.meshgrid(range(w), range(h))[::-1]).astype(float)
+    M = np.dstack(np.meshgrid(np.arange(w), np.arange(h))[::-1]).astype(float)
 
     if shape == "linear":
         if vector is None:
@@ -233,6 +235,8 @@ def color_split(
         # An image split along an arbitrary line (see below)
         color_split(size, p1=[20, 50], p2=[25, 70], color_1=0, color_2=1)
     """
+    color_1 = _np.array(color_1).astype(float)
+    color_2 = _np.array(color_2).astype(float)
     if gradient_width or ((x is None) and (y is None)):
         if p2 is not None:
             vector = np.array(p2) - np.array(p1)
@@ -252,15 +256,17 @@ def color_split(
         )
     else:
         w, h = size
-        shape = (h, w) if np.isscalar(color_1) else (h, w, len(color_1))
-        arr = np.zeros(shape)
+        shape = (h, w) if (color_1.ndim == 0) else (h, w, len(color_1))
+        arr = _np.zeros(shape, dtype=color_1.dtype)  # Ensures the dtype is the same
+
         if x:
             arr[:, :x] = color_1
             arr[:, x:] = color_2
         elif y:
             arr[:y] = color_1
             arr[y:] = color_2
-        return arr
+
+        return np_convert(arr)
 
 
 def circle(screensize, center, radius, color=1.0, bg_color=0, blur=1):

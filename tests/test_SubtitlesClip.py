@@ -2,7 +2,7 @@
 
 import os
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
 
 from moviepy.video.compositing.CompositeVideoClip import (
     CompositeVideoClip,

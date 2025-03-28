@@ -1,9 +1,9 @@
 import math
 from dataclasses import dataclass
 
-import numpy as np
 from PIL import Image
 
+from moviepy.np_handler import np, np_get
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
 
@@ -116,9 +116,11 @@ class Rotate(Effect):
                 a = 1
 
             # call PIL.rotate
+
+            np_arr = np_get(np.array(a * im).astype(np.uint8))
             return (
                 np.array(
-                    Image.fromarray(np.array(a * im).astype(np.uint8)).rotate(
+                    Image.fromarray(np_arr).rotate(
                         angle, expand=self.expand, resample=resample, **pillow_kwargs
                     )
                 )

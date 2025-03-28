@@ -2,9 +2,10 @@
 
 from functools import reduce
 
-import numpy as np
+
 from PIL import Image
 
+from moviepy.np_handler import np, np_get, _np
 from moviepy.audio.AudioClip import CompositeAudioClip
 from moviepy.video.VideoClip import ColorClip, VideoClip
 
@@ -141,11 +142,13 @@ class CompositeVideoClip(VideoClip):
         # Try doing clip merging with pillow
         bg_t = t - self.bg.start
         bg_frame = self.bg.get_frame(bg_t).astype("uint8")
+        bg_frame = np_get(bg_frame)
         bg_img = Image.fromarray(bg_frame)
 
         if self.bg.mask:
             bgm_t = t - self.bg.mask.start
             bg_mask = (self.bg.mask.get_frame(bgm_t) * 255).astype("uint8")
+            bg_mask = np_get(bg_mask)
             bg_mask_img = Image.fromarray(bg_mask).convert("L")
 
             # Resize bg_mask_img to match bg_img, always use top left corner
@@ -237,8 +240,8 @@ def clips_array(array, rows_widths=None, cols_heights=None, bg_color=None):
        Fill color for the masked and unfilled regions. Set to ``None`` for these
        regions to be transparent (processing will be slower).
     """
-    array = np.array(array)
-    sizes_array = np.array([[clip.size for clip in line] for line in array])
+    array = _np.array(array)
+    sizes_array = _np.array([[clip.size for clip in line] for line in array])
 
     # find row width and col_widths automatically if not provided
     if rows_widths is None:
@@ -247,8 +250,8 @@ def clips_array(array, rows_widths=None, cols_heights=None, bg_color=None):
         cols_heights = sizes_array[:, :, 0].max(axis=0)
 
     # compute start positions of X for rows and Y for columns
-    xs = np.cumsum([0] + list(cols_heights))
-    ys = np.cumsum([0] + list(rows_widths))
+    xs = _np.cumsum([0] + list(cols_heights))
+    ys = _np.cumsum([0] + list(rows_widths))
 
     for j, (x, ch) in enumerate(zip(xs[:-1], cols_heights)):
         for i, (y, rw) in enumerate(zip(ys[:-1], rows_widths)):
@@ -319,7 +322,7 @@ def concatenate_videoclips(
         clips = reduce(lambda x, y: x + y, clip_transition_pairs) + [clips[-1]]
         transition = None
 
-    timings = np.cumsum([0] + [clip.duration for clip in clips])
+    timings = np.cumsum(np.array([0] + [clip.duration for clip in clips]))
 
     sizes = [clip.size for clip in clips]
 
@@ -328,6 +331,8 @@ def concatenate_videoclips(
 
     timings = np.maximum(0, timings + padding * np.arange(len(timings)))
     timings[-1] -= padding  # Last element is the duration of the whole
+
+    timings = np_get(timings)
 
     if method == "chain":
 

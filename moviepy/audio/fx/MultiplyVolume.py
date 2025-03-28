@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-import numpy as np
-
+from moviepy.np_handler import np, np_convert
 from moviepy.Clip import Clip
 from moviepy.decorators import audio_video_effect
 from moviepy.Effect import Effect
@@ -61,12 +60,15 @@ class MultiplyVolume(Effect):
 
         def multiply_stereo_volume(get_frame, t):
             return np.multiply(
-                get_frame(t),
+                np_convert(get_frame(t)),
                 np.array([factors_filter(factor, t) for _ in range(nchannels)]).T,
             )
 
         def multiply_mono_volume(get_frame, t):
-            return np.multiply(get_frame(t), factors_filter(factor, t))
+            frame = get_frame(t)
+            factors = factors_filter(factor, t)
+            frame = np_convert(frame)
+            return np.multiply(frame, factors)
 
         return multiply_mono_volume if nchannels == 1 else multiply_stereo_volume
 
@@ -75,7 +77,7 @@ class MultiplyVolume(Effect):
         """Apply the effect to the clip."""
         if self.start_time is None and self.end_time is None:
             return clip.transform(
-                lambda get_frame, t: self.factor * get_frame(t),
+                lambda get_frame, t: self.factor * np.array(get_frame(t)),
                 keep_duration=True,
             )
 

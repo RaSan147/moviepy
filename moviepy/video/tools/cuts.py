@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-import numpy as np
 
+from moviepy.np_handler import np, np_get, _np
 from moviepy.decorators import convert_parameter_to_seconds, use_clip_fps_by_default
 
 
@@ -41,10 +41,13 @@ def find_video_period(clip, fps=None, start_time=0.3):
     def frame(t):
         return clip.get_frame(t).flatten()
 
-    timings = np.arange(start_time, clip.duration, 1 / fps)[1:]
+    timings = _np.arange(start_time, clip.duration, 1 / fps)[1:]
     ref = frame(0)
-    corrs = [np.corrcoef(ref, frame(t))[0, 1] for t in timings]
-    return timings[np.argmax(corrs)]
+    corrs = np.array([np.corrcoef(ref, frame(t))[0, 1] for t in timings])
+    argmax = np.argmax(corrs)
+    timing = timings[np_get(argmax)]
+
+    return np_get(timing)
 
 
 class FramesMatch:
@@ -260,6 +263,7 @@ class FramesMatches(list):
         matching_frames = []  # the final result.
 
         for t, frame in clip.iter_frames(with_times=True, logger=logger):
+            t = float(np_get(t))
             flat_frame = 1.0 * frame.flatten()
             F_norm_sq = dot_product(flat_frame, flat_frame)
             F_norm = np.sqrt(F_norm_sq)

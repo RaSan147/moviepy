@@ -3,7 +3,7 @@
 import os
 import shutil
 
-import pytest
+import pytest;#pytest.skip(allow_module_level=True)
 
 from moviepy.video.io.ffmpeg_tools import (
     ffmpeg_extract_subclip,

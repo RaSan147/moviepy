@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-
-import numpy as np
+ 
 from PIL import Image, ImageFilter
 
+from moviepy.np_handler import np, np_get
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
 
@@ -30,6 +30,7 @@ class Painting(Effect):
 
         np_image : a numpy image
         """
+        np_image = np_get(np_image)
         image = Image.fromarray(np_image)
         image = image.filter(ImageFilter.EDGE_ENHANCE_MORE)
 

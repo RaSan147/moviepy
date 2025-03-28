@@ -7,6 +7,10 @@ import decorator
 
 from moviepy.tools import convert_to_seconds
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from moviepy.Clip import Clip
+
 
 @decorator.decorator
 def outplace(func, clip, *args, **kwargs) -> "Clip":

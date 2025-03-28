@@ -4,9 +4,10 @@ of image files.
 
 import os
 
-import numpy as np
+
 from imageio.v2 import imread
 
+from moviepy.np_handler import np
 from moviepy.video.VideoClip import VideoClip
 
 
@@ -103,7 +104,7 @@ class ImageSequenceClip(VideoClip):
                 1.0 * i / fps - np.finfo(np.float32).eps for i in range(len(sequence))
             ]
         else:
-            self.images_starts = [0] + list(np.cumsum(durations))
+            self.images_starts = [0] + list(np.cumsum(np.array(durations)))
         self.durations = durations
         self.duration = sum(durations)
         self.end = self.duration
