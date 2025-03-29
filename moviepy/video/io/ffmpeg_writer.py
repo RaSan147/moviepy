@@ -253,6 +253,7 @@ try:
     from scipy.ndimage import zoom
 
     def _numpy_zoom(img, new_shape):
+        img = np_get(img)
         return zoom(img, (new_shape[0] / img.shape[0], new_shape[1] / img.shape[1]), order=0)
 
 except ImportError:
