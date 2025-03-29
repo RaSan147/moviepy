@@ -273,10 +273,11 @@ class FramesMatches(list):
                 else:
                     diff_norm = np.abs(frame_dict[t2]["|F|"] - F_norm)
                     sum_norm = frame_dict[t2]["|F|"] + F_norm
+                    rejected = diff_norm > distance_threshold
                     frame_dict[t2][t] = {
                         "min": diff_norm,
                         "max": sum_norm,
-                        "rejected": diff_norm > distance_threshold
+                        "rejected": rejected
                     }
 
             # Store current frame
@@ -296,27 +297,29 @@ class FramesMatches(list):
                 # Compute actual distance
                 uv = dot_product(frame_dict[t2]["frame"], flat_frame)
                 dist = np.sqrt(frame_dict[t2]["|F|sq"] + F_norm_sq - 2 * uv)
+                rejected = dist >= distance_threshold
                 frame_dict[t2][t].update({
                     "min": dist,
                     "max": dist,
-                    "rejected": dist >= distance_threshold
+                    "rejected": rejected
                 })
 
-                if frame_dict[t2][t]["rejected"]:
+                if rejected:
                     continue
 
                 # Update bounds for subsequent frames
                 for t3 in t_F[i+1:t_idx]:
                     t3t = frame_dict[t3][t]
                     t2t3 = frame_dict[t2][t3]
-                    
+
+                    # Calculate new_max and new_min separately
                     new_max = np.minimum(t3t["max"], dist + t2t3["max"])
-                    new_min = np.maximum(
-                        t3t["min"],
-                        dist - t2t3["max"],
-                        t2t3["min"] - dist
-                    )
-                    
+                    # Cross-compatible way to calculate maximum of multiple values
+                    candidate_min = t3t["min"]
+                    candidate_min = np.maximum(candidate_min, dist - t2t3["max"])
+                    candidate_min = np.maximum(candidate_min, t2t3["min"] - dist)
+                    new_min = candidate_min
+
                     t3t.update({
                         "max": new_max,
                         "min": new_min,
