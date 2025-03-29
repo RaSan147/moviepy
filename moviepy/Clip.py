@@ -93,7 +93,7 @@ class Clip:
                     test_t = np_convert(_t)
                     self.frame_function(test_t)
                     self.memoized_prefers_numpy = False
-                except (TypeError, AttributeError):
+                except (TypeError, NotImplementedError, AttributeError):
                     # Fallback to NumPy
                     test_t = np_get(_t)
                     self.frame_function(test_t)

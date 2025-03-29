@@ -898,8 +898,7 @@ class VideoClip(Clip):
             end_y = min(y + clip_size[1], bg_size[1])
             region_w = end_x - x
             region_h = end_y - y
-            print(isinstance(background, np.ndarray), type(background))
-            print(isinstance(clip_frame, np.ndarray))
+            
             background[y:end_y, x:end_x] = clip_frame[:region_h, :region_w, :3]
 
             return background
@@ -1209,8 +1208,15 @@ class VideoClip(Clip):
 
         """
         self.relative_pos = relative
+        def _pos(t):
+            try:
+                return pos(t)
+            except (TypeError, NotImplementedError, AttributeError):
+                t = np_get(t)
+                return pos(t)
         if hasattr(pos, "__call__"):
-            self.pos = pos
+            self.pos = _pos
+
         else:
             self.pos = lambda t: pos
 
