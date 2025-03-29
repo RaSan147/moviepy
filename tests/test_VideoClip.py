@@ -265,8 +265,16 @@ def test_with_layer_index():
     bottom_clip = BitmapClip([["ABC"], ["BCA"], ["CAB"]], fps=1).with_layer_index(1)
     top_clip = BitmapClip([["DEF"], ["EFD"]], fps=1).with_layer_index(2)
 
+    print("BottomMask", bottom_clip.mask)
+
     composite_clip = CompositeVideoClip([bottom_clip, top_clip])
     reversed_composite_clip = CompositeVideoClip([top_clip, bottom_clip])
+
+    print("Com", composite_clip.get_frame(0.5))
+    print("Top", top_clip.get_frame(0.5))
+    print("Bottom", bottom_clip.get_frame(0.5))
+    print("Rev", reversed_composite_clip.get_frame(0.5))
+
 
     # Make sure that the order of clips makes no difference to the composite clip
     assert composite_clip.subclipped(0, 2) == reversed_composite_clip.subclipped(0, 2)
@@ -285,6 +293,9 @@ def test_compositing_with_same_layers():
 
     composite_clip = CompositeVideoClip([bottom_clip, top_clip])
     reversed_composite_clip = CompositeVideoClip([top_clip, bottom_clip])
+
+    # save both clips to files
+    print(composite_clip == bottom_clip)
 
     assert composite_clip == top_clip
     assert reversed_composite_clip == bottom_clip

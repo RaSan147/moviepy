@@ -8,6 +8,7 @@ import pytest;#pytest.skip(allow_module_level=True)
 
 
 from moviepy import *
+from moviepy.np_handler import np_get
 
 
 class ClipPixelTest:
@@ -18,8 +19,11 @@ class ClipPixelTest:
 
     def expect_color_at(self, ts, expected, xy=[0, 0]):
         frame = self.clip.frame_function(ts)
+        frame = np_get(frame)
         r, g, b = expected
         actual = frame[xy[1]][xy[0]]
+        
+
         diff = abs(actual[0] - r) + abs(actual[1] - g) + abs(actual[2] - b)
 
         mismatch = diff > ClipPixelTest.ALLOWABLE_COLOR_VARIATION
@@ -100,6 +104,7 @@ def test_blit_with_opacity():
 
     # overlay green at half opacity during first 2 sec
     clip2 = ColorClip(size, color=(0, 255, 0), duration=2).with_opacity(0.5)
+
     composite = CompositeVideoClip([clip1, clip2])
     bt = ClipPixelTest(composite)
 
@@ -155,11 +160,17 @@ def test_compositing_with_transparency_colors(util):
     frame = compostite_clip2.get_frame(1)
     mask = compostite_clip2.mask.get_frame(1)
 
+    frame = np_get(frame)
+    mask = np_get(mask)
+
     # We check color with 1 layer
     # We add a bit of tolerance (about 1%) to account
     # For possible rounding errors
+
+
     color1 = frame[50, 10]
     opacity1 = mask[50, 10]
+    print("Expected:", [255, 0, 0], "Got:", color1, "Opacity:", opacity1)
     assert np.allclose(color1, [255, 0, 0], rtol=0.01)
     assert abs(opacity1 - 0.3) < 0.01
 
@@ -172,6 +183,8 @@ def test_compositing_with_transparency_colors(util):
     # With 3 layers
     color3 = frame[50, 50]
     opacity3 = mask[50, 50]
+
+    print("Expected:", [57, 82, 116], "Got:", color3, "Opacity:", opacity3)
     assert np.allclose(color3, [57, 82, 116], rtol=0.01)
     assert abs(opacity3 - 0.657) < 0.01
 

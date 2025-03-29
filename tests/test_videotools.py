@@ -5,6 +5,7 @@ import math
 import os
 import shutil
 import sys
+import time
 
 
 
@@ -304,17 +305,26 @@ def test_FramesMatches_select_scenes(
     nomatch_threshold,
     expected_result,
 ):
+
     video_clip = VideoFileClip(filename)
     if subclip is not None:
         video_clip = video_clip.subclipped(subclip[0], subclip[1])
     clip = concatenate_videoclips(
         [video_clip.with_effects([vfx.TimeMirror()]), video_clip]
     )
-    result = FramesMatches.from_clip(clip, 10, 3, logger=None).select_scenes(
+
+    start = time.perf_counter()
+    matcher = FramesMatches.from_clip(clip, 10, 3, logger=None)
+    end = time.perf_counter()
+    result = matcher.select_scenes(
         match_threshold,
         min_time_span,
         nomatch_threshold=nomatch_threshold,
     )
+
+    # raise AssertionError(
+    #     f"Subclips took {end - start:.2f}s to process"
+    # )
 
     assert len(result) == len(expected_result)
     assert result == expected_result

@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 
-from moviepy.np_handler import np, np_get, _np
+from moviepy.np_handler import np, np_convert, np_get, _np
 from moviepy.decorators import convert_parameter_to_seconds, use_clip_fps_by_default
 
 
@@ -38,16 +38,19 @@ def find_video_period(clip, fps=None, start_time=0.3):
         1
     """
 
-    def frame(t):
-        return clip.get_frame(t).flatten()
+    # Preload all necessary frames at once
+    timings = np.arange(start_time, clip.duration, 1 / fps)[1:]
+    frames = np.array([clip.get_frame(t).flatten() for t in timings])  # Vectorized frame extraction
 
-    timings = _np.arange(start_time, clip.duration, 1 / fps)[1:]
-    ref = frame(0)
-    corrs = np.array([np.corrcoef(ref, frame(t))[0, 1] for t in timings])
+    # Compute correlation coefficients in batch
+    ref = clip.get_frame(0).flatten()
+    corrs = np.corrcoef(ref, frames)[0, 1:]  # Vectorized correlation computation
+
+    # Find the best matching frame
     argmax = np.argmax(corrs)
-    timing = timings[np_get(argmax)]
+    timing = timings[argmax]
 
-    return np_get(timing)
+    return float(np_get(timing))
 
 
 class FramesMatch:
@@ -70,10 +73,10 @@ class FramesMatch:
     """
 
     def __init__(self, start_time, end_time, min_distance, max_distance):
-        self.start_time = start_time
-        self.end_time = end_time
-        self.min_distance = min_distance
-        self.max_distance = max_distance
+        self.start_time = np_get(start_time)
+        self.end_time = np_get(end_time)
+        self.min_distance = np_get(min_distance)
+        self.max_distance = np_get(max_distance)
         self.time_span = end_time - start_time
 
     def __str__(self):  # pragma: no cover
@@ -251,70 +254,84 @@ class FramesMatches(list):
         N_pixels = clip.w * clip.h * 3
 
         def dot_product(F1, F2):
-            return (F1 * F2).sum() / N_pixels
+            return np.dot(F1, F2) / N_pixels
 
         frame_dict = {}  # will store the frames and their mutual distances
-
-        def distance(t1, t2):
-            uv = dot_product(frame_dict[t1]["frame"], frame_dict[t2]["frame"])
-            u, v = frame_dict[t1]["|F|sq"], frame_dict[t2]["|F|sq"]
-            return np.sqrt(u + v - 2 * uv)
-
-        matching_frames = []  # the final result.
+        matching_frames = []  # the final result
 
         for t, frame in clip.iter_frames(with_times=True, logger=logger):
-            t = float(np_get(t))
-            flat_frame = 1.0 * frame.flatten()
+            t = float(np.asnumpy(t) if hasattr(t, 'get') else t)  # handle both cupy and numpy arrays
+            flat_frame = np.asarray(frame, dtype=np.float32).flatten()
             F_norm_sq = dot_product(flat_frame, flat_frame)
             F_norm = np.sqrt(F_norm_sq)
 
-            for t2 in list(frame_dict.keys()):
-                # forget old frames, add 't' to the others frames
-                # check for early rejections based on differing norms
+            # Process existing frames
+            current_keys = list(frame_dict.keys())
+            for t2 in current_keys:
                 if (t - t2) > max_duration:
                     frame_dict.pop(t2)
                 else:
+                    diff_norm = np.abs(frame_dict[t2]["|F|"] - F_norm)
+                    sum_norm = frame_dict[t2]["|F|"] + F_norm
                     frame_dict[t2][t] = {
-                        "min": abs(frame_dict[t2]["|F|"] - F_norm),
-                        "max": frame_dict[t2]["|F|"] + F_norm,
+                        "min": diff_norm,
+                        "max": sum_norm,
+                        "rejected": diff_norm > distance_threshold
                     }
-                    frame_dict[t2][t]["rejected"] = (
-                        frame_dict[t2][t]["min"] > distance_threshold
-                    )
+
+            # Store current frame
+            frame_dict[t] = {
+                "frame": flat_frame,
+                "|F|sq": F_norm_sq,
+                "|F|": F_norm
+            }
 
             t_F = sorted(frame_dict.keys())
+            t_idx = t_F.index(t)
 
-            frame_dict[t] = {"frame": flat_frame, "|F|sq": F_norm_sq, "|F|": F_norm}
+            for i, t2 in enumerate(t_F[:t_idx]):
+                if frame_dict[t2][t]["rejected"]:
+                    continue
 
-            for i, t2 in enumerate(t_F):
-                # Compare F(t) to all the previous frames
+                # Compute actual distance
+                uv = dot_product(frame_dict[t2]["frame"], flat_frame)
+                dist = np.sqrt(frame_dict[t2]["|F|sq"] + F_norm_sq - 2 * uv)
+                frame_dict[t2][t].update({
+                    "min": dist,
+                    "max": dist,
+                    "rejected": dist >= distance_threshold
+                })
 
                 if frame_dict[t2][t]["rejected"]:
                     continue
 
-                dist = distance(t, t2)
-                frame_dict[t2][t]["min"] = frame_dict[t2][t]["max"] = dist
-                frame_dict[t2][t]["rejected"] = dist >= distance_threshold
+                # Update bounds for subsequent frames
+                for t3 in t_F[i+1:t_idx]:
+                    t3t = frame_dict[t3][t]
+                    t2t3 = frame_dict[t2][t3]
+                    
+                    new_max = np.minimum(t3t["max"], dist + t2t3["max"])
+                    new_min = np.maximum(
+                        t3t["min"],
+                        dist - t2t3["max"],
+                        t2t3["min"] - dist
+                    )
+                    
+                    t3t.update({
+                        "max": new_max,
+                        "min": new_min,
+                        "rejected": new_min > distance_threshold
+                    })
 
-                for t3 in t_F[i + 1 :]:
-                    # For all the next times t3, use d(F(t), F(end_time)) to
-                    # update the bounds on d(F(t), F(t3)). See if you can
-                    # conclude on whether F(t) and F(t3) match.
-                    t3t, t2t3 = frame_dict[t3][t], frame_dict[t2][t3]
-                    t3t["max"] = min(t3t["max"], dist + t2t3["max"])
-                    t3t["min"] = max(t3t["min"], dist - t2t3["max"], t2t3["min"] - dist)
-
-                    if t3t["min"] > distance_threshold:
-                        t3t["rejected"] = True
-
-            # Store all the good matches (end_time,t)
-            matching_frames += [
+            # Collect matches
+            matching_frames.extend(
                 (t1, t, frame_dict[t1][t]["min"], frame_dict[t1][t]["max"])
                 for t1 in frame_dict
                 if (t1 != t) and not frame_dict[t1][t]["rejected"]
-            ]
+            )
 
         return FramesMatches([FramesMatch(*e) for e in matching_frames])
+
 
     def select_scenes(
         self, match_threshold, min_time_span, nomatch_threshold=None, time_distance=0
@@ -370,52 +387,55 @@ class FramesMatches(list):
         if nomatch_threshold is None:
             nomatch_threshold = match_threshold
 
+
         dict_starts = defaultdict(lambda: [])
         for start, end, min_distance, max_distance in self:
             dict_starts[start].append([end, min_distance, max_distance])
-
-        starts_ends = sorted(dict_starts.items(), key=lambda k: k[0])
-
+        # Convert to sorted list of tuples (start, ends_info)
+        starts_ends = sorted(dict_starts.items(), key=lambda x: x[0])
+        
         result = []
-        min_start = 0
-        for start, ends_distances in starts_ends:
+        min_start = 0.0
+        
+        for start, ends_info in starts_ends:
             if start < min_start:
                 continue
-
-            ends = [end for (end, min_distance, max_distance) in ends_distances]
-            great_matches = [
-                (end, min_distance, max_distance)
-                for (end, min_distance, max_distance) in ends_distances
-                if max_distance < match_threshold
-            ]
-
-            great_long_matches = [
-                (end, min_distance, max_distance)
-                for (end, min_distance, max_distance) in great_matches
-                if (end - start) > min_time_span
-            ]
-
-            if not great_long_matches:
-                continue  # No GIF can be made starting at this time
-
-            poor_matches = {
-                end
-                for (end, min_distance, max_distance) in ends_distances
-                if min_distance > nomatch_threshold
-            }
-            short_matches = {end for end in ends if (end - start) <= 0.6}
-
+            
+            # Convert to numpy array for vectorized operations
+            ends_array = _np.array(ends_info, dtype=_np.float32)
+            ends = ends_array[:, 0]
+            min_distances = ends_array[:, 1]
+            max_distances = ends_array[:, 2]
+            
+            # Vectorized conditions
+            great_matches_mask = max_distances < match_threshold
+            great_matches = ends_array[great_matches_mask]
+            
+            long_matches_mask = (great_matches[:, 0] - start) > min_time_span
+            great_long_matches = great_matches[long_matches_mask]
+            
+            if great_long_matches.size == 0:
+                continue
+            
+            # Find poor matches
+            poor_matches_mask = min_distances > nomatch_threshold
+            poor_matches = set(ends[poor_matches_mask])
+            
+            # Find short matches
+            short_matches_mask = (ends - start) <= 0.6
+            short_matches = set(ends[short_matches_mask])
+            
             if not poor_matches.intersection(short_matches):
                 continue
-
-            end = max(end for (end, min_distance, max_distance) in great_long_matches)
-            end, min_distance, max_distance = next(
-                e for e in great_long_matches if e[0] == end
-            )
-
-            result.append(FramesMatch(start, end, min_distance, max_distance))
+            
+            # Find the longest match
+            max_end_idx = _np.argmax(great_long_matches[:, 0])
+            best_match = great_long_matches[max_end_idx]
+            end, min_dist, max_dist = best_match
+            
+            result.append(FramesMatch(start, end, min_dist, max_dist))
             min_start = start + time_distance
-
+        
         return FramesMatches(result)
 
     def write_gifs(self, clip, gifs_dir, **kwargs):

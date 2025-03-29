@@ -108,71 +108,64 @@ def color_gradient(
         #   [229.5  25.5   0. ]]]
     """
     # np-arrayize and change x,y coordinates to y,x
-    w, h = np_get(size)
+    w, h = size
+    color_1 = np.asarray(color_1, dtype=np.float32)
+    color_2 = np.asarray(color_2, dtype=np.float32)
+    p1 = np.asarray(p1[::-1], dtype=np.float32)
 
-    print(w, h, type(size), type(w), type(h))
-
-    color_1 = np.array(color_1).astype(float)
-    color_2 = np.array(color_2).astype(float)
+    # Create mesh grid for pixel coordinates
+    M = np.dstack(np.meshgrid(np.arange(w), np.arange(h))[::-1]).astype(np.float32)
 
     if shape == "bilinear":
         if vector is None:
             if p2 is None:
                 raise ValueError("You must provide either 'p2' or 'vector'")
-            vector = np.array(p2) - np.array(p1)
+            vector = np.subtract(np.asarray(p2, dtype=np.float32), p1)
 
+        else:
+            vector = np.array(vector, dtype=np.float32)
+        # Compute two gradient directions in parallel
+        vector_flipped = np.negative(vector)
         m1, m2 = [
-            color_gradient(
-                size,
-                p1,
-                vector=v,
-                color_1=1.0,
-                color_2=0.0,
-                shape="linear",
-                offset=offset,
-            )
-            for v in [vector, [-v for v in vector]]
+            color_gradient(size, p1, vector=v, color_1=1.0, color_2=0.0, shape="linear", offset=offset)
+            for v in [vector, vector_flipped]
         ]
 
         arr = np.maximum(m1, m2)
         if color_1.size > 1:
-            arr = np.dstack(3 * [arr])
+            arr = np.dstack([arr] * 3)  # Stack across color channels
         return arr * color_1 + (1 - arr) * color_2
 
-    p1 = np.array(p1[::-1]).astype(float)
-
-    M = np.dstack(np.meshgrid(np.arange(w), np.arange(h))[::-1]).astype(float)
-
-    if shape == "linear":
+    elif shape == "linear":
         if vector is None:
             if p2 is not None:
-                vector = np.array(p2[::-1]) - p1
+                vector = np.subtract(np.asarray(p2[::-1], dtype=np.float32), p1)
             else:
                 raise ValueError("You must provide either 'p2' or 'vector'")
         else:
-            vector = np.array(vector[::-1])
+            vector = np.asarray(vector[::-1], dtype=np.float32)
 
         norm = np.linalg.norm(vector)
-        n_vec = vector / norm**2  # norm 1/norm(vector)
+        n_vec = vector / (norm**2 + 1e-8)  # Avoid division by zero
 
         p1 = p1 + offset * vector
-        arr = (M - p1).dot(n_vec) / (1 - offset)
-        arr = np.minimum(1, np.maximum(0, arr))
+        arr = np.clip((M - p1).dot(n_vec) / (1 - offset), 0, 1)
+
         if color_1.size > 1:
-            arr = np.dstack(3 * [arr])
+            arr = np.dstack([arr] * 3)  # Stack across color channels
         return arr * color_1 + (1 - arr) * color_2
 
     elif shape == "radial":
         if (radius or 0) == 0:
-            arr = np.ones((h, w))
+            arr = np.ones((h, w), dtype=np.float32)
         else:
-            arr = (np.sqrt(((M - p1) ** 2).sum(axis=2))) - offset * radius
-            arr = arr / ((1 - offset) * radius)
-            arr = np.minimum(1.0, np.maximum(0, arr))
+            arr = np.sqrt(np.sum((M - p1) ** 2, axis=2)) - offset * radius
+            arr = np.clip(arr / ((1 - offset) * radius), 0, 1)
 
         if color_1.size > 1:
-            arr = np.dstack(3 * [arr])
+            arr = np.dstack([arr] * 3)  # Stack across color channels
         return (1 - arr) * color_1 + arr * color_2
+
     raise ValueError("Invalid shape, should be either 'radial', 'linear' or 'bilinear'")
 
 
@@ -235,38 +228,43 @@ def color_split(
         # An image split along an arbitrary line (see below)
         color_split(size, p1=[20, 50], p2=[25, 70], color_1=0, color_2=1)
     """
-    color_1 = _np.array(color_1).astype(float)
-    color_2 = _np.array(color_2).astype(float)
+    # Convert colors to CuPy arrays only once
+    color_1 = np.asarray(color_1, dtype=np.float32)
+    color_2 = np.asarray(color_2, dtype=np.float32)
+
     if gradient_width or ((x is None) and (y is None)):
         if p2 is not None:
-            vector = np.array(p2) - np.array(p1)
+            vector = np.subtract(np.asarray(p2, dtype=np.float32), np.asarray(p1, dtype=np.float32))
         elif x is not None:
-            vector = np.array([0, -1.0])
-            p1 = np.array([x, 0])
+            vector = np.array([0, -1.0], dtype=np.float32)
+            p1 = np.array([x, 0], dtype=np.float32)
         elif y is not None:
-            vector = np.array([1.0, 0.0])
-            p1 = np.array([0, y])
+            vector = np.array([1.0, 0.0], dtype=np.float32)
+            p1 = np.array([0, y], dtype=np.float32)
 
-        x, y = vector
-        vector = np.array([y, -x]).astype("float")
+        # Normalize vector
+        vector = np.array([vector[1], -vector[0]], dtype=np.float32)
         norm = np.linalg.norm(vector)
         vector = max(0.1, gradient_width) * vector / norm
-        return color_gradient(
-            size, p1, vector=vector, color_1=color_1, color_2=color_2, shape="linear"
-        )
+
+        return color_gradient(size, p1, vector=vector, color_1=color_1, color_2=color_2, shape="linear")
+
     else:
         w, h = size
-        shape = (h, w) if (color_1.ndim == 0) else (h, w, len(color_1))
-        arr = _np.zeros(shape, dtype=color_1.dtype)  # Ensures the dtype is the same
+        shape = (h, w) if color_1.ndim == 0 else (h, w, len(color_1))
+        
+        # Allocate memory efficiently
+        arr = np.zeros(shape, dtype=color_1.dtype)
 
-        if x:
+        # Apply color fill using slicing
+        if x is not None:
             arr[:, :x] = color_1
             arr[:, x:] = color_2
-        elif y:
+        elif y is not None:
             arr[:y] = color_1
             arr[y:] = color_2
 
-        return np_convert(arr)
+        return arr
 
 
 def circle(screensize, center, radius, color=1.0, bg_color=0, blur=1):

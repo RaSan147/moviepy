@@ -59,38 +59,78 @@ class Clip:
         self.memoized_t = None
         self.memoized_frame = None
 
+        self.memoize_np = False
+        self.memoized_frame_function_hash = None
+        self.memoized_prefers_numpy = None
+        
+
     def copy(self):
         """Allows the usage of ``.copy()`` in clips as chained methods invocation."""
         return _copy.copy(self)
 
-    @convert_parameter_to_seconds(["t"])
-    def get_frame(self, t) -> np_ndarray:
-        """Gets a numpy array representing the RGB picture of the clip,
-        or (mono or stereo) value for a sound clip, at time ``t``.
-
-        Parameters
-        ----------
-
-        t : float or tuple or str
-          Moment of the clip whose frame will be returned.
-        """
-        # Coming soon: smart error handling for debugging at this point
-        _t = t
-        t = np_convert(t) # convert to cu/numpy array if needed
-
+    def get_frame(self, t) -> np.ndarray:
+        """Gets a numpy array representing the RGB picture or sound data at time `t`."""
+        _t = t  # Save original input for fallback
+        
+        # 1. Determine target array type (CuPy/NumPy) ---------------------------------
+        if self.memoize_np:
+            # Check if frame function changed or type is undetermined
+            current_hash = hash(self.frame_function)
+            if not hasattr(self, 'memoized_frame_function_hash'):
+                # Initialize memoization attributes
+                self.memoized_frame_function_hash = None
+                self.memoized_prefers_numpy = None
+            
+            if current_hash != self.memoized_frame_function_hash:
+                # Reset cached type if frame function changed
+                self.memoized_frame_function_hash = current_hash
+                self.memoized_prefers_numpy = None
+            
+            # Detect preferred type if not cached
+            if self.memoized_prefers_numpy is None:
+                try:
+                    # Test with CuPy first
+                    test_t = np_convert(_t)
+                    self.frame_function(test_t)
+                    self.memoized_prefers_numpy = False
+                except (TypeError, AttributeError):
+                    # Fallback to NumPy
+                    test_t = np_get(_t)
+                    self.frame_function(test_t)
+                    self.memoized_prefers_numpy = True
+        
+        # 2. Convert input to appropriate type ----------------------------------------
+        try:
+            if self.memoize_np and (self.memoized_prefers_numpy is not None):
+                t = np_get(_t) if self.memoized_prefers_numpy else np_convert(_t)
+            else:
+                # Default to trying CuPy first, then fallback to NumPy
+                t = np_convert(_t)
+        except Exception:
+            t = np_get(_t)
+        
+        # 3. Try getting frame -------------------------------------------------------
         if self.memoize and t == self.memoized_t:
-                return self.memoized_frame
+            return self.memoized_frame
+        
         try:
             frame = self.frame_function(t)
         except TypeError:
-            t = np_get(_t)
-            frame = self.frame_function(t)
-
-        frame = np_convert(frame)
-
+            # Fallback to other array type
+            t_fallback = np_get(t) if isinstance(t, np.ndarray) else np_convert(t)
+            frame = self.frame_function(t_fallback)
+            
+            if self.memoize_np:
+                # Update cached preference if memorization enabled
+                self.memoized_prefers_numpy = isinstance(t_fallback, np.ndarray)
+        
+        # 4. Ensure output consistency -----------------------------------------------
+        frame = np_convert(frame)  # Prefer CuPy if available
+        
         if self.memoize:
             self.memoized_t = t
             self.memoized_frame = frame
+        
         return frame
 
     def transform(self, func, apply_to=None, keep_duration=True, print_debug=False):

@@ -31,6 +31,7 @@ except Exception:
 
 def np_get(arr: np_ndarray) -> _np.ndarray:
 	"""Get the array from cupy or numpy.
+	_np is numpy, np is cupy if available else numpy
 
 	Parameters
 	----------
@@ -54,7 +55,8 @@ def np_get(arr: np_ndarray) -> _np.ndarray:
 
 def np_convert(arr: Any) -> Union[Any, np.ndarray]:
 	"""Convert the array to cupy or numpy.
-	
+	_np is numpy, np is cupy if available else numpy
+
 	Parameters
 	----------
 	arr : Any

@@ -1,0 +1,255 @@
+CPU numpy
+
+============================================================================================ test session starts =============================================================================================
+platform win32 -- Python 3.11.9, pytest-8.3.5, pluggy-1.5.0
+rootdir: E:\C_coding\GH_REPO\moviepy
+configfile: pyproject.toml
+collected 622 items                                                                                                                                                                                           
+
+tests\test_AudioClips.py ................                                                                                                                                                               [  2%]
+tests\test_BitmapClip.py ....                                                                                                                                                                           [  3%]
+tests\test_Clip.py .............................                                                                                                                                                        [  7%]
+tests\test_ImageSequenceClip.py ..                                                                                                                                                                      [  8%]
+tests\test_PR.py ...........                                                                                                                                                                            [  9%]
+tests\test_SubtitlesClip.py ...                                                                                                                                                                         [ 10%]
+tests\test_TextClip.py ......                                                                                                                                                                           [ 11%]
+tests\test_VideoClip.py ......................................................................................                                                                                          [ 25%]
+tests\test_VideoFileClip.py .....                                                                                                                                                                       [ 26%]
+tests\test_compositing.py ..........                                                                                                                                                                    [ 27%]
+tests\test_doc_examples.py ...............................s......                                                                                                                                       [ 33%]
+tests\test_ffmpeg_reader.py ..........................                                                                                                                                                  [ 37%]
+tests\test_ffmpeg_tools.py ...                                                                                                                                                                          [ 38%]
+tests\test_ffmpeg_writer.py ..............................................................                                                                                                              [ 48%]
+tests\test_fx.py ...................................................................................................................................................................................... [ 77%]
+...............................                                                                                                                                                                         [ 82%]
+tests\test_issues.py ...................                                                                                                                                                                [ 85%]
+tests\test_tools.py ................ss.........sss...                                                                                                                                                   [ 90%]
+tests\test_videotools.py ............s...........................................                                                                                                                       [100%]
+
+============================================================================================== warnings summary ==============================================================================================
+tests/test_VideoClip.py::test_slice_mirror
+  E:\C_coding\GH_REPO\moviepy\moviepy\video\io\ffmpeg_reader.py:190: UserWarning: In file media/fire2.mp4, 2764800 bytes wanted but 0 bytes read at frame index 25 (out of a total 25 frames), at time 2.38/2.38 sec. Using the last valid frame instead.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================================================================================= slowest durations ==============================================================================================
+25.44s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\rendering\\write_videofile.py]
+8.69s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\getting_started\\quick_presentation\\basic_example.py]
+4.73s call     tests/test_issues.py::test_issue_1682
+4.29s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\compositing\\juxtaposing.py]
+3.90s call     tests/test_videotools.py::test_FramesMatches_select_scenes[(media/chaplin.mp4)(1, 3).fx(time_mirror)]
+2.59s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\ImageSequenceClip.py]
+2.29s call     tests/test_issues.py::test_issue_334
+2.06s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\compositing\\with_position.py]
+1.98s call     tests/test_fx.py::test_make_loopable
+1.95s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\rendering\\write_gif.py]
+1.65s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\compositing\\crossfadein.py]
+1.54s call     tests/test_VideoClip.py::test_write_gif
+1.44s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\compositing\\with_start.py]
+1.36s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\compositing\\CompositeVideoClip.py]
+1.22s call     tests/test_ffmpeg_reader.py::test_large_small_skip_equal
+1.20s call     tests/test_ffmpeg_reader.py::test_failure_to_release_file
+1.19s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos_no_default_stream
+1.02s call     tests/test_fx.py::test_loop
+0.91s call     tests/test_issues.py::test_issue_655
+0.87s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\compositing\\concatenate.py]
+0.80s call     tests/test_fx.py::test_lum_contrast
+0.75s call     tests/test_compositing.py::test_clips_array_duration
+0.72s call     tests/test_VideoClip.py::test_setopacity
+0.57s call     tests/test_videotools.py::test_find_video_period
+0.49s call     tests/test_VideoFileClip.py::test_copied_videofileclip_write_videofile
+0.48s call     tests/test_VideoFileClip.py::test_ffmpeg_resizing
+0.47s call     tests/test_ffmpeg_reader.py::test_correct_video_rotation
+0.47s call     tests/test_VideoClip.py::test_with_sub_effetcs
+0.47s call     tests/test_issues.py::test_issue_1682_2
+0.45s call     tests/test_PR.py::test_PR_515
+0.38s call     tests/test_fx.py::test_fadeout
+0.38s call     tests/test_VideoFileClip.py::test_setup
+0.36s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\rendering\\write_images_sequence.py]
+0.34s call     tests/test_ffmpeg_reader.py::test_release_of_file_via_close
+0.33s call     tests/test_VideoClip.py::test_slice_tuples
+0.33s call     tests/test_VideoClip.py::test_add
+0.32s call     tests/test_videotools.py::test_credits
+0.32s call     tests/test_VideoClip.py::test_write_videofiles_with_temp_audiofile_path
+0.30s call     tests/test_ffmpeg_reader.py::test_large_skip_frame_pos
+0.29s call     tests/test_ffmpeg_reader.py::test_frame_seek
+0.29s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\compositing\\CompositeAudioClip.py]
+0.28s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\loading.py]
+0.26s call     tests/test_ffmpeg_reader.py::test_seeking_beyond_file_end
+0.25s call     tests/test_ffmpeg_tools.py::test_ffmpeg_extract_subclip
+0.25s call     tests/test_VideoClip.py::test_slice_mirror
+0.24s call     tests/test_issues.py::test_issue_2269
+0.24s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\AudioArrayClip.py]
+0.24s call     tests/test_VideoClip.py::test_setfps_withoutchangeduration
+0.23s call     tests/test_PR.py::test_PR_529
+0.22s call     tests/test_VideoClip.py::test_and
+0.21s call     tests/test_VideoClip.py::test_mul
+0.21s call     tests/test_VideoClip.py::test_write_image_sequence
+0.21s call     tests/test_fx.py::test_multiply_stereo_volume
+0.21s call     tests/test_PR.py::test_PR_1137_video
+0.20s call     tests/test_tools.py::test_decorators_argument_converters_consistency[convert_parameter_to_seconds]
+0.20s call     tests/test_AudioClips.py::test_concatenate_audiofileclips
+0.20s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\VideoFileClip.py]
+0.19s call     tests/test_VideoClip.py::test_afterimage
+0.19s call     tests/test_AudioClips.py::test_concatenate_audioclip_with_audiofileclip
+0.18s call     tests/test_VideoClip.py::test_setfps_withchangeduration
+0.18s call     tests/test_ImageSequenceClip.py::test_1
+0.17s call     tests/test_PR.py::test_PR_1137_audio
+0.16s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\rendering\\show.py]
+0.16s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\masks.py]
+0.16s call     tests/test_AudioClips.py::test_audioclip_io
+0.15s call     tests/test_compositing.py::test_clips_array
+0.15s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\TextClip.py]
+0.15s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\AudioFileClip.py]
+0.15s call     tests/test_fx.py::test_multiply_volume_videoclip
+0.15s call     tests/test_tools.py::test_config_check
+0.14s call     tests/test_PR.py::test_PR_458
+0.14s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos
+0.14s call     tests/test_PR.py::test_PR_528
+0.14s call     tests/test_VideoClip.py::test_toimageclip
+0.14s call     tests/test_ffmpeg_reader.py::test_unusual_order_frame_pos
+0.13s call     tests/test_VideoFileClip.py::test_ffmpeg_transparency_mask
+0.13s call     tests/test_issues.py::test_issue_636
+0.13s call     tests/test_VideoClip.py::test_setaudio_with_audiofile
+0.13s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos_multiple_audio_streams
+0.12s call     tests/test_fx.py::test_audio_normalize
+0.12s call     tests/test_SubtitlesClip.py::test_subtitles
+0.12s call     tests/test_VideoClip.py::test_write_frame_errors_with_redirected_logs
+0.12s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\rendering\\save_frame.py]
+0.12s call     tests/test_VideoFileClip.py::test_videofileclip_safe_deepcopy
+0.12s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\ImageClip.py]
+0.12s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos_decode_file[decode_file=True]
+0.12s call     tests/test_ffmpeg_tools.py::test_ffmpeg_resize
+0.11s call     tests/test_fx.py::test_rotate_nonstandard_angles
+0.11s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\closing.py]
+0.11s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\effects\\using_effects.py]
+0.11s call     tests/test_VideoClip.py::test_check_codec
+0.11s call     tests/test_ffmpeg_writer.py::test_transparent_video
+0.11s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos_metadata
+0.10s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\effects\\time_transform.py]
+0.10s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\rendering\\write_videofile_duration.py]
+0.10s call     tests/test_AudioClips.py::test_audioclip
+0.10s call     tests/test_issues.py::test_issue_2160
+0.10s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=default-ext=.mp4-write_logfile=True-with_mask=True]
+0.10s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\effects\\using_with_methods.py]
+0.10s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\effects\\transform.py]
+0.10s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=default-ext=.mp4-write_logfile=False-with_mask=False]
+0.09s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\effects\\image_transform.py]
+0.09s call     tests/test_VideoClip.py::test_copied_videoclip_write_videofile
+0.09s call     tests/test_ffmpeg_tools.py::test_ffmpeg_stabilize_video
+0.09s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\effects\\modify_copy_example.py]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=default-ext=.mp4-write_logfile=True-with_mask=True]
+0.09s call     tests/test_issues.py::test_issue_470
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=default-ext=.mp4-write_logfile=False-with_mask=True]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=default-ext=.mp4-write_logfile=True-with_mask=False]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=default-ext=.mp4-write_logfile=True-with_mask=True]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=default-ext=.mp4-write_logfile=True-with_mask=False]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=default-ext=.mp4-write_logfile=False-with_mask=False]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=default-ext=.mp4-write_logfile=True-with_mask=True]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=default-ext=.mp4-write_logfile=False-with_mask=True]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=default-ext=.mp4-write_logfile=True-with_mask=False]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=default-ext=.mp4-write_logfile=True-with_mask=False]
+0.09s call     tests/test_VideoClip.py::test_write_frame_errors
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=default-ext=.mp4-write_logfile=False-with_mask=True]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=default-ext=.mp4-write_logfile=False-with_mask=True]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=default-ext=.mp4-write_logfile=False-with_mask=False]
+0.09s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=default-ext=.mp4-write_logfile=False-with_mask=False]
+0.08s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\UpdatedVideoClip.py]
+0.08s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\DataVideoClip.py]
+0.08s call     tests/test_issues.py::test_issue_359
+0.08s call     tests/test_ffmpeg_reader.py::test_sequential_frame_pos
+0.07s call     tests/test_VideoClip.py::test_setaudio
+0.07s call     tests/test_tools.py::test_decorators_argument_converters_consistency[convert_path_to_string]
+0.07s call     tests/test_ffmpeg_reader.py::test_read_transparent_video
+0.07s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\ColorClip.py]
+0.06s call     tests/test_ffmpeg_writer.py::test_write_gif[with_mask=False-BitmapClip-loop=0]
+0.06s call     tests/test_VideoClip.py::test_write_videofiles_audio_codec_error
+0.06s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\VideoClip.py]
+0.06s call     tests/test_TextClip.py::test_label_autosizing
+0.06s call     tests/test_AudioClips.py::test_concatenate_audioclips_render
+0.05s call     tests/test_ffmpeg_writer.py::test_write_gif[with_mask=True-ColorClip-loop=2]
+0.05s call     tests/test_ffmpeg_writer.py::test_write_gif[with_mask=False-BitmapClip-loop=2]
+0.05s call     tests/test_ffmpeg_writer.py::test_write_gif[with_mask=False-ColorClip-loop=0]
+0.05s call     tests/test_ffmpeg_writer.py::test_write_gif[with_mask=True-ColorClip-loop=0]
+0.05s call     tests/test_ffmpeg_writer.py::test_write_gif[with_mask=True-BitmapClip-loop=2]
+0.05s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_video_rotation
+0.05s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos_video_nframes
+0.05s call     tests/test_ffmpeg_writer.py::test_write_gif[with_mask=False-ColorClip-loop=2]
+0.05s call     tests/test_ffmpeg_writer.py::test_write_gif[with_mask=True-BitmapClip-loop=0]
+0.04s call     tests/test_VideoClip.py::test_oncolor
+0.04s call     tests/test_fx.py::test_multiply_volume_audioclip[stereo-0-end=.2]
+0.04s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=libtheora-ext=.mp4-write_logfile=True-with_mask=True]
+0.04s call     tests/test_videotools.py::test_detect_scenes
+0.04s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos_decode_file[decode_file=False]
+0.04s call     tests/test_fx.py::test_multiply_volume_audioclip[stereo-0-start=.1-end=.2]
+0.04s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=libtheora-ext=.mp4-write_logfile=False-with_mask=False]
+0.04s call     tests/test_compositing.py::test_concatenate_floating_point
+0.04s call     tests/test_compositing.py::test_concatenate_with_masks
+0.04s call     tests/test_compositing.py::test_concatenate_self
+0.04s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=libtheora-ext=.mp4-write_logfile=True-with_mask=True]
+0.04s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=libtheora-ext=.mp4-write_logfile=True-with_mask=False]
+0.04s call     tests/test_ffmpeg_writer.py::test_write_file_with_spaces
+0.04s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=libtheora-ext=.mp4-write_logfile=True-with_mask=False]
+0.04s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=libtheora-ext=.mp4-write_logfile=True-with_mask=False]
+0.04s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=libtheora-ext=.mp4-write_logfile=True-with_mask=True]
+0.04s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=libtheora-ext=.mp4-write_logfile=True-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=libtheora-ext=.mp4-write_logfile=True-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=libtheora-ext=.mp4-write_logfile=False-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=libtheora-ext=.mp4-write_logfile=False-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=libtheora-ext=.mp4-write_logfile=False-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=libtheora-ext=.mp4-write_logfile=False-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=libtheora-ext=.mp4-write_logfile=False-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=libtheora-ext=.mp4-write_logfile=False-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_image[size=(5, 1)]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=libtheora-ext=.mp4-write_logfile=False-with_mask=True]
+0.03s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\AudioClip.py]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_image[size=(2, 1)]
+0.03s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos_metadata_with_attached_pic
+0.03s call     tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\effects\\custom_effect.py]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_image[logfile=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=libcrazyfoobar-ext=.mp4-write_logfile=False-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=libcrazyfoobar-ext=.mp4-write_logfile=True-with_mask=True]
+0.03s call     tests/test_issues.py::test_issue_417
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=libcrazyfoobar-ext=.mp4-write_logfile=False-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=libcrazyfoobar-ext=.mp4-write_logfile=False-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=libcrazyfoobar-ext=.mp4-write_logfile=True-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=libcrazyfoobar-ext=.mp4-write_logfile=True-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=libcrazyfoobar-ext=.mp4-write_logfile=True-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=libcrazyfoobar-ext=.mp4-write_logfile=False-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=libcrazyfoobar-ext=.mp4-write_logfile=False-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=None-codec=libcrazyfoobar-ext=.mp4-write_logfile=True-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=None-codec=libcrazyfoobar-ext=.mp4-write_logfile=True-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=libcrazyfoobar-ext=.mp4-write_logfile=False-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=libcrazyfoobar-ext=.mp4-write_logfile=False-with_mask=True]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_image[pixel_format=invalid-OSError]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=libcrazyfoobar-ext=.mp4-write_logfile=False-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=multiprocessing.cpu_count()-bitrate=5000k-codec=libcrazyfoobar-ext=.mp4-write_logfile=True-with_mask=False]
+0.03s call     tests/test_ffmpeg_writer.py::test_ffmpeg_write_video[threads=None-bitrate=5000k-codec=libcrazyfoobar-ext=.mp4-write_logfile=True-with_mask=True]
+0.03s call     tests/test_ffmpeg_reader.py::test_ffmpeg_parse_infos_chapters
+0.03s call     tests/test_videotools.py::test_find_audio_period[mono]
+0.02s call     tests/test_fx.py::test_multiply_volume_audioclip[stereo-0-start=.1]
+0.02s call     tests/test_PR.py::test_PR_1137_image
+0.02s call     tests/test_VideoClip.py::test_save_frame[RGB 2x2-t=0-mask-0]
+0.02s call     tests/test_fx.py::test_audio_delay[0.3-1-7-4]
+0.02s call     tests/test_fx.py::test_multiply_volume_audioclip[mono-0-start=.2]
+0.02s call     tests/test_fx.py::test_multiply_volume_audioclip[mono-0-start=.1-end=.2]
+0.01s call     tests/test_videotools.py::test_find_audio_period[stereo]
+0.01s call     tests/test_issues.py::test_issue_547
+0.01s call     tests/test_fx.py::test_audio_delay[0.4-2-5-2]
+0.01s call     tests/test_fx.py::test_multiply_volume_audioclip[mono-0-end=.1]
+0.01s call     tests/test_TextClip.py::test_duration
+0.01s call     tests/test_fx.py::test_audio_fadein[0.3-0.13-44100-mono]
+0.01s call     tests/test_fx.py::test_audio_delay[0.1-0.2-11-0]
+0.01s call     tests/test_TextClip.py::test_no_font
+0.01s call     tests/test_PR.py::test_PR_610
+0.01s call     tests/test_tools.py::test_deprecated_version_of[foo]
+0.01s setup    tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\getting_started\\moviepy_10_minutes\\trailer.py]
+0.01s call     tests/test_TextClip.py::test_text_filename_arguments_consistence
+0.01s call     tests/test_issues.py::test_issue_407
+0.01s setup    tests/test_doc_examples.py::test_doc_examples[E:\\C_coding\\GH_REPO\\moviepy\\docs\\_static\\code\\user_guide\\loading\\ImageSequenceClip.py]
+0.01s call     tests/test_fx.py::test_audio_delay[0.5-0.6-3--1]
+0.01s call     tests/test_VideoClip.py::test_videoclip_copy[clip.copy()]
+0.01s call     tests/test_VideoClip.py::test_videoclip_copy[copy.deepcopy(clip)]
+
+(1643 durations < 0.005s hidden.  Use -vv to show these durations.)
+============================================================================ 615 passed, 7 skipped, 1 warning in 95.63s (0:01:35) ============================================================================
