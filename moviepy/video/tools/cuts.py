@@ -40,10 +40,10 @@ def find_video_period(clip, fps=None, start_time=0.3):
 
     # Preload all necessary frames at once
     timings = np.arange(start_time, clip.duration, 1 / fps)[1:]
-    frames = np.array([clip.get_frame(t).flatten() for t in timings])  # Vectorized frame extraction
+    frames = np.array([clip.get_frame(t, to_np=False).flatten() for t in timings])  # Vectorized frame extraction
 
     # Compute correlation coefficients in batch
-    ref = clip.get_frame(0).flatten()
+    ref = clip.get_frame(0, to_np=False).flatten()
     corrs = np.corrcoef(ref, frames)[0, 1:]  # Vectorized correlation computation
 
     # Find the best matching frame
@@ -259,7 +259,7 @@ class FramesMatches(list):
         frame_dict = {}  # will store the frames and their mutual distances
         matching_frames = []  # the final result
 
-        for t, frame in clip.iter_frames(with_times=True, logger=logger):
+        for t, frame in clip.iter_frames(with_times=True, logger=logger, to_np=False):
             t = float(np.asnumpy(t) if hasattr(t, 'get') else t)  # handle both cupy and numpy arrays
             flat_frame = np.asarray(frame, dtype=np.float32).flatten()
             F_norm_sq = dot_product(flat_frame, flat_frame)
@@ -531,7 +531,7 @@ def detect_scenes(
     """
     if luminosities is None:
         luminosities = [
-            f.sum() for f in clip.iter_frames(fps=fps, dtype="uint32", logger=logger)
+            f.sum() for f in clip.iter_frames(fps=fps, dtype="uint32", logger=logger, to_np=False)
         ]
 
     luminosities = np.array(luminosities, dtype=float)

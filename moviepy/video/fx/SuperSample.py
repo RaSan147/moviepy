@@ -20,7 +20,7 @@ class SuperSample(Effect):
         def filter(get_frame, t):
             timings = np.linspace(t - self.d, t + self.d, self.n_frames)
             frame_average = np.mean(
-                1.0 * np.array([get_frame(t_) for t_ in timings], dtype="uint16"),
+                1.0 * np.array([get_frame(t_, to_np=False) for t_ in timings], dtype="uint16"),
                 axis=0,
             )
             return frame_average.astype("uint8")

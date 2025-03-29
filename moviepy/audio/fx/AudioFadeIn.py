@@ -56,5 +56,5 @@ class AudioFadeIn(Effect):
         )
 
         return clip.transform(
-            lambda get_frame, t: get_factor(t, self.duration) * get_frame(t),
+            lambda get_frame, t: get_factor(t, self.duration) * get_frame(t, to_np=False),
         )

@@ -149,13 +149,13 @@ class CompositeVideoClip(VideoClip):
 
         # Try doing clip merging with pillow
         bg_t = t - self.bg.start
-        bg_frame = self.bg.get_frame(bg_t).astype("uint8")
+        bg_frame = self.bg.get_frame(bg_t, to_np=False).astype("uint8")
         bg_frame = np_get(bg_frame)
         bg_img = Image.fromarray(bg_frame)
 
         if self.bg.mask:
             bgm_t = t - self.bg.mask.start
-            bg_mask = (self.bg.mask.get_frame(bgm_t) * 255).astype("uint8")
+            bg_mask = (self.bg.mask.get_frame(bgm_t, to_np=False) * 255).astype("uint8")
             bg_mask = np_get(bg_mask)
             bg_mask_img = Image.fromarray(bg_mask).convert("L")
 
@@ -200,13 +200,13 @@ class CompositeVideoClip(VideoClip):
 
         # Get background frame
         bg_t = t - self.bg.start
-        bg_frame = self.bg.get_frame(bg_t).astype(np.uint8)
+        bg_frame = self.bg.get_frame(bg_t, to_np=False).astype(np.uint8)
         bg_frame = np_get(bg_frame)
         
         # Handle background mask if exists
         if self.bg.mask:
             bgm_t = t - self.bg.mask.start
-            bg_mask = (self.bg.mask.get_frame(bgm_t) * 255).astype(np.uint8)
+            bg_mask = (self.bg.mask.get_frame(bgm_t, to_np=False) * 255).astype(np.uint8)
 
 
             # Resize mask to match bg_frame if needed
@@ -395,7 +395,7 @@ def concatenate_videoclips(
 
         def frame_function(t):
             i = max([i for i, e in enumerate(timings) if e <= t])
-            return clips[i].get_frame(t - timings[i])
+            return clips[i].get_frame(t - timings[i], to_np=False)
 
         def get_mask(clip):
             mask = clip.mask or ColorClip(clip.size, color=1, is_mask=True)

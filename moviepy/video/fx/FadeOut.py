@@ -30,9 +30,9 @@ class FadeOut(Effect):
 
         def filter(get_frame, t):
             if (clip.duration - t) >= self.duration:
-                return get_frame(t)
+                return get_frame(t, to_np=False)
             else:
                 fading = 1.0 * (clip.duration - t) / self.duration
-                return fading * get_frame(t) + (1 - fading) * self.final_color
+                return fading * get_frame(t, to_np=False) + (1 - fading) * self.final_color
 
         return clip.transform(filter)

@@ -5,7 +5,7 @@ import re
 import subprocess as sp
 import warnings
 
-from moviepy.np_handler import np
+from moviepy.np_handler import np, np_get
 from moviepy.config import FFMPEG_BINARY  # ffmpeg, ffmpeg.exe, etc...
 from moviepy.tools import (
     convert_to_seconds,
@@ -230,7 +230,7 @@ class FFMPEG_VideoReader:
 
         return result
 
-    def get_frame(self, t):
+    def get_frame(self, t, to_np=True):
         """Read a file video frame at time t.
 
         Note for coders: getting an arbitrary frame in the video with
@@ -242,23 +242,28 @@ class FFMPEG_VideoReader:
         # after the frame is read. This makes the later comparisons easier.
         pos = self.get_frame_number(t) + 1
 
+        def np_(data):
+            if to_np:
+                return np_get(data)
+            return data
+
         # Initialize proc if it is not open
         if not self.proc:
             print("Proc not detected")
             self.initialize(t)
-            return self.last_read
+            return np_(self.last_read)
 
         if pos == self.pos:
-            return self.last_read
+            return np_(self.last_read)
         elif (pos < self.pos) or (pos > self.pos + 100):
             # We can't just skip forward to `pos` or it would take too long
             self.initialize(t)
-            return self.last_read
+            return np_(self.last_read)
         else:
             # If pos == self.pos + 1, this line has no effect
             self.skip_frames(pos - self.pos - 1)
             result = self.read_frame()
-            return result
+            return np_(result)
 
     @property
     def lastread(self):

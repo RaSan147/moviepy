@@ -112,11 +112,11 @@ class SubtitlesClip(VideoClip):
 
         def frame_function(t):
             sub = add_textclip_if_none(t)
-            return self.textclips[sub].get_frame(t) if sub else np.array([[[0, 0, 0]]])
+            return self.textclips[sub].get_frame(t, to_np=False) if sub else np.array([[[0, 0, 0]]])
 
         def make_mask_frame(t):
             sub = add_textclip_if_none(t)
-            return self.textclips[sub].mask.get_frame(t) if sub else np.array([[0]])
+            return self.textclips[sub].mask.get_frame(t, to_np=False) if sub else np.array([[0]])
 
         self.frame_function = frame_function
         hasmask = bool(self.make_textclip("T").mask)

@@ -33,7 +33,7 @@ class MultiplyStereoVolume(Effect):
         """Apply the effect to the clip."""
 
         def stereo_volume(get_frame, t):
-            frame = get_frame(t)
+            frame = get_frame(t, to_np=False)
             if len(frame) == 1:  # mono
                 frame *= self.left if self.left is not None else self.right
             else:  # stereo, stereo surround...

@@ -77,7 +77,7 @@ class Rotate(Effect):
 
         def filter(get_frame, t):
             angle = get_angle(t)
-            im = get_frame(t)
+            im = get_frame(t, to_np=False)
 
             if self.unit == "rad":
                 angle = math.degrees(angle)

@@ -116,7 +116,7 @@ class VideoClip(Clip):
         self.layer_index = 0
         if frame_function:
             self.frame_function = frame_function
-            self.size = self.get_frame(0).shape[:2][::-1]
+            self.size = self.get_frame(0, to_np=False).shape[:2][::-1]
         self.is_mask = is_mask
         self.has_constant_size = has_constant_size
         if duration is not None:
@@ -195,9 +195,9 @@ class VideoClip(Clip):
           If is ``True`` the mask is saved in the alpha layer of the picture
           (only works with PNGs).
         """
-        im = self.get_frame(t)
+        im = self.get_frame(t, to_np=False)
         if with_mask and self.mask is not None:
-            mask = 255 * self.mask.get_frame(t)
+            mask = 255 * self.mask.get_frame(t, to_np=False)
             im = np.dstack([im, mask]).astype("uint8")
         else:
             im = im.astype("uint8")
@@ -570,7 +570,7 @@ class VideoClip(Clip):
         #   from mpy.video.compositing.CompositeVideoClip import CompositeVideoClip
         #   clip = CompositeVideoClip([self.with_position((0, 0))])
 
-        frame = clip.get_frame(t).astype("uint8")
+        frame = clip.get_frame(t, to_np=False).astype("uint8")
         frame = np_get(frame)
         pil_img = Image.fromarray(frame)
 
@@ -685,7 +685,7 @@ class VideoClip(Clip):
         another frame,  `image_func(get_frame(t))`.
         """
         apply_to = apply_to or []
-        return self.transform(lambda get_frame, t: image_func(get_frame(t)), apply_to)
+        return self.transform(lambda get_frame, t: image_func(get_frame(t, to_np=False)), apply_to)
 
     # --------------------------------------------------------------
     # C O M P O S I T I N G
@@ -762,12 +762,12 @@ class VideoClip(Clip):
         ct = t - self.start  # clip time
 
         # GET IMAGE AND MASK IF ANY
-        clip_frame = self.get_frame(ct).astype("uint8")
+        clip_frame = self.get_frame(ct, to_np=False).astype("uint8")
         clip_frame = np_get(clip_frame)
         clip_img = Image.fromarray(clip_frame)
 
         if self.mask is not None:
-            clip_mask = (self.mask.get_frame(ct) * 255).astype("uint8")
+            clip_mask = (self.mask.get_frame(ct, to_np=False) * 255).astype("uint8")
             clip_mask = np_get(clip_mask)
             clip_mask_img = Image.fromarray(clip_mask).convert("L")
 
@@ -846,12 +846,13 @@ class VideoClip(Clip):
         
         # Compute clip time and get the clip frame (as uint8)
         ct = t - self.start
-        clip_frame = self.get_frame(ct).astype(np.uint8)  # e.g., shape (h, w, 3) or (h, w, 4)
+        clip_frame = self.get_frame(ct, to_np=False).astype(np.uint8)  # e.g., shape (h, w, 3) or (h, w, 4)
         
         # --- Handle mask if available ---
         if self.mask is not None:
             # Get the mask frame (assumed to be normalized between 0 and 1) and scale to 0-255.
-            clip_mask = (self.mask.get_frame(ct) * 255).astype(np.uint8)  # shape (h_mask, w_mask)
+            clip_mask = (self.mask.get_frame(ct, to_np=False) * 255).astype(np.uint8)  # shape (h_mask, w_mask)
+            print("clip_mask", type(clip_mask), clip_mask.shape, clip_mask.dtype)
             # Ensure mask dimensions match the clip frame's dimensions.
             clip_h, clip_w = clip_frame.shape[:2] 
             mask_h, mask_w = clip_mask.shape
@@ -993,7 +994,7 @@ class VideoClip(Clip):
           The time position in the clip at which to extract the mask.
         """
         ct = t - self.start  # clip time
-        clip_mask = self.get_frame(ct).astype("float")
+        clip_mask = self.get_frame(ct, to_np=False).astype("float")
 
         # numpy shape is H*W not W*H
         bg_h, bg_w = background_mask.shape
@@ -1108,7 +1109,7 @@ class VideoClip(Clip):
         attribute set to `mf`.
         """
         self.frame_function = frame_function
-        self.size = self.get_frame(0).shape[:2][::-1]
+        self.size = self.get_frame(0, to_np=False).shape[:2][::-1]
 
         return self
 
@@ -1152,7 +1153,7 @@ class VideoClip(Clip):
             else:
 
                 def frame_function(t):
-                    return np.ones(self.get_frame(t).shape[:2], dtype=float)
+                    return np.ones(self.get_frame(t, to_np=False).shape[:2], dtype=float)
 
                 mask = VideoClip(is_mask=True, frame_function=frame_function)
         self.mask = mask
@@ -1329,7 +1330,7 @@ class VideoClip(Clip):
         which can be expressed in seconds (15.35), in (min, sec),
         in (hour, min, sec), or as a string: '01:03:05.35'.
         """
-        new_clip = ImageClip(self.get_frame(t), is_mask=self.is_mask, duration=duration)
+        new_clip = ImageClip(self.get_frame(t, to_np=False), is_mask=self.is_mask, duration=duration)
         if with_mask and self.mask is not None:
             new_clip.mask = self.mask.to_ImageClip(t)
         return new_clip
@@ -1597,7 +1598,7 @@ class ImageClip(VideoClip):
         """
         if apply_to is None:
             apply_to = []
-        arr = image_func(self.get_frame(0))
+        arr = image_func(self.get_frame(0, to_np=False))
         self.size = arr.shape[:2][::-1]
         self.frame_function = lambda t: arr
         self.img = arr
@@ -2490,7 +2491,7 @@ class BitmapClip(VideoClip):
         color_dict = color_dict or self.color_dict
 
         bitmap = []
-        for frame in self.iter_frames():
+        for frame in self.iter_frames(to_np=False):
             bitmap.append([])
             for line in frame:
                 bitmap[-1].append("")

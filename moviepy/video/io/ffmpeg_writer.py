@@ -8,7 +8,7 @@ import subprocess as sp
 
 from proglog import proglog
 
-from moviepy.np_handler import np, np_get
+from moviepy.np_handler import np, np_get, cnp as cupy_available
 from moviepy.config import FFMPEG_BINARY
 from moviepy.tools import cross_platform_popen_params, ffmpeg_escape_filename
 
@@ -250,6 +250,8 @@ _N_1_1D_CACHE = dict()
 
 
 try:
+    if cupy_available:
+        raise ImportError("cupy is available")
     from scipy.ndimage import zoom
 
     def _numpy_zoom(img, new_shape):
@@ -360,10 +362,10 @@ def ffmpeg_write_video(
         ffmpeg_o_params=ffmpeg_o_params,
     ) as writer:
         for t, frame in clip.iter_frames(
-            logger=logger, with_times=True, fps=fps, dtype="uint8"
+            logger=logger, with_times=True, fps=fps, dtype="uint8", to_np=False
         ):
             if clip.mask is not None:
-                mask = 255 * clip.mask.get_frame(t)
+                mask = 255 * clip.mask.get_frame(t, to_np=False)
                 if mask.dtype != "uint8":
                     mask = mask.astype("uint8")
                 # print("\nmask")

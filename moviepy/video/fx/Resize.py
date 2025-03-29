@@ -80,7 +80,7 @@ class Resize(Effect):
                     def filter(get_frame, t):
                         return (
                             self.resizer(
-                                (255 * get_frame(t)).astype("uint8"), get_new_size(t)
+                                (255 * get_frame(t, to_np=False)).astype("uint8"), get_new_size(t)
                             )
                             / 255.0
                         )
@@ -89,7 +89,7 @@ class Resize(Effect):
 
                     def filter(get_frame, t):
                         return self.resizer(
-                            get_frame(t).astype("uint8"), get_new_size(t)
+                            get_frame(t, to_np=False).astype("uint8"), get_new_size(t)
                         )
 
                 newclip = clip.transform(

@@ -41,11 +41,12 @@ class MasksAnd(Effect):
 
         if isinstance(self.other_clip, np_ndarray_instance):
             return clip.image_transform(
-                lambda frame: np.minimum(frame, self.other_clip)
+                lambda frame: np.minimum(frame, np.asarray(self.other_clip))
             )
         else:
             return clip.transform(
                 lambda get_frame, t: np.minimum(
-                    np.array(get_frame(t)), np.array(self.other_clip.get_frame(t))
+                    np.array(get_frame(t, to_np=False)), 
+                    np.array(self.other_clip.get_frame(t, to_np=False))
                 )
             )

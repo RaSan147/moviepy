@@ -186,7 +186,7 @@ class FFMPEG_AudioReader:
         # last case standing: pos = current pos
         self.pos = pos
 
-    def get_frame(self, tt):
+    def get_frame(self, tt, to_np=False):
         """Retrieve the audio frame(s) corresponding to the given timestamp(s).
 
         Parameters
@@ -227,7 +227,7 @@ class FFMPEG_AudioReader:
                 in_time_head = in_time[0:threshold_idx]
                 in_time_tail = in_time[threshold_idx:]
                 return np.concatenate(
-                    [self.get_frame(in_time_head), self.get_frame(in_time_tail)]
+                    [self.get_frame(in_time_head, to_np=False), self.get_frame(in_time_tail, to_np=False)]
                 )
 
             if not (0 <= (fr_min - self.buffer_startframe) < len(self.buffer)):
@@ -266,7 +266,11 @@ class FFMPEG_AudioReader:
                 self.buffer_around(ind)
 
             # read the frame in the buffer
-            return self.buffer[ind - self.buffer_startframe]
+            frame = self.buffer[ind - self.buffer_startframe]
+
+            if to_np:
+                return np_get(frame)
+            return frame
 
     def buffer_around(self, frame_number):
         """Fill the buffer with frames, centered on frame_number if possible."""

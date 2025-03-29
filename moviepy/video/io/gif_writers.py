@@ -15,8 +15,7 @@ def write_gif_with_imageio(clip, filename, fps=None, loop=0, logger="bar"):
 
     with iio.imopen(filename, "w", plugin="pillow") as writer:
         logger(message="MoviePy - Building file %s with imageio." % filename)
-        for frame in clip.iter_frames(fps=fps, logger=logger, dtype="uint8"):
-            frame = np_get(frame)
+        for frame in clip.iter_frames(fps=fps, logger=logger, dtype="uint8", to_np=True):
             writer.write(
                 frame, duration=1000 / fps, loop=loop
             )  # Duration is in ms not s

@@ -72,13 +72,13 @@ class MultiplyVolume(Effect):
         if self.start_time is None and self.end_time is None:
             # Full clip optimization (remove explicit dtype)
             def full_volume(get_frame, t):
-                frame = np_convert(get_frame(t))
+                frame = np_convert(get_frame(t, to_np=False))
                 return xp.multiply(frame, self.factor)
             return clip.transform(full_volume, keep_duration=True)
 
         # Partial clip optimization
         def volume_transform(get_frame, t):
-            frame = np_convert(get_frame(t))
+            frame = np_convert(get_frame(t, to_np=False))
             t_array = xp.asarray(t)
             factors = self._create_volume_mask(t_array)
             

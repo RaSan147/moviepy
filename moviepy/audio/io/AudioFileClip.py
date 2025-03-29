@@ -75,7 +75,7 @@ class AudioFileClip(AudioClip):
         self.buffersize = self.reader.buffersize
         self.filename = filename
 
-        self.frame_function = lambda t: self.reader.get_frame(t)
+        self.frame_function = lambda t: self.reader.get_frame(t, to_np=False)
         self.nchannels = self.reader.nchannels
 
     def close(self):

@@ -21,7 +21,7 @@ class Blink(Effect):
 
         duration = self.duration_on + self.duration_off
         clip.mask = clip.mask.transform(
-            lambda get_frame, t: get_frame(t) * ((t % duration) < self.duration_on)
+            lambda get_frame, t: get_frame(t, to_np=False) * ((t % duration) < self.duration_on)
         )
 
         return clip

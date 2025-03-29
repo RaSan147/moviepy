@@ -138,5 +138,5 @@ class CreditsClip(TextClip):
         # Transform the CompositeVideoClip into an ImageClip
 
         # Calls ImageClip.__init__()
-        super(TextClip, self).__init__(scaled.get_frame(0))
-        self.mask = ImageClip(scaled.mask.get_frame(0), is_mask=True)
+        super(TextClip, self).__init__(scaled.get_frame(0, to_np=False))
+        self.mask = ImageClip(scaled.mask.get_frame(0, to_np=False), is_mask=True)

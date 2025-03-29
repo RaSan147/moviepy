@@ -58,6 +58,6 @@ class Scroll(Effect):
 				x = int(max(0, min(x_max, self.x_start + round(self.x_speed * t))))
 				y = int(max(0, min(y_max, self.y_start + round(self.y_speed * t))))
 
-			return get_frame(t)[y : y + self.h, x : x + self.w]
+			return get_frame(t, to_np=False)[y : y + self.h, x : x + self.w]
 
 		return clip.transform(filter, apply_to=self.apply_to)

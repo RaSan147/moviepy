@@ -70,7 +70,7 @@ class Margin(Effect):
         else:
 
             def filter(get_frame, t):
-                pic = get_frame(t)
+                pic = get_frame(t, to_np=False)
                 h, w = pic.shape[:2]
                 im = make_bg(w, h)
                 im[self.top : self.top + h, self.left : self.left + w] = pic

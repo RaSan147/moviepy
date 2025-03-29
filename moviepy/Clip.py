@@ -68,7 +68,7 @@ class Clip:
         """Allows the usage of ``.copy()`` in clips as chained methods invocation."""
         return _copy.copy(self)
 
-    def get_frame(self, t) -> np.ndarray:
+    def get_frame(self, t, to_np=True) -> np.ndarray:
         """Gets a numpy array representing the RGB picture or sound data at time `t`."""
         _t = t  # Save original input for fallback
         
@@ -131,6 +131,9 @@ class Clip:
             self.memoized_t = t
             self.memoized_frame = frame
         
+        if to_np:
+            # Convert to the requested type if necessary
+            frame = np_get(frame)
         return frame
 
     def transform(self, func, apply_to=None, keep_duration=True, print_debug=False):
@@ -236,7 +239,7 @@ class Clip:
             apply_to = []
 
         return self.transform(
-            lambda get_frame, t: get_frame(time_func(t)),
+            lambda get_frame, t: get_frame(time_func(t), to_np=False),
             apply_to,
             keep_duration=keep_duration,
         )
@@ -642,7 +645,7 @@ class Clip:
 
     @requires_duration
     @use_clip_fps_by_default
-    def iter_frames(self, fps=None, with_times=False, logger=None, dtype=None):
+    def iter_frames(self, fps=None, with_times=False, logger=None, dtype=None, to_np=True):
         """Iterates over all the frames of the clip.
 
         Returns each frame of the clip as a HxWxN Numpy array,
@@ -670,6 +673,11 @@ class Clip:
           Type to cast Numpy array frames. Use ``dtype="uint8"`` when using the
           pictures to write video, images..
 
+        to_np : bool, optional
+          If ``True``, convert the frame to a Numpy array. If ``False``, return
+          the frame as it is. This is useful if you want to use CuPy arrays
+          directly, for example to use CuPy functions on the frame.
+
         Examples
         --------
 
@@ -691,7 +699,7 @@ class Clip:
             # down to the nearest integer
             t = frame_index / fps
 
-            frame = self.get_frame(t)
+            frame = self.get_frame(t, to_np=to_np)
             if (dtype is not None) and (frame.dtype != dtype):
                 frame = frame.astype(dtype)
             if with_times:
@@ -749,7 +757,7 @@ class Clip:
             return False
 
         # Make sure that each frame is the same
-        for frame1, frame2 in zip(self.iter_frames(), other.iter_frames()):
+        for frame1, frame2 in zip(self.iter_frames(to_np=False), other.iter_frames(to_np=False)):
             frame1 = np.array(frame1)
             frame2 = np.array(frame2)
             
@@ -823,7 +831,7 @@ class Clip:
             # get a concatenation of subclips
             return reduce(add, (self[k] for k in key))
         else:
-            return self.get_frame(key)
+            return self.get_frame(key, to_np=False)
 
     def __del__(self):
         # WARNING: as stated in close() above, if we call close, it closes clips

@@ -74,7 +74,7 @@ class AudioClip(Clip):
 
         if frame_function is not None:
             self.frame_function = frame_function
-            frame0 = self.get_frame(0)
+            frame0 = self.get_frame(0, to_np=False)
             frame0 = np_get(frame0)
             if hasattr(frame0, "__iter__"):
                 self.nchannels = len(list(frame0))
@@ -160,7 +160,7 @@ class AudioClip(Clip):
                                         quantize=quantize, nbytes=nbytes)
                               for ttc in tt_chunks])
         """
-        snd_array = self.get_frame(tt)
+        snd_array = self.get_frame(tt, to_np=False)
 
         if quantize:
             snd_array = np.maximum(-0.99, np.minimum(0.99, np.array(snd_array)))
@@ -364,7 +364,7 @@ class AudioArrayClip(AudioClip):
                     return self.array[i]
 
         self.frame_function = frame_function
-        self.nchannels = len(list(self.get_frame(0)))
+        self.nchannels = len(list(self.get_frame(0, to_np=False)))
 
 
 class CompositeAudioClip(AudioClip):
@@ -416,7 +416,7 @@ class CompositeAudioClip(AudioClip):
         played_parts = [clip.is_playing(t) for clip in self.clips]
 
         sounds = [
-            np.array(clip.get_frame(t - clip.start)) * np.array([part]).T
+            np.array(clip.get_frame(t - clip.start, to_np=False)) * np.array([part]).T
             for clip, part in zip(self.clips, played_parts)
             if (part is not False)
         ]
