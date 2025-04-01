@@ -1415,8 +1415,6 @@ def test_multiply_stereo_volume():
 
     z_channel = np.zeros(len(mono_channel_muted))
 
-    print(np.array_equal(mono_channel_muted, z_channel))
-
     assert np.array_equal(mono_channel_muted, z_channel)
 
     # mono doubled

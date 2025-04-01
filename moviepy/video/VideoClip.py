@@ -852,7 +852,6 @@ class VideoClip(Clip):
         if self.mask is not None:
             # Get the mask frame (assumed to be normalized between 0 and 1) and scale to 0-255.
             clip_mask = (self.mask.get_frame(ct, to_np=False) * 255).astype(np.uint8)  # shape (h_mask, w_mask)
-            print("clip_mask", type(clip_mask), clip_mask.shape, clip_mask.dtype)
             # Ensure mask dimensions match the clip frame's dimensions.
             clip_h, clip_w = clip_frame.shape[:2] 
             mask_h, mask_w = clip_mask.shape
