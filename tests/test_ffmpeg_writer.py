@@ -259,3 +259,12 @@ def test_write_file_with_spaces(util):
     filename = os.path.join(util.TMP_DIR, "name with spaces.mp4")
     clip = ColorClip((1, 1), color=1, is_mask=True).with_fps(1).with_duration(0.3)
     ffmpeg_write_video(clip, filename, fps=1)
+
+
+if __name__ == "__main__":
+    os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    import sys
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    print("Running tests in", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    import pytest
+    pytest.main(["-v", __file__])
