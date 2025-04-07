@@ -19,7 +19,7 @@ class GaussianBlur(Effect):
         """Apply the effect to the clip."""
         def filter(gf, t):
             im = gf(t)
-            image = Image.fromarray(im).convert("RGB")
+            image = Image.fromarray(im)
             blurred = image.filter(ImageFilter.GaussianBlur(radius=self.radius))
             return np.array(blurred)
             
