@@ -90,4 +90,8 @@ if __name__ == "__main__":
 	# check isinstance
 	arr = _np.array([1, 2, 3])
 	print(isinstance(arr, np_ndarray_instance))  # Should print: True
+	# check isinstance
+	arr = np_get(_np.array([1, 2, 3]))
+	print(isinstance(arr, np_ndarray_instance) and isinstance(arr, _np.ndarray))  # Should print: True
+	
 
