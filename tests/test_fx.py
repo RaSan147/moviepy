@@ -7,9 +7,8 @@ import os
 import random
 
 import numpy as np
-
+from PIL import Image, ImageFilter
 import pytest;#pytest.skip(allow_module_level=True)
-# 
 
 from moviepy import *
 from moviepy.np_handler import np_get
@@ -1636,5 +1635,117 @@ def test_audio_fadeout(
         assert round(subclip_max_volume, 4) == 1
 
 
+@pytest.fixture
+def sample_clip():
+    """Create a simple solid-color video clip for testing."""
+    def make_frame(t):
+        # Create a frame with a gradient to better see blur effects
+        frame = np.zeros((100, 100, 3), dtype=np.uint8)
+        frame[:, :, 0] = np.linspace(0, 255, 100, dtype=np.uint8)  # Red gradient
+        frame[:, :, 1] = 128  # Constant green
+        frame[:, :, 2] = np.linspace(255, 0, 100, dtype=np.uint8)  # Blue gradient
+        return frame
+    
+    return VideoClip(make_frame, duration=1.0)
+
+def test_gaussian_blur_effect(sample_clip):
+    """Test that GaussianBlur applies blur proportionally to radius."""
+    # We'll test that blur effect scales with radius
+    test_radii = [(5, 0.5), (15, 2.0), (30, 5.0)]  # (radius, min_edge_diff)
+    original_frame = sample_clip.get_frame(0.5)
+    
+    for radius, min_edge_diff in test_radii:
+        blurred_clip = sample_clip.with_effects([vfx.GaussianBlur(radius=radius)])
+        blurred_frame = blurred_clip.get_frame(0.5)
+        
+        # Basic existence check
+        assert not np.array_equal(blurred_frame, original_frame)
+        
+        # Edge blur measurement
+        edge_diff = np.mean(np.abs(
+            blurred_frame[0].astype(float) - 
+            original_frame[0].astype(float)
+        ))
+        
+        # Center blur measurement (should be less than edges)
+        center_diff = np.mean(np.abs(
+            blurred_frame[50,50].astype(float) - 
+            original_frame[50,50].astype(float)
+        ))
+        
+        # Verify edge blur meets minimum for this radius
+        assert edge_diff > min_edge_diff, (
+            f"Radius {radius} should produce edge diff > {min_edge_diff}, "
+            f"got {edge_diff:.2f}"
+        )
+        
+        # Verify edges are blurred more than center
+        assert edge_diff > center_diff, (
+            f"Edges should be blurred more than center (radius {radius}), "
+            f"edge_diff={edge_diff:.2f}, center_diff={center_diff:.2f}"
+        )
+
+        # Verify blur increases with radius
+        if radius > 5:
+            prev_diff = np.mean(np.abs(
+                sample_clip.with_effects([vfx.GaussianBlur(radius=radius-5)])
+                .get_frame(0.5)[0].astype(float) - 
+                original_frame[0].astype(float)
+            ))
+            assert edge_diff > prev_diff, (
+                f"Blur should increase with radius (radius {radius} "
+                f"diff={edge_diff:.2f} <= radius {radius-5} diff={prev_diff:.2f})"
+            )
+
+
+def test_gaussian_blur_intensity(sample_clip):
+    """Test that larger radius creates stronger blur."""
+    # Apply different blur strengths
+    weak_blur = sample_clip.with_effects([vfx.GaussianBlur(radius=2)])
+    strong_blur = sample_clip.with_effects([vfx.GaussianBlur(radius=10)])
+    
+    # Calculate variances
+    weak_var = np.var(weak_blur.get_frame(0.5))
+    strong_var = np.var(strong_blur.get_frame(0.5))
+    original_var = np.var(sample_clip.get_frame(0.5))
+    
+    # Stronger blur should have lower variance
+    assert strong_var < weak_var < original_var
+
+def test_gaussian_blur_consistency(sample_clip):
+    """Test that blur is consistent across frames."""
+    blurred_clip = sample_clip.with_effects([vfx.GaussianBlur(radius=5)])
+    
+    # Get frames at different times
+    frames = [blurred_clip.get_frame(t) for t in [0.1, 0.5, 0.9]]
+    variances = [np.var(f) for f in frames]
+    
+    # All variances should be similar
+    assert all(pytest.approx(variances[0], rel=0.1) == v for v in variances)
+
+def test_gaussian_blur_pil_equivalence(sample_clip):
+    """Test equivalence with direct PIL blurring."""
+    # Apply our effect
+    our_blur = sample_clip.with_effects([vfx.GaussianBlur(radius=5)])
+    our_frame = our_blur.get_frame(0.5)
+    
+    # Manual PIL blur
+    original = sample_clip.get_frame(0.5)
+    pil_blur = Image.fromarray(original).filter(ImageFilter.GaussianBlur(5))
+    expected = np.array(pil_blur)
+    
+    # Should match within reasonable tolerance
+    assert np.allclose(our_frame, expected, atol=1)
+
+def test_gaussian_blur_zero_radius(sample_clip):
+    """Test that radius=0 leaves image unchanged."""
+    identity_blur = sample_clip.with_effects([vfx.GaussianBlur(radius=0)])
+    assert np.array_equal(identity_blur.get_frame(0.5), sample_clip.get_frame(0.5))
+
 if __name__ == "__main__":
-    pytest.main()
+    os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    import sys
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    print("Running tests in", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    import pytest
+    pytest.main(["-v", __file__])

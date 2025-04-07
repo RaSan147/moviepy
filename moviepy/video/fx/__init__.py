@@ -36,6 +36,7 @@ from moviepy.video.fx.SlideOut import SlideOut
 from moviepy.video.fx.SuperSample import SuperSample
 from moviepy.video.fx.TimeMirror import TimeMirror
 from moviepy.video.fx.TimeSymmetrize import TimeSymmetrize
+from moviepy.video.fx.GaussianBlur import GaussianBlur
 
 
 __all__ = (
@@ -73,4 +74,5 @@ __all__ = (
     "SuperSample",
     "TimeMirror",
     "TimeSymmetrize",
+    "GaussianBlur",
 )
