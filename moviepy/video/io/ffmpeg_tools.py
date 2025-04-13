@@ -211,6 +211,54 @@ def ffmpeg_stabilize_video(
     subprocess_call(cmd, logger=logger)
 
 
+import urllib.request
+import urllib.error
+
+__VERSION_CACHE__ = {}
+
+
+def _resolve_git_commit_version(commit_hash):
+    """
+    Resolve the version of FFmpeg from a git commit hash.
+    This function fetches the version information from the FFmpeg
+    repository using the provided commit hash.
+    If the commit hash is not found or an error occurs, it returns
+    a string indicating the commit hash and that the release is unknown.
+    """
+    if commit_hash in __VERSION_CACHE__:
+        return __VERSION_CACHE__[commit_hash]
+
+    # Construct the URL to fetch the version information
+    url = f"https://git.ffmpeg.org/gitweb/ffmpeg.git/blob_plain/{commit_hash}:/RELEASE"
+    try:
+        with urllib.request.urlopen(url, timeout=5) as response:
+            version = response.read().decode().strip()
+
+            # save the version in cache
+            __VERSION_CACHE__[commit_hash] = version
+
+            return version
+    except (urllib.error.URLError, Exception):
+        return f"{commit_hash[:7]} (commit-based, release unknown)"
+
+def _parse_ffmpeg_output(output):
+    first_line = output.splitlines()[0]
+    parts = first_line.split()
+    version_token = parts[2]
+
+    # Check for git-style version (e.g., N-119107-g839b41991d-20250401)
+    git_match = re.search(r'g([a-f0-9]{7,})', version_token)
+    if git_match:
+        commit_hash = git_match.group(1)
+        version_token = _resolve_git_commit_version(commit_hash)
+
+    numeric_match = re.match(r"^[0-9.]+", version_token)
+    numeric_version = numeric_match.group(0) if numeric_match else "unknown"
+
+    return version_token, numeric_version
+
+
+
 def ffmpeg_version():
     """
     Retrieve the FFmpeg version.
@@ -237,19 +285,9 @@ def ffmpeg_version():
     subprocess.CalledProcessError
         If the FFmpeg command fails to execute properly.
     """
-    cmd = [
-        FFMPEG_BINARY,
-        "-version",
-        "-v",
-        "quiet",
-    ]
-
+    cmd = [FFMPEG_BINARY, "-version"]
     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-
-    # Extract the version number from the first line of output
-    full_version = result.stdout.splitlines()[0].split()[2]
-    numeric_version = re.match(r"^[0-9.]+", full_version).group(0)
-    return (full_version, numeric_version)
+    return _parse_ffmpeg_output(result.stdout)
 
 
 def ffplay_version():
@@ -278,13 +316,11 @@ def ffplay_version():
     subprocess.CalledProcessError
         If the FFplay command fails to execute properly.
     """
-    cmd = [
-        FFPLAY_BINARY,
-        "-version",
-    ]
-
+    cmd = [FFPLAY_BINARY, "-version"]
     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    # Extract the version number from the first line of output
-    full_version = result.stdout.splitlines()[0].split()[2]
-    numeric_version = re.match(r"^[0-9.]+", full_version).group(0)
-    return (full_version, numeric_version)
+    return _parse_ffmpeg_output(result.stdout)
+    
+
+if __name__ == "__main__":
+    print("ffmpeg version:", ffmpeg_version())
+    print("ffplay version:", ffplay_version())
