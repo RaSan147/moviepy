@@ -31,7 +31,7 @@ Before we start, make sure you have MoviePy installed. You can install it using 
 Also, we will need to gather a few resources such as the original movie, font files, images, etc.
 To make it easy, we have prepared a template project you can download directly:
 
-1. Download :download:`the project template </_static/medias/getting_started/moviepy_10_minutes/moviepy_10_minutes.zip>` and unzip it.
+1. Download :download:`the project template <https://github.com/RaSan147/moviepy/releases/download/TestAsset/moviepy_10_minutes.zip>` and unzip it.
 2. Take a look at the resources inside the folder to familiarize yourself.
 3. Create a Python script file named ``trailer.py`` in the project directory.
 
