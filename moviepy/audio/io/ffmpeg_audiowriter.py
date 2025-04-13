@@ -2,6 +2,7 @@
 
 import subprocess as sp
 
+import numpy as np
 import proglog
 
 from moviepy.config import FFMPEG_BINARY
@@ -105,7 +106,7 @@ class FFMPEG_AudioWriter:
 
         self.proc = sp.Popen(cmd, **popen_params)
 
-    def write_frames(self, frames_array):
+    def write_frames(self, frames_array:np.ndarray):
         """Send the audio frame (a chunck of ``AudioClip``) to ffmpeg for writting"""
         try:
             self.proc.stdin.write(frames_array.tobytes())
@@ -206,24 +207,28 @@ def ffmpeg_audiowrite(
         logfile = None
     logger = proglog.default_bar_logger(logger)
     logger(message="MoviePy - Writing audio in %s" % filename)
-    writer = FFMPEG_AudioWriter(
-        filename,
-        fps,
-        nbytes,
-        clip.nchannels,
-        codec=codec,
-        bitrate=bitrate,
-        logfile=logfile,
-        ffmpeg_params=ffmpeg_params,
-    )
 
-    for chunk in clip.iter_chunks(
-        chunksize=buffersize, quantize=True, nbytes=nbytes, fps=fps, logger=logger
-    ):
-        writer.write_frames(chunk)
+    try:
+        with FFMPEG_AudioWriter(
+            filename,
+            fps,
+            nbytes,
+            clip.nchannels,
+            codec=codec,
+            bitrate=bitrate,
+            logfile=logfile,
+            ffmpeg_params=ffmpeg_params,
+        ) as writer:
 
-    writer.close()
+            for chunk in clip.iter_chunks(
+                chunksize=buffersize, quantize=True, nbytes=nbytes, fps=fps, logger=logger
+            ):
+                writer.write_frames(chunk)
 
-    if write_logfile:
-        logfile.close()
+
+    finally:
+        if write_logfile:
+            logfile.close()
+
+
     logger(message="MoviePy - Done.")
