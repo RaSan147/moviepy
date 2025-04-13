@@ -7,9 +7,15 @@ import decorator
 
 from moviepy.tools import convert_to_seconds
 
+from typing import TYPE_CHECKING, Union
+if TYPE_CHECKING:
+    from moviepy.Clip import Clip
+    from moviepy.video.VideoClip import VideoClip
+    from moviepy.audio.AudioClip import AudioClip
+
 
 @decorator.decorator
-def outplace(func, clip, *args, **kwargs) -> "Clip":
+def outplace(func, clip, *args, **kwargs) -> Union["Clip","VideoClip","AudioClip"]:
     """Applies ``func(clip.copy(), *args, **kwargs)`` and returns ``clip.copy()``."""
     new_clip = clip.copy()
     func(new_clip, *args, **kwargs)
@@ -25,7 +31,7 @@ def convert_masks_to_RGB(func, clip, *args, **kwargs):
 
 
 @decorator.decorator
-def apply_to_mask(func, clip, *args, **kwargs) -> "Clip":
+def apply_to_mask(func, clip, *args, **kwargs) -> Union["Clip","VideoClip"]:
     """Applies the same function ``func`` to the mask of the clip created with
     ``func``.
     """
@@ -106,7 +112,7 @@ def preprocess_args(preprocess_func, varnames):
     return decor
 
 
-def convert_parameter_to_seconds(varnames) -> "Clip":
+def convert_parameter_to_seconds(varnames) -> Union["Clip","VideoClip", "AudioClip"]:
     """Converts the specified variables to seconds."""
     return preprocess_args(convert_to_seconds, varnames)
 
