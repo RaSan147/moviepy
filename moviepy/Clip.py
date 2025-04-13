@@ -6,7 +6,7 @@ import copy as _copy
 from functools import reduce
 from numbers import Real
 from operator import add
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Union
 
 import proglog
 
@@ -14,6 +14,8 @@ from moviepy.np_handler import np, np_get, np_ndarray, np_ndarray_instance, _np,
 
 if TYPE_CHECKING:
     from moviepy.Effect import Effect
+    from moviepy.audio.AudioClip import AudioClip
+    from moviepy.video.VideoClip import VideoClip
 
 from moviepy.decorators import (
     apply_to_audio,
@@ -136,7 +138,76 @@ class Clip:
             frame = np_get(frame)
         return frame
 
-    def transform(self, func, apply_to=None, keep_duration=True, print_debug=False):
+    def get_frame(self, t, to_np=True) -> np.ndarray:
+        """Gets a numpy array representing the RGB picture or sound data at time `t`."""
+        _t = t  # Save original input for fallback
+        
+        # 1. Determine target array type (CuPy/NumPy) ---------------------------------
+        if self.memoize_np:
+            # Check if frame function changed or type is undetermined
+            current_hash = hash(self.frame_function)
+            if not hasattr(self, 'memoized_frame_function_hash'):
+                # Initialize memoization attributes
+                self.memoized_frame_function_hash = None
+                self.memoized_prefers_numpy = None
+            
+            if current_hash != self.memoized_frame_function_hash:
+                # Reset cached type if frame function changed
+                self.memoized_frame_function_hash = current_hash
+                self.memoized_prefers_numpy = None
+            
+            # Detect preferred type if not cached
+            if self.memoized_prefers_numpy is None:
+                try:
+                    # Test with CuPy first
+                    test_t = np_convert(_t)
+                    self.frame_function(test_t)
+                    self.memoized_prefers_numpy = False
+                except (TypeError, NotImplementedError, AttributeError):
+                    # Fallback to NumPy
+                    test_t = np_get(_t)
+                    self.frame_function(test_t)
+                    self.memoized_prefers_numpy = True
+        
+        # 2. Convert input to appropriate type ----------------------------------------
+        try:
+            if self.memoize_np and (self.memoized_prefers_numpy is not None):
+                t = np_get(_t) if self.memoized_prefers_numpy else np_convert(_t)
+            else:
+                # Default to trying CuPy first, then fallback to NumPy
+                t = np_convert(_t)
+        except Exception:
+            t = np_get(_t)
+        
+        # 3. Try getting frame -------------------------------------------------------
+        if self.memoize and t == self.memoized_t:
+            return self.memoized_frame
+        
+        try:
+            frame = self.frame_function(t)
+        except TypeError:
+            # Fallback to other array type
+            t_fallback = np_get(t) if isinstance(t, np.ndarray) else np_convert(t)
+            frame = self.frame_function(t_fallback)
+            
+            if self.memoize_np:
+                # Update cached preference if memorization enabled
+                self.memoized_prefers_numpy = isinstance(t_fallback, np.ndarray)
+        
+        # 4. Ensure output consistency -----------------------------------------------
+        # Convert directly to the target type based on 'to_np' to avoid extra conversions
+        if to_np:
+            frame = np_get(frame)
+        else:
+            frame = np_convert(frame)
+        
+        if self.memoize:
+            self.memoized_t = t
+            self.memoized_frame = frame
+        
+        return frame
+
+    def transform(self, func, apply_to=None, keep_duration=True, print_debug=False) -> Union["Clip","VideoClip","AudioClip"]:
         """General processing of a clip.
 
         Returns a new Clip whose frames are a transformation
@@ -202,7 +273,7 @@ class Clip:
 
         return new_clip
 
-    def time_transform(self, time_func, apply_to=None, keep_duration=False):
+    def time_transform(self, time_func, apply_to=None, keep_duration=False) -> Union["Clip","VideoClip","AudioClip"]:
         """
         Returns a Clip instance playing the content of the current clip
         but with a modified timeline, time ``t`` being replaced by the return
@@ -244,7 +315,7 @@ class Clip:
             keep_duration=keep_duration,
         )
 
-    def with_effects(self, effects: List["Effect"]) -> "Clip":
+    def with_effects(self, effects: List["Effect"]) -> Union["Clip","VideoClip","AudioClip"]:
         """Return a copy of the current clip with the effects applied
 
         >>> new_clip = clip.with_effects([vfx.Resize(0.2, method="bilinear")])
@@ -270,7 +341,7 @@ class Clip:
     @apply_to_audio
     @convert_parameter_to_seconds(["t"])
     @outplace
-    def with_start(self, t, change_end=True) -> "Clip":
+    def with_start(self, t, change_end=True) -> Union["Clip","VideoClip","AudioClip"]:
         """Returns a copy of the clip, with the ``start`` attribute set
         to ``t``, which can be expressed in seconds (15.35), in (min, sec),
         in (hour, min, sec), or as a string: '01:03:05.35'.
@@ -317,7 +388,7 @@ class Clip:
     @apply_to_audio
     @convert_parameter_to_seconds(["t"])
     @outplace
-    def with_end(self, t) -> "Clip":
+    def with_end(self, t) -> Union["Clip","VideoClip","AudioClip"]:
         """Returns a copy of the clip, with the ``end`` attribute set to ``t``,
         which can be expressed in seconds (15.35), in (min, sec), in
         (hour, min, sec), or as a string: '01:03:05.35'. Also sets the duration
@@ -357,7 +428,7 @@ class Clip:
     @apply_to_audio
     @convert_parameter_to_seconds(["duration"])
     @outplace
-    def with_duration(self, duration, change_end=True) -> "Clip":
+    def with_duration(self, duration, change_end=True) -> Union["Clip","VideoClip","AudioClip"]:
         """Returns a copy of the clip, with the  ``duration`` attribute set to
         ``t``, which can be expressed in seconds (15.35), in (min, sec), in
         (hour, min, sec), or as a string: '01:03:05.35'. Also sets the duration
@@ -391,7 +462,7 @@ class Clip:
     set_duration = with_duration
 
     @outplace
-    def with_updated_frame_function(self, frame_function):
+    def with_updated_frame_function(self, frame_function) -> Union["Clip","VideoClip","AudioClip"]:
         """Sets a ``frame_function`` attribute for the clip. Useful for setting
         arbitrary/complicated videoclips.
 
@@ -408,7 +479,7 @@ class Clip:
     set_frame_function = with_updated_frame_function
 
     @outplace
-    def set_make_frame(self, make_frame):
+    def set_make_frame(self, make_frame) -> Union["Clip","VideoClip","AudioClip"]:
         """Sets a ``make_frame`` attribute for the clip. Useful for setting
         arbitrary/complicated videoclips.
 
@@ -422,7 +493,7 @@ class Clip:
 
         return self
 
-    def with_fps(self, fps, change_duration=False):
+    def with_fps(self, fps, change_duration=False) -> Union["Clip","VideoClip","AudioClip"]:
         """Returns a copy of the clip with a new default fps for functions like
         write_videofile, iterframe, etc.
 
@@ -450,7 +521,7 @@ class Clip:
     set_fps = with_fps
 
     @outplace
-    def with_is_mask(self, is_mask):
+    def with_is_mask(self, is_mask) -> Union["Clip","VideoClip"]:
         """Says whether the clip is a mask or not.
 
         Parameters
@@ -512,7 +583,7 @@ class Clip:
     @convert_parameter_to_seconds(["start_time", "end_time"])
     @apply_to_mask
     @apply_to_audio
-    def subclipped(self, start_time=0, end_time=None) -> "Clip":
+    def subclipped(self, start_time=0, end_time=None) -> Union["Clip","VideoClip","AudioClip"]:
         """Returns a clip playing the content of the current clip between times
         ``start_time`` and ``end_time``, which can be expressed in seconds
         (15.35), in (min, sec), in (hour, min, sec), or as a string:
@@ -590,7 +661,7 @@ class Clip:
     subclip = subclipped
 
     @convert_parameter_to_seconds(["start_time", "end_time"])
-    def with_section_cut_out(self, start_time, end_time):
+    def with_section_cut_out(self, start_time, end_time) -> Union["Clip","VideoClip","AudioClip"]:
         """
         Returns a clip playing the content of the current clip but
         skips the extract between ``start_time`` and ``end_time``, which can be
