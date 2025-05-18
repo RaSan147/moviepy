@@ -8,7 +8,8 @@ import random
 
 import numpy as np
 from PIL import Image, ImageFilter
-import pytest;#pytest.skip(allow_module_level=True)
+
+import pytest
 
 from moviepy import *
 from moviepy.np_handler import np_get
@@ -906,7 +907,7 @@ def test_rotate(
     # angles are defined in degrees, so convert to radians testing ``unit="rad"``
     if unit == "rad":
         if hasattr(angle, "__call__"):
-            _angle = lambda t: math.radians(angle(0))
+            def _angle(t): return math.radians(angle(0))
         else:
             _angle = math.radians(angle)
     else:
@@ -1103,7 +1104,7 @@ def test_audio_normalize():
 
 def test_audio_normalize_muted():
     z_array = np.array([0.0])
-    frame_function = lambda t: z_array
+    def frame_function(t): return z_array
     clip = AudioClip(frame_function, duration=1, fps=44100)
     clip = clip.with_effects([afx.AudioNormalize()])
 
@@ -1196,38 +1197,48 @@ def test_multiply_volume_audioclip(
     end_time,
 ):
     if sound_type == "stereo":
-        frame_function = lambda t: np.array(
+        def frame_function(t): return np.array(
             [
                 np.sin(440 * 2 * np.pi * t),
                 np.sin(160 * 2 * np.pi * t),
             ]
         ).T.copy(order="C")
     else:
-        frame_function = lambda t: np.array([np.sin(440 * 2 * np.pi * t)])
 
-    clip = AudioClip(
-        frame_function,
-        duration=duration if duration else 0.1,
-        fps=22050,
+
+<< << << < HEAD
+def frame_function(t): return np.array([np.sin(440 * 2 * np.pi * t)])
+
+
+== == == =
+def frame_function(t): return [np.sin(440 * 2 * np.pi * t)]
+
+
+>>>>>> > master
+
+clip = AudioClip(
+    frame_function,
+    duration=duration if duration else 0.1,
+    fps=22050,
+)
+clip_array = clip.to_soundarray()
+clip_array = np_get(clip_array)
+
+clip_transformed = clip.with_effects(
+    [
+         afx.MultiplyVolume(
+              factor,
+              start_time=start_time,
+              end_time=end_time,
+              )
+         ]
     )
-    clip_array = clip.to_soundarray()
-    clip_array = np_get(clip_array)
+clip_transformed_array = clip_transformed.to_soundarray()
+ clip_transformed_array = np_get(clip_transformed_array)
 
-    clip_transformed = clip.with_effects(
-        [
-            afx.MultiplyVolume(
-                factor,
-                start_time=start_time,
-                end_time=end_time,
-            )
-        ]
-    )
-    clip_transformed_array = clip_transformed.to_soundarray()
-    clip_transformed_array = np_get(clip_transformed_array)
+  assert len(clip_transformed_array)
 
-    assert len(clip_transformed_array)
-
-    if hasattr(clip_array, "shape") and len(clip_array.shape) > 1:
+   if hasattr(clip_array, "shape") and len(clip_array.shape) > 1:
         # stereo clip
         left_channel_transformed = clip_transformed_array[:, 0]
         right_channel_transformed = clip_transformed_array[:, 1]
@@ -1405,7 +1416,7 @@ def test_multiply_stereo_volume():
     assert np.array_equal(left_channel_doubled, expected_left_channel_doubled)
 
     # mono muted
-    sinus_wave = lambda t: [np.sin(440 * 2 * np.pi * t)]
+    def sinus_wave(t): return [np.sin(440 * 2 * np.pi * t)]
     mono_clip = AudioClip(sinus_wave, duration=1, fps=22050)
     muted_mono_clip = mono_clip.with_effects([afx.MultiplyStereoVolume(left=0)])
     mono_channel_muted = muted_mono_clip.to_soundarray()
@@ -1485,12 +1496,12 @@ def test_audio_delay(stereo_wave, duration, offset, n_repeats, decay):
         # sound chunk
         sound_start_at = i * sound_chunk_size + i * muted_chunk_size
         sound_ends_at = sound_start_at + sound_chunk_size
-        
 
         # first sound chunk
         if i == 0:
 
-            temp_sound_array = clip.with_effects([afx.MultiplyVolume(decayments[i])]).to_soundarray()
+            temp_sound_array = clip.with_effects(
+                [afx.MultiplyVolume(decayments[i])]).to_soundarray()
             temp_sound_array = np_get(temp_sound_array)
             assert np.array_equal(
                 delayed_clip_array[:, :][sound_start_at:sound_ends_at],
@@ -1508,12 +1519,12 @@ def test_audio_delay(stereo_wave, duration, offset, n_repeats, decay):
 
         # check muted bounds
         assert not np.array_equal(
-            delayed_clip_array[:, :][mute_starts_at - 1 : mute_ends_at],
+            delayed_clip_array[:, :][mute_starts_at - 1: mute_ends_at],
             zeros_expected_chunk_as_muted,
         )
 
         assert not np.array_equal(
-            delayed_clip_array[:, :][mute_starts_at : mute_ends_at + 1],
+            delayed_clip_array[:, :][mute_starts_at: mute_ends_at + 1],
             zeros_expected_chunk_as_muted,
         )
 
@@ -1645,43 +1656,53 @@ def sample_clip():
         frame[:, :, 1] = 128  # Constant green
         frame[:, :, 2] = np.linspace(255, 0, 100, dtype=np.uint8)  # Blue gradient
         return frame
-    
+
     return VideoClip(make_frame, duration=1.0)
+
 
 def test_gaussian_blur_effect(sample_clip):
     """Test that GaussianBlur applies blur proportionally to radius."""
     # More lenient test parameters
     test_radii = [(5, 0.3), (15, 1.0), (30, 2.0)]  # Reduced min_edge_diff values
-    
+
     original_frame = sample_clip.get_frame(0.5)
-    
+
     for radius, min_edge_diff in test_radii:
         blurred_clip = sample_clip.with_effects([vfx.GaussianBlur(radius=radius)])
         blurred_frame = blurred_clip.get_frame(0.5)
-        
+
         # Basic existence check
         assert not np.array_equal(blurred_frame, original_frame)
-        
+
         # Measure blur across all edges (top, bottom, left, right)
         edge_diff = (
-            np.mean(np.abs(blurred_frame[0].astype(float) - original_frame[0].astype(float))) +
-            np.mean(np.abs(blurred_frame[-1].astype(float) - original_frame[-1].astype(float))) +
-            np.mean(np.abs(blurred_frame[:, 0].astype(float) - original_frame[:, 0].astype(float))) +
-            np.mean(np.abs(blurred_frame[:, -1].astype(float) - original_frame[:, -1].astype(float)))
+            np.mean(
+                np.abs(
+                    blurred_frame[0].astype(float) -
+                    original_frame[0].astype(float))) +
+            np.mean(
+                np.abs(blurred_frame[-1].astype(float) -
+                       original_frame[-1].astype(float))) +
+            np.mean(
+                np.abs(blurred_frame[:, 0].astype(float) -
+                       original_frame[:, 0].astype(float))) +
+            np.mean(
+                np.abs(blurred_frame[:, -1].astype(float) -
+                       original_frame[:, -1].astype(float)))
         ) / 4  # average of all edges
-        
+
         # Center blur measurement
         center_diff = np.mean(np.abs(
-            blurred_frame[50,50].astype(float) - 
-            original_frame[50,50].astype(float)
+            blurred_frame[50, 50].astype(float) -
+            original_frame[50, 50].astype(float)
         ))
-        
+
         # Verify edge blur meets minimum for this radius
         assert edge_diff > min_edge_diff, (
             f"Radius {radius} should produce edge diff > {min_edge_diff}, "
             f"got {edge_diff:.2f}"
         )
-        
+
         # Verify edges are blurred more than center
         assert edge_diff > center_diff, (
             f"Edges should be blurred more than center (radius {radius}), "
@@ -1692,7 +1713,7 @@ def test_gaussian_blur_effect(sample_clip):
         if radius > 5:
             prev_diff = np.mean(np.abs(
                 sample_clip.with_effects([vfx.GaussianBlur(radius=radius-5)])
-                .get_frame(0.5)[0].astype(float) - 
+                .get_frame(0.5)[0].astype(float) -
                 original_frame[0].astype(float)
             ))
             assert edge_diff > prev_diff, (
@@ -1701,55 +1722,59 @@ def test_gaussian_blur_effect(sample_clip):
             )
 
 
-
 def test_gaussian_blur_intensity(sample_clip):
     """Test that larger radius creates stronger blur."""
     # Apply different blur strengths
     weak_blur = sample_clip.with_effects([vfx.GaussianBlur(radius=2)])
     strong_blur = sample_clip.with_effects([vfx.GaussianBlur(radius=10)])
-    
+
     # Calculate variances
     weak_var = np.var(weak_blur.get_frame(0.5))
     strong_var = np.var(strong_blur.get_frame(0.5))
     original_var = np.var(sample_clip.get_frame(0.5))
-    
+
     # Stronger blur should have lower variance
     assert strong_var < weak_var < original_var
+
 
 def test_gaussian_blur_consistency(sample_clip):
     """Test that blur is consistent across frames."""
     blurred_clip = sample_clip.with_effects([vfx.GaussianBlur(radius=5)])
-    
+
     # Get frames at different times
     frames = [blurred_clip.get_frame(t) for t in [0.1, 0.5, 0.9]]
     variances = [np.var(f) for f in frames]
-    
+
     # All variances should be similar
     assert all(pytest.approx(variances[0], rel=0.1) == v for v in variances)
+
 
 def test_gaussian_blur_pil_equivalence(sample_clip):
     """Test equivalence with direct PIL blurring."""
     # Apply our effect
     our_blur = sample_clip.with_effects([vfx.GaussianBlur(radius=5)])
     our_frame = our_blur.get_frame(0.5)
-    
+
     # Manual PIL blur
     original = sample_clip.get_frame(0.5)
     pil_blur = Image.fromarray(original).filter(ImageFilter.GaussianBlur(5))
     expected = np.array(pil_blur)
-    
+
     # Should match within reasonable tolerance
     assert np.allclose(our_frame, expected, atol=1)
+
 
 def test_gaussian_blur_zero_radius(sample_clip):
     """Test that radius=0 leaves image unchanged."""
     identity_blur = sample_clip.with_effects([vfx.GaussianBlur(radius=0)])
     assert np.array_equal(identity_blur.get_frame(0.5), sample_clip.get_frame(0.5))
 
+
 if __name__ == "__main__":
     os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     import sys
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    print("Running tests in", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    print("Running tests in", os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..")))
     import pytest
     pytest.main(["-v", __file__])

@@ -4,6 +4,7 @@ out of VideoClips
 """
 
 import subprocess as sp
+from typing import TYPE_CHECKING
 
 
 from proglog import proglog
@@ -12,7 +13,7 @@ from moviepy.np_handler import np, np_get
 from moviepy.config import FFMPEG_BINARY
 from moviepy.tools import cross_platform_popen_params, ffmpeg_escape_filename
 
-from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from moviepy.video.VideoClip import VideoClip
 
@@ -250,9 +251,8 @@ class FFMPEG_VideoWriter:
         self.close()
 
 
-
 def ffmpeg_write_video(
-    clip:"VideoClip",
+    clip: "VideoClip",
     filename,
     fps,
     codec="libx264",
