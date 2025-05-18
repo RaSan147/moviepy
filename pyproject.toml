@@ -39,7 +39,7 @@ dependencies = [
 [project.optional-dependencies]
 doc = [
     "numpydoc<2.0",
-    "Sphinx==6.*",
+    "Sphinx==7.*",
     "pydata-sphinx-theme==0.13",
     "sphinx_design",
 ]
