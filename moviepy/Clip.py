@@ -206,9 +206,7 @@ class Clip:
 
         return new_clip
 
-
     set_effects = with_effects
-    
 
     @apply_to_mask
     @apply_to_audio
@@ -253,9 +251,7 @@ class Clip:
 
         return self
 
-
     set_start = with_start
-
 
     @apply_to_mask
     @apply_to_audio
@@ -293,9 +289,7 @@ class Clip:
 
         return self
 
-
     set_end = with_end
-
 
     @apply_to_mask
     @apply_to_audio
@@ -331,7 +325,6 @@ class Clip:
 
         return self
 
-    
     set_duration = with_duration
 
     @outplace
@@ -390,7 +383,7 @@ class Clip:
 
         newclip.fps = fps
         return newclip
-    
+
     set_fps = with_fps
 
     @outplace
@@ -424,34 +417,6 @@ class Clip:
         return self
 
     set_memoize = with_memoize
-
-
-    @convert_parameter_to_seconds(["t"])
-    def is_playing(self, t):
-        """If ``t`` is a time, returns true if t is between the start and the end
-        of the clip. ``t`` can be expressed in seconds (15.35), in (min, sec), in
-        (hour, min, sec), or as a string: '01:03:05.35'. If ``t`` is a numpy
-        array, returns False if none of the ``t`` is in the clip, else returns a
-        vector [b_1, b_2, b_3...] where b_i is true if tti is in the clip.
-        """
-        if isinstance(t, np.ndarray):
-            # is the whole list of t outside the clip ?
-            tmin, tmax = t.min(), t.max()
-
-            if (self.end is not None) and (tmin >= self.end):
-                return False
-
-            if tmax < self.start:
-                return False
-
-            # If we arrive here, a part of t falls in the clip
-            result = 1 * (t >= self.start)
-            if self.end is not None:
-                result *= t <= self.end
-            return result
-
-        else:
-            return (t >= self.start) and ((self.end is None) or (t < self.end))
 
     @convert_parameter_to_seconds(["start_time", "end_time"])
     @apply_to_mask

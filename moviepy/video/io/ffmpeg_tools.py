@@ -3,6 +3,8 @@
 import os
 import re
 import subprocess
+import urllib.error
+import urllib.request
 
 from moviepy.config import FFMPEG_BINARY, FFPLAY_BINARY
 from moviepy.decorators import convert_parameter_to_seconds, convert_path_to_string
@@ -211,9 +213,6 @@ def ffmpeg_stabilize_video(
     subprocess_call(cmd, logger=logger)
 
 
-import urllib.request
-import urllib.error
-
 __VERSION_CACHE__ = {}
 
 
@@ -241,6 +240,7 @@ def _resolve_git_commit_version(commit_hash):
     except (urllib.error.URLError, Exception):
         return f"{commit_hash[:7]} (commit-based, release unknown)"
 
+
 def _parse_ffmpeg_output(output):
     first_line = output.splitlines()[0]
     parts = first_line.split()
@@ -256,7 +256,6 @@ def _parse_ffmpeg_output(output):
     numeric_version = numeric_match.group(0) if numeric_match else "unknown"
 
     return version_token, numeric_version
-
 
 
 def ffmpeg_version():
@@ -319,7 +318,7 @@ def ffplay_version():
     cmd = [FFPLAY_BINARY, "-version"]
     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
     return _parse_ffmpeg_output(result.stdout)
-    
+
 
 if __name__ == "__main__":
     print("ffmpeg version:", ffmpeg_version())

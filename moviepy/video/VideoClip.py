@@ -34,7 +34,12 @@ from moviepy.decorators import (
     requires_fps,
     use_clip_fps_by_default,
 )
-from moviepy.tools import compute_position, extensions_dict, find_extension, subprocess_call
+from moviepy.tools import (
+    compute_position,
+    extensions_dict,
+    find_extension,
+    subprocess_call,
+)
 from moviepy.video.fx.Crop import Crop
 from moviepy.video.fx.Resize import Resize
 from moviepy.video.fx.Rotate import Rotate
@@ -931,7 +936,6 @@ class VideoClip(Clip):
 
     set_make_frame = with_updated_frame_function
 
-
     @outplace
     def with_audio(self, audioclip):
         """Attach an AudioClip to the VideoClip.
@@ -944,7 +948,6 @@ class VideoClip(Clip):
         return self
 
     set_audio = with_audio
-
 
     @outplace
     def with_mask(self, mask: Union["VideoClip", str] = "auto"):
@@ -1032,7 +1035,6 @@ class VideoClip(Clip):
 
         return self
 
-    
     set_position = with_position
     set_pos = with_position
 
@@ -1127,7 +1129,6 @@ class VideoClip(Clip):
         )
 
     crop = cropped
-
 
     # --------------------------------------------------------------
     # CONVERSIONS TO OTHER TYPES
@@ -1848,7 +1849,7 @@ class TextClip(ImageClip):
                 # to previous char
                 if last_space:
                     lines.append(temp_line[0:last_space])
-                    current_line = temp_line[last_space + 1 : index + 1]
+                    current_line = temp_line[last_space + 1: index + 1]
                     last_space = 0
                 else:
                     lines.append(current_line[0:index])
@@ -1928,8 +1929,15 @@ class TextClip(ImageClip):
         try:
             line_height = draw._multiline_spacing(font_pil, spacing, stroke_width)
         except AttributeError:
-            # support for PIL>10.0.0, changelog https://pillow.readthedocs.io/en/stable/releasenotes/10.0.0.html#font-size-and-offset-methods
-            line_height = draw.textbbox((0, 0), text="A", font=font_pil, spacing=spacing, stroke_width=stroke_width)[3]
+            # support for PIL>10.0.0, changelog:
+            # https://pillow.readthedocs.io/en/stable/releasenotes/10.0.0.html#font-size-and-offset-methods
+            line_height = draw.textbbox(
+                (0, 0),
+                text="A",
+                font=font_pil,
+                spacing=spacing,
+                stroke_width=stroke_width
+            )[3]
             line_height += spacing + stroke_width
 
         if max_width is not None and allow_break:
@@ -2014,7 +2022,6 @@ class TextClip(ImageClip):
             return min_font_size
         else:
             return min_font_size - 1
-
 
 
 class MagicTextClip(ImageClip):
@@ -2142,7 +2149,7 @@ class MagicTextClip(ImageClip):
             font,
         ]
 
-        font_size = font_size or fontsize # for backward compatibility
+        font_size = font_size or fontsize  # for backward compatibility
 
         if font_size is not None:
             cmd += ["-pointsize", "%d" % font_size]
@@ -2155,7 +2162,7 @@ class MagicTextClip(ImageClip):
         if text_align is not None:
             cmd += ["-gravity", text_align]
         if interline is not None:
-            interline -= 14 # ImageMagick's interline is not the same as moviepy's
+            interline -= 14  # ImageMagick's interline is not the same as moviepy's
             cmd += ["-interline-spacing", "%d" % interline]
 
         if tempfilename is None:

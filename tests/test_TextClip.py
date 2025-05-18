@@ -144,6 +144,7 @@ if __name__ == "__main__":
     os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     import sys
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    print("Running tests in", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    print("Running tests in", os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..")))
     import pytest
     pytest.main(["-v", __file__])

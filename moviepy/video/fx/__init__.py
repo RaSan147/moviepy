@@ -14,6 +14,7 @@ from moviepy.video.fx.FadeOut import FadeOut
 from moviepy.video.fx.Freeze import Freeze
 from moviepy.video.fx.FreezeRegion import FreezeRegion
 from moviepy.video.fx.GammaCorrection import GammaCorrection
+from moviepy.video.fx.GaussianBlur import GaussianBlur
 from moviepy.video.fx.HeadBlur import HeadBlur
 from moviepy.video.fx.InvertColors import InvertColors
 from moviepy.video.fx.Loop import Loop
@@ -36,7 +37,6 @@ from moviepy.video.fx.SlideOut import SlideOut
 from moviepy.video.fx.SuperSample import SuperSample
 from moviepy.video.fx.TimeMirror import TimeMirror
 from moviepy.video.fx.TimeSymmetrize import TimeSymmetrize
-from moviepy.video.fx.GaussianBlur import GaussianBlur
 
 
 __all__ = (

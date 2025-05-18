@@ -28,10 +28,10 @@ from moviepy.video.VideoClip import (
     ColorClip,
     DataVideoClip,
     ImageClip,
+    MagicTextClip,
     TextClip,
     UpdatedVideoClip,
     VideoClip,
-    MagicTextClip,
 )
 
 
@@ -66,4 +66,5 @@ __all__ = [
     "videotools",
     "ffmpeg_tools",
     "convert_to_seconds",
+    "MagicTextClip",
 ]
