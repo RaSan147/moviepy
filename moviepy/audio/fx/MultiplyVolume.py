@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+
 import numpy as np
-from moviepy.np_handler import np_convert, cnp
+
 from moviepy.Clip import Clip
 from moviepy.decorators import audio_video_effect
 from moviepy.Effect import Effect
+from moviepy.np_handler import cnp, np_convert
 from moviepy.tools import convert_to_seconds
 
 
@@ -43,16 +45,15 @@ class MultiplyVolume(Effect):
         silenced_clip = clip.with_effects([effect])
     """
 
-
     factor: float
     start_time: float = None
     end_time: float = None
 
     def __post_init__(self):
-        self.start_time = (convert_to_seconds(self.start_time) 
-            if self.start_time is not None else None)
+        self.start_time = (convert_to_seconds(self.start_time)
+                           if self.start_time is not None else None)
         self.end_time = (convert_to_seconds(self.end_time)
-            if self.end_time is not None else None)
+                         if self.end_time is not None else None)
         self.xp = cnp if cnp else np  # Unified array module
 
     def _create_volume_mask(self, t):
@@ -66,6 +67,7 @@ class MultiplyVolume(Effect):
 
     @audio_video_effect
     def apply(self, clip: Clip) -> Clip:
+        """Apply the effect to the clip."""
         xp = self.xp
         nchannels = clip.nchannels
 
@@ -81,10 +83,10 @@ class MultiplyVolume(Effect):
             frame = np_convert(get_frame(t, to_np=False))
             t_array = xp.asarray(t)
             factors = self._create_volume_mask(t_array)
-            
+
             if nchannels > 1:
                 factors = factors[:, xp.newaxis]  # Broadcast to stereo channels
-                
+
             return xp.multiply(frame, factors)  # Remove dtype forcing
 
         return clip.transform(volume_transform, keep_duration=True)

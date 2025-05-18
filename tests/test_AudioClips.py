@@ -4,10 +4,8 @@ import os
 
 import numpy as np
 
-import pytest;#pytest.skip(allow_module_level=True)
+import pytest  # pytest.skip(allow_module_level=True)
 
-
-from moviepy.np_handler import np_ndarray_instance
 from moviepy.audio.AudioClip import (
     AudioArrayClip,
     AudioClip,
@@ -15,7 +13,7 @@ from moviepy.audio.AudioClip import (
     concatenate_audioclips,
 )
 from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.np_handler import np_get
+from moviepy.np_handler import np_get, np_ndarray_instance
 
 
 def test_audioclip(util, mono_wave):
@@ -51,7 +49,7 @@ def test_audioclip_io(util):
     np.testing.assert_array_almost_equal(
         np_get(output_array[: len(input_array)]), input_array, decimal=4
     )
-    assert (output_array[len(input_array) :] == 0).all()
+    assert (output_array[len(input_array):] == 0).all()
 
 
 def test_concatenate_audioclips_render(util, mono_wave):

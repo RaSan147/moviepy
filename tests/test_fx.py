@@ -9,7 +9,7 @@ import random
 import numpy as np
 from PIL import Image, ImageFilter
 
-import pytest
+import pytest  # pytest.skip(allow_module_level=True)
 
 from moviepy import *
 from moviepy.np_handler import np_get
@@ -1204,41 +1204,31 @@ def test_multiply_volume_audioclip(
             ]
         ).T.copy(order="C")
     else:
+        def frame_function(t): return np.array([np.sin(440 * 2 * np.pi * t)])
 
-
-<< << << < HEAD
-def frame_function(t): return np.array([np.sin(440 * 2 * np.pi * t)])
-
-
-== == == =
-def frame_function(t): return [np.sin(440 * 2 * np.pi * t)]
-
-
->>>>>> > master
-
-clip = AudioClip(
-    frame_function,
-    duration=duration if duration else 0.1,
-    fps=22050,
-)
-clip_array = clip.to_soundarray()
-clip_array = np_get(clip_array)
-
-clip_transformed = clip.with_effects(
-    [
-         afx.MultiplyVolume(
-              factor,
-              start_time=start_time,
-              end_time=end_time,
-              )
-         ]
+    clip = AudioClip(
+        frame_function,
+        duration=duration if duration else 0.1,
+        fps=22050,
     )
-clip_transformed_array = clip_transformed.to_soundarray()
- clip_transformed_array = np_get(clip_transformed_array)
+    clip_array = clip.to_soundarray()
+    clip_array = np_get(clip_array)
 
-  assert len(clip_transformed_array)
+    clip_transformed = clip.with_effects(
+        [
+            afx.MultiplyVolume(
+                factor,
+                start_time=start_time,
+                end_time=end_time,
+            )
+        ]
+    )
+    clip_transformed_array = clip_transformed.to_soundarray()
+    clip_transformed_array = np_get(clip_transformed_array)
 
-   if hasattr(clip_array, "shape") and len(clip_array.shape) > 1:
+    assert len(clip_transformed_array)
+
+    if hasattr(clip_array, "shape") and len(clip_array.shape) > 1:
         # stereo clip
         left_channel_transformed = clip_transformed_array[:, 0]
         right_channel_transformed = clip_transformed_array[:, 1]

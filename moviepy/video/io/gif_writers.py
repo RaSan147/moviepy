@@ -4,7 +4,6 @@ import imageio.v3 as iio
 import proglog
 
 from moviepy.decorators import requires_duration, use_clip_fps_by_default
-from moviepy.np_handler import np_get
 
 
 @requires_duration

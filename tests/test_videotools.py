@@ -5,16 +5,14 @@ import math
 import os
 import shutil
 import sys
-import time
 
-
-
-import pytest;#pytest.skip(allow_module_level=True)
 import numpy as np
 
-from moviepy.np_handler import np_get, np_ndarray_instance
+import pytest  # pytest.skip(allow_module_level=True)
+
 from moviepy import *
 from moviepy.audio.tools.cuts import find_audio_period
+from moviepy.np_handler import np_get, np_ndarray_instance
 from moviepy.video.tools.credits import CreditsClip
 from moviepy.video.tools.cuts import (
     FramesMatch,
@@ -202,7 +200,7 @@ def test_FramesMatches_filter():
         FramesMatch(1, 2, 0.8, 0),
     ]
     expected_matching_frames = [FramesMatch(1, 2, 0, 0)]
-    matching_frames_filter = lambda x: not x.min_distance and not x.max_distance
+    def matching_frames_filter(x): return not x.min_distance and not x.max_distance
 
     matching_frames = FramesMatches(input_matching_frames).filter(
         matching_frames_filter
@@ -313,9 +311,7 @@ def test_FramesMatches_select_scenes(
         [video_clip.with_effects([vfx.TimeMirror()]), video_clip]
     )
 
-    start = time.perf_counter()
     matcher = FramesMatches.from_clip(clip, 10, 3, logger=None)
-    end = time.perf_counter()
     result = matcher.select_scenes(
         match_threshold,
         min_time_span,

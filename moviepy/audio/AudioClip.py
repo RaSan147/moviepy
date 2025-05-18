@@ -10,7 +10,7 @@ import os
 
 import proglog
 
-from moviepy.np_handler import np, np_convert, np_get, np_ndarray_instance, _np
+from moviepy.np_handler import np, np_get, np_ndarray_instance, _np
 from moviepy.audio.io.ffmpeg_audiowriter import ffmpeg_audiowrite
 from moviepy.audio.io.ffplay_audiopreviewer import ffplay_audiopreview
 from moviepy.Clip import Clip

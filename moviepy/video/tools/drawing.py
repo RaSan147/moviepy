@@ -2,7 +2,7 @@
 methods that are difficult to do with the existing Python libraries.
 """
 
-from moviepy.np_handler import np, np_convert, np_get, _np
+from moviepy.np_handler import np
 
 
 def color_gradient(
@@ -127,7 +127,8 @@ def color_gradient(
         # Compute two gradient directions in parallel
         vector_flipped = np.negative(vector)
         m1, m2 = [
-            color_gradient(size, p1, vector=v, color_1=1.0, color_2=0.0, shape="linear", offset=offset)
+            color_gradient(size, p1, vector=v, color_1=1.0,
+                           color_2=0.0, shape="linear", offset=offset)
             for v in [vector, vector_flipped]
         ]
 
@@ -234,7 +235,8 @@ def color_split(
 
     if gradient_width or ((x is None) and (y is None)):
         if p2 is not None:
-            vector = np.subtract(np.asarray(p2, dtype=np.float32), np.asarray(p1, dtype=np.float32))
+            vector = np.subtract(np.asarray(p2, dtype=np.float32),
+                                 np.asarray(p1, dtype=np.float32))
         elif x is not None:
             vector = np.array([0, -1.0], dtype=np.float32)
             p1 = np.array([x, 0], dtype=np.float32)
@@ -247,12 +249,19 @@ def color_split(
         norm = np.linalg.norm(vector)
         vector = max(0.1, gradient_width) * vector / norm
 
-        return color_gradient(size, p1, vector=vector, color_1=color_1, color_2=color_2, shape="linear")
+        return color_gradient(
+            size,
+            p1,
+            vector=vector,
+            color_1=color_1,
+            color_2=color_2,
+            shape="linear"
+        )
 
     else:
         w, h = size
         shape = (h, w) if color_1.ndim == 0 else (h, w, len(color_1))
-        
+
         # Allocate memory efficiently
         arr = np.zeros(shape, dtype=color_1.dtype)
 

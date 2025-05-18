@@ -2,7 +2,7 @@
 
 import os
 
-import pytest;#pytest.skip(allow_module_level=True)
+import pytest  # pytest.skip(allow_module_level=True)
 
 from moviepy.video.compositing.CompositeVideoClip import (
     CompositeVideoClip,
@@ -32,7 +32,7 @@ def test_subtitles(util):
     myvideo = concatenate_videoclips([red, green, blue])
     assert myvideo.duration == 30
 
-    generator = lambda txt: TextClip(
+    def generator(txt): return TextClip(
         text=txt,
         font=util.FONT,
         size=(800, 600),

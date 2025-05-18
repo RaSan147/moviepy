@@ -4,8 +4,7 @@ import os
 
 import numpy as np
 
-import pytest;#pytest.skip(allow_module_level=True)
-
+import pytest  # pytest.skip(allow_module_level=True)
 
 from moviepy import *
 from moviepy.np_handler import np_get
@@ -22,7 +21,6 @@ class ClipPixelTest:
         frame = np_get(frame)
         r, g, b = expected
         actual = frame[xy[1]][xy[0]]
-        
 
         diff = abs(actual[0] - r) + abs(actual[1] - g) + abs(actual[2] - b)
 
@@ -166,7 +164,6 @@ def test_compositing_with_transparency_colors(util):
     # We check color with 1 layer
     # We add a bit of tolerance (about 1%) to account
     # For possible rounding errors
-
 
     color1 = frame[50, 10]
     opacity1 = mask[50, 10]

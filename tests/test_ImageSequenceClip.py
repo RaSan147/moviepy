@@ -2,7 +2,7 @@
 
 import os
 
-import pytest;#pytest.skip(allow_module_level=True)
+import pytest  # pytest.skip(allow_module_level=True)
 
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 

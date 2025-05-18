@@ -1,10 +1,10 @@
 from dataclasses import dataclass
- 
+
 from PIL import Image, ImageFilter
 
-from moviepy.np_handler import np, np_get
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
+from moviepy.np_handler import np, np_get
 
 
 @dataclass

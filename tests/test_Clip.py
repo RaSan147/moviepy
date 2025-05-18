@@ -2,10 +2,10 @@
 
 import copy
 
-from moviepy.np_handler import np, np_ndarray_instance
-import pytest;#pytest.skip(allow_module_level=True)
+import pytest  # pytest.skip(allow_module_level=True)
 
 from moviepy.Clip import Clip
+from moviepy.np_handler import np_ndarray_instance
 from moviepy.video.VideoClip import BitmapClip, ColorClip
 
 

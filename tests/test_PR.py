@@ -3,8 +3,7 @@
 import os
 from pathlib import Path
 
-import pytest;#pytest.skip(allow_module_level=True)
-
+import pytest  # pytest.skip(allow_module_level=True)
 
 from moviepy import *
 from moviepy.video.tools.interpolators import Trajectory

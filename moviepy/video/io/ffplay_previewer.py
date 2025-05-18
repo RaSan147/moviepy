@@ -122,7 +122,12 @@ def ffplay_preview_video(
     """
     with FFPLAY_VideoPreviewer(clip.size, fps, pixel_format) as previewer:
         first_frame = True
-        for t, frame in clip.iter_frames(with_times=True, fps=fps, dtype="uint8", to_np=False):
+        for t, frame in clip.iter_frames(
+            with_times=True,
+            fps=fps,
+            dtype="uint8",
+            to_np=False
+        ):
             previewer.show_frame(frame)
 
             # After first frame is shown, if we have audio/video flag, set video ready

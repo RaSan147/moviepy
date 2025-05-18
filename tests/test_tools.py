@@ -7,7 +7,7 @@ import os
 import shutil
 import sys
 
-import pytest;#pytest.skip(allow_module_level=True)
+import pytest  # pytest.skip(allow_module_level=True)
 
 import moviepy.tools as tools
 

@@ -3,9 +3,8 @@
 import subprocess as sp
 import warnings
 
-
-from moviepy.np_handler import np, np_get, np_ndarray_instance
 from moviepy.config import FFMPEG_BINARY
+from moviepy.np_handler import np, np_get, np_ndarray_instance
 from moviepy.tools import cross_platform_popen_params, ffmpeg_escape_filename
 from moviepy.video.io.ffmpeg_reader import ffmpeg_parse_infos
 
@@ -227,7 +226,8 @@ class FFMPEG_AudioReader:
                 in_time_head = in_time[0:threshold_idx]
                 in_time_tail = in_time[threshold_idx:]
                 return np.concatenate(
-                    [self.get_frame(in_time_head, to_np=False), self.get_frame(in_time_tail, to_np=False)]
+                    [self.get_frame(in_time_head, to_np=False),
+                     self.get_frame(in_time_tail, to_np=False)]
                 )
 
             if not (0 <= (fr_min - self.buffer_startframe) < len(self.buffer)):
@@ -278,7 +278,6 @@ class FFMPEG_AudioReader:
         frame_number = np_get(frame_number)
 
         new_bufferstart = max(0, frame_number - self.buffersize // 2)
-
 
         if self.buffer is not None:
             current_f_end = self.buffer_startframe + self.buffersize

@@ -2,9 +2,8 @@
 
 from collections import defaultdict
 
-
-from moviepy.np_handler import np, np_convert, np_get, _np
 from moviepy.decorators import convert_parameter_to_seconds, use_clip_fps_by_default
+from moviepy.np_handler import _np, np, np_get
 
 
 @use_clip_fps_by_default
@@ -37,10 +36,10 @@ def find_video_period(clip, fps=None, start_time=0.3):
         round(videotools.find_video_period(clip, fps=80), 6)
         1
     """
-
     # Preload all necessary frames at once
     timings = np.arange(start_time, clip.duration, 1 / fps)[1:]
-    frames = np.array([clip.get_frame(t, to_np=False).flatten() for t in timings])  # Vectorized frame extraction
+    frames = np.array([clip.get_frame(t, to_np=False).flatten()
+                      for t in timings])  # Vectorized frame extraction
 
     # Compute correlation coefficients in batch
     ref = clip.get_frame(0, to_np=False).flatten()
@@ -260,7 +259,8 @@ class FramesMatches(list):
         matching_frames = []  # the final result
 
         for t, frame in clip.iter_frames(with_times=True, logger=logger, to_np=False):
-            t = float(np.asnumpy(t) if hasattr(t, 'get') else t)  # handle both cupy and numpy arrays
+            # handle both cupy and numpy arrays
+            t = float(np.asnumpy(t) if hasattr(t, 'get') else t)
             flat_frame = np.asarray(frame, dtype=np.float32).flatten()
             F_norm_sq = dot_product(flat_frame, flat_frame)
             F_norm = np.sqrt(F_norm_sq)
@@ -335,7 +335,6 @@ class FramesMatches(list):
 
         return FramesMatches([FramesMatch(*e) for e in matching_frames])
 
-
     def select_scenes(
         self, match_threshold, min_time_span, nomatch_threshold=None, time_distance=0
     ):
@@ -390,55 +389,54 @@ class FramesMatches(list):
         if nomatch_threshold is None:
             nomatch_threshold = match_threshold
 
-
         dict_starts = defaultdict(lambda: [])
         for start, end, min_distance, max_distance in self:
             dict_starts[start].append([end, min_distance, max_distance])
         # Convert to sorted list of tuples (start, ends_info)
         starts_ends = sorted(dict_starts.items(), key=lambda x: x[0])
-        
+
         result = []
         min_start = 0.0
-        
+
         for start, ends_info in starts_ends:
             if start < min_start:
                 continue
-            
+
             # Convert to numpy array for vectorized operations
             ends_array = _np.array(ends_info, dtype=_np.float32)
             ends = ends_array[:, 0]
             min_distances = ends_array[:, 1]
             max_distances = ends_array[:, 2]
-            
+
             # Vectorized conditions
             great_matches_mask = max_distances < match_threshold
             great_matches = ends_array[great_matches_mask]
-            
+
             long_matches_mask = (great_matches[:, 0] - start) > min_time_span
             great_long_matches = great_matches[long_matches_mask]
-            
+
             if great_long_matches.size == 0:
                 continue
-            
+
             # Find poor matches
             poor_matches_mask = min_distances > nomatch_threshold
             poor_matches = set(ends[poor_matches_mask])
-            
+
             # Find short matches
             short_matches_mask = (ends - start) <= 0.6
             short_matches = set(ends[short_matches_mask])
-            
+
             if not poor_matches.intersection(short_matches):
                 continue
-            
+
             # Find the longest match
             max_end_idx = _np.argmax(great_long_matches[:, 0])
             best_match = great_long_matches[max_end_idx]
             end, min_dist, max_dist = best_match
-            
+
             result.append(FramesMatch(start, end, min_dist, max_dist))
             min_start = start + time_distance
-        
+
         return FramesMatches(result)
 
     def write_gifs(self, clip, gifs_dir, **kwargs):
@@ -531,7 +529,11 @@ def detect_scenes(
     """
     if luminosities is None:
         luminosities = [
-            f.sum() for f in clip.iter_frames(fps=fps, dtype="uint32", logger=logger, to_np=False)
+            f.sum() for f in clip.iter_frames(
+              fps=fps,
+              dtype="uint32",
+              logger=logger,
+              to_np=False)
         ]
 
     luminosities = np.array(luminosities, dtype=float)

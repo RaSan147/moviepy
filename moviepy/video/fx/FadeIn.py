@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 
-
-from moviepy.np_handler import np
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
+from moviepy.np_handler import np
 
 
 @dataclass
@@ -31,6 +30,9 @@ class FadeIn(Effect):
                 return get_frame(t, to_np=False)
             else:
                 fading = 1.0 * t / self.duration
-                return fading * get_frame(t, to_np=False) + (1 - fading) * self.initial_color
+                return (
+                    fading * get_frame(t, to_np=False) +
+                    (1 - fading) * self.initial_color
+                )
 
         return clip.transform(filter)

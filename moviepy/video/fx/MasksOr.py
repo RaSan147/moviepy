@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import Union
 
-
-from moviepy.np_handler import np, np_ndarray, np_ndarray_instance
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
+from moviepy.np_handler import np, np_ndarray, np_ndarray_instance
 from moviepy.video.VideoClip import ImageClip
 
 
@@ -47,7 +46,7 @@ class MasksOr(Effect):
         else:
             return clip.transform(
                 lambda get_frame, t: np.maximum(
-                    np.array(get_frame(t, to_np=False)), 
+                    np.array(get_frame(t, to_np=False)),
                     np.array(self.other_clip.get_frame(t, to_np=False))
                 )
             )

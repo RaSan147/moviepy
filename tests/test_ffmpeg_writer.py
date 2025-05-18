@@ -5,8 +5,7 @@ import os
 
 from PIL import Image
 
-import pytest;#pytest.skip(allow_module_level=True)
-
+import pytest  # pytest.skip(allow_module_level=True)
 
 from moviepy import *
 from moviepy.video.compositing.CompositeVideoClip import concatenate_videoclips

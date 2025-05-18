@@ -2,10 +2,10 @@ import numbers
 from dataclasses import dataclass
 from typing import Union
 
-from moviepy.np_handler import np, np_get
 from PIL import Image
 
 from moviepy.Effect import Effect
+from moviepy.np_handler import np, np_get
 
 
 @dataclass
@@ -80,7 +80,8 @@ class Resize(Effect):
                     def filter(get_frame, t):
                         return (
                             self.resizer(
-                                (255 * get_frame(t, to_np=False)).astype("uint8"), get_new_size(t)
+                                (255 * get_frame(t, to_np=False)).astype("uint8"),
+                                get_new_size(t)
                             )
                             / 255.0
                         )

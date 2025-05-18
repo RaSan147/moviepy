@@ -6,8 +6,7 @@ import os
 import numpy as np
 from PIL import Image
 
-import pytest;#pytest.skip(allow_module_level=True)
-
+import pytest  # pytest.skip(allow_module_level=True)
 
 from moviepy import *
 from moviepy.tools import convert_to_seconds
@@ -234,7 +233,7 @@ def test_oncolor(util):
 
 def test_setaudio(util):
     clip = ColorClip(size=(100, 60), color=(255, 0, 0), duration=0.5)
-    frame_function_440 = lambda t: [np.sin(440 * 2 * np.pi * t)]
+    def frame_function_440(t): return [np.sin(440 * 2 * np.pi * t)]
     audio = AudioClip(frame_function_440, duration=0.5)
     audio.fps = 44100
     clip = clip.with_audio(audio)
@@ -274,7 +273,6 @@ def test_with_layer_index():
     print("Top", top_clip.get_frame(0.5))
     print("Bottom", bottom_clip.get_frame(0.5))
     print("Rev", reversed_composite_clip.get_frame(0.5))
-
 
     # Make sure that the order of clips makes no difference to the composite clip
     assert composite_clip.subclipped(0, 2) == reversed_composite_clip.subclipped(0, 2)
