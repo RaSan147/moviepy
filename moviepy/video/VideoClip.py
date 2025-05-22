@@ -2161,11 +2161,24 @@ class TextClip(ImageClip):
         )
 
         # For height calculate manually as textbbox is not realiable
+
+        ## REVERTED
+        # try:
+        #     # this disappeared in more recent versions of Pillow
+        #     line_height = draw._multiline_spacing(font_pil, spacing, stroke_width)
+        #     line_breaks = text.count("\n")
+        #     lines_height = line_breaks * line_height
+        #     paddings = real_font_size + stroke_width * 2
+        #     height = int(lines_height + paddings)
+        # except AttributeError:
+        #     height = int(bottom - top)
+
         line_breaks = text.count("\n")
         lines_height = line_breaks * line_height
         paddings = real_font_size + stroke_width * 2
+        height = int(lines_height + paddings)
 
-        return (int(right - left), int(lines_height + paddings))
+        return (int(right - left), height)
 
     def __find_optimum_font_size(
         self,
