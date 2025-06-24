@@ -4,7 +4,7 @@ import subprocess as sp
 import warnings
 
 from moviepy.config import FFMPEG_BINARY
-from moviepy.np_handler import np, np_get, np_ndarray_instance
+from moviepy.np_handler import np_get, np_ndarray_instance, _np
 from moviepy.tools import cross_platform_popen_params, ffmpeg_escape_filename
 from moviepy.video.io.ffmpeg_reader import ffmpeg_parse_infos
 
@@ -117,7 +117,7 @@ class FFMPEG_AudioReader:
 
         self.proc = sp.Popen(cmd, **popen_params)
 
-        self.pos = np.round(self.fps * start_time)
+        self.pos = _np.round(self.fps * start_time)
 
     def skip_chunk(self, chunksize):
         """Skip a chunk of audio data by reading and discarding the specified number of
@@ -151,21 +151,21 @@ class FFMPEG_AudioReader:
 
         """
         # chunksize is not being autoconverted from float to int
-        chunksize = int(np.round(chunksize))
+        chunksize = int(_np.round(chunksize))
         s = self.proc.stdout.read(self.nchannels * chunksize * self.nbytes)
         data_type = {1: "int8", 2: "int16", 4: "int32"}[self.nbytes]
-        if hasattr(np, "frombuffer"):
-            result = np.frombuffer(s, dtype=data_type)
+        if hasattr(_np, "frombuffer"):
+            result = _np.frombuffer(s, dtype=data_type)
         else:
-            result = np.fromstring(s, dtype=data_type)
+            result = _np.fromstring(s, dtype=data_type)
         result = (1.0 * result / 2 ** (8 * self.nbytes - 1)).reshape(
             (int(len(result) / self.nchannels), self.nchannels)
         )
 
         # Pad the read chunk with zeros when there isn't enough audio
         # left to read, so the buffer is always at full length.
-        pad = np.zeros((chunksize - len(result), self.nchannels), dtype=result.dtype)
-        result = np.concatenate([result, pad])
+        pad = _np.zeros((chunksize - len(result), self.nchannels), dtype=result.dtype)
+        result = _np.concatenate([result, pad])
         # self.proc.stdout.flush()
         self.pos = self.pos + chunksize
         return result
@@ -185,7 +185,7 @@ class FFMPEG_AudioReader:
         # last case standing: pos = current pos
         self.pos = pos
 
-    def get_frame(self, tt, to_np=False):
+    def get_frame(self, tt, to_np=True):
         """Retrieve the audio frame(s) corresponding to the given timestamp(s).
 
         Parameters
@@ -202,6 +202,7 @@ class FFMPEG_AudioReader:
 
             # elements of t that are actually in the range of the
             # audio file.
+            tt = np_get(tt)
             in_time = (tt >= 0) & (tt < self.duration)
 
             # Check that the requested time is in the valid range
@@ -212,20 +213,20 @@ class FFMPEG_AudioReader:
                     + "with clip duration=%f seconds, " % self.duration
                 )
 
-            # The np.round in the next line is super-important.
+            # The _np.round in the next line is super-important.
             # Removing it results in artifacts in the noise.
-            frames = np.round((self.fps * tt)).astype(int)[in_time]
+            frames = _np.round((self.fps * tt)).astype(int)[in_time]
             fr_min, fr_max = frames.min(), frames.max()
 
             # if min and max frames don't fit the buffer, it results in IndexError
             # we avoid that by recursively calling this function on smaller length
             # and concatenate the results:w
             max_frame_threshold = fr_min + self.buffersize // 2
-            threshold_idx = np.searchsorted(frames, max_frame_threshold, side="right")
+            threshold_idx = _np.searchsorted(frames, max_frame_threshold, side="right")
             if threshold_idx != len(frames):
                 in_time_head = in_time[0:threshold_idx]
                 in_time_tail = in_time[threshold_idx:]
-                return np.concatenate(
+                return _np.concatenate(
                     [self.get_frame(in_time_head, to_np=False),
                      self.get_frame(in_time_tail, to_np=False)]
                 )
@@ -236,7 +237,7 @@ class FFMPEG_AudioReader:
                 self.buffer_around(fr_max)
 
             try:
-                result = np.zeros((len(tt), self.nchannels))
+                result = _np.zeros((len(tt), self.nchannels))
                 indices = frames - self.buffer_startframe
                 result[in_time] = self.buffer[indices]
                 return result
@@ -259,7 +260,7 @@ class FFMPEG_AudioReader:
         else:
             ind = int(self.fps * tt)
             if ind < 0 or ind > self.n_frames:  # out of time: return 0
-                return np.zeros(self.nchannels)
+                return _np.zeros(self.nchannels)
 
             if not (0 <= (ind - self.buffer_startframe) < len(self.buffer)):
                 # out of the buffer: recenter the buffer
@@ -268,8 +269,6 @@ class FFMPEG_AudioReader:
             # read the frame in the buffer
             frame = self.buffer[ind - self.buffer_startframe]
 
-            if to_np:
-                return np_get(frame)
             return frame
 
     def buffer_around(self, frame_number):
@@ -286,7 +285,7 @@ class FFMPEG_AudioReader:
                 conserved = current_f_end - new_bufferstart
                 chunksize = self.buffersize - conserved
                 array = self.read_chunk(chunksize)
-                self.buffer = np.vstack([self.buffer[-conserved:], array])
+                self.buffer = _np.vstack([self.buffer[-conserved:], array])
             else:
                 self.seek(new_bufferstart)
                 self.buffer = self.read_chunk(self.buffersize)

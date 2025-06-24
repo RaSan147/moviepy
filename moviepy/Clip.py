@@ -11,7 +11,9 @@ from typing import TYPE_CHECKING, List, Union
 import proglog
 
 from moviepy.np_handler import (
+    cnp,
     np,
+    _np,
     np_convert,
     np_get,
     np_ndarray_instance,
@@ -144,11 +146,151 @@ class Clip:
 
         return frame
 
+    def get_audio_frame(self, t) -> _np.ndarray:
+        """Gets a numpy array representing the sound data at time `t`.
+        Always returns a NumPy array for audio processing.
+        
+        Parameters
+        ----------
+        t : float
+            Time in seconds
+        """
+        # Audio processing always uses NumPy
+        t_np = np_get(t)
+        audio_frame = self.frame_function(t_np)
+        
+        # Ensure output is NumPy array
+        audio_frame = np_get(audio_frame)
+            
+        return audio_frame
+
+    def get_frame(self, t, to_np=True, ignore_cupy=False) -> np.ndarray:
+        """Gets a numpy array representing the RGB picture or sound data at time `t`."""
+        ignore_cupy = False
+        _t = t  # Save original input for fallback
+
+        # Handle ignore_cupy mode: bypass CuPy completely, force NumPy output
+        if ignore_cupy:
+            to_np = True  # Override to_np to ensure NumPy output
+            t_np = np_get(_t)  # Convert to NumPy (handles CuPy conversion if needed)
+
+            # Check memoization using NumPy-converted t
+            if self.memoize and t_np == self.memoized_t:
+                return self.memoized_frame
+
+            # Get frame using NumPy-converted time
+            frame_np = self.frame_function(t_np)
+            # frame_np = np_get(frame_np)  # Ensure output is NumPy
+
+            # Update memoization if enabled
+            if self.memoize:
+                self.memoized_t = t_np
+                self.memoized_frame = frame_np
+
+            return frame_np
+
+        # 1. Determine target array type (CuPy/NumPy) ---------------------------------
+        if self.memoize_np:
+            # Check if frame function changed or type is undetermined
+            current_hash = hash(self.frame_function)
+            if not hasattr(self, 'memoized_frame_function_hash'):
+                # Initialize memoization attributes
+                self.memoized_frame_function_hash = None
+                self.memoized_prefers_numpy = None
+
+            if current_hash != self.memoized_frame_function_hash:
+                # Reset cached type if frame function changed
+                self.memoized_frame_function_hash = current_hash
+                self.memoized_prefers_numpy = None
+
+            # Detect preferred type if not cached
+            if self.memoized_prefers_numpy is None:
+                try:
+                    # Test with CuPy first
+                    test_t = np_convert(_t)
+                    self.frame_function(test_t)
+                    self.memoized_prefers_numpy = False
+                except (TypeError, NotImplementedError, AttributeError):
+                    # Fallback to NumPy
+                    test_t = np_get(_t)
+                    self.frame_function(test_t)
+                    self.memoized_prefers_numpy = True
+
+        # 2. Convert input to appropriate type ----------------------------------------
+        try:
+            if self.memoize_np and (self.memoized_prefers_numpy is not None):
+                t = np_get(_t) if self.memoized_prefers_numpy else np_convert(_t)
+            else:
+                # Default to trying CuPy first, then fallback to NumPy
+                t = np_convert(_t)
+        except Exception:
+            t = np_get(_t)
+
+        # 3. Try getting frame -------------------------------------------------------
+        if self.memoize and t == self.memoized_t:
+            return self.memoized_frame
+
+        try:
+            frame = self.frame_function(t)
+        except TypeError:
+            # Fallback to other array type
+            t_fallback = np_get(t) if isinstance(t, np.ndarray) else np_convert(t)
+            frame = self.frame_function(t_fallback)
+
+            if self.memoize_np:
+                # Update cached preference if memorization enabled
+                self.memoized_prefers_numpy = isinstance(t_fallback, np.ndarray)
+
+        # 4. Ensure output consistency -----------------------------------------------
+        # Convert directly to the target type based on 'to_np' to avoid extra conversions
+        if to_np:
+            frame = np_get(frame)
+        else:
+            frame = np_convert(frame)
+
+        if self.memoize:
+            self.memoized_t = t
+            self.memoized_frame = frame
+
+        return frame
+
+    def get_frame(self, t, to_np=True) -> np.ndarray:
+        """Gets a numpy array representing the RGB picture or sound data at time `t`.
+        
+        Parameters
+        ----------
+        t : float
+            Time in seconds
+        to_np : bool, optional
+            If True, ensures the output is a NumPy array. If False, returns the raw frame.
+        """
+        def returner(frame):
+            """Helper function to return the frame in the desired format."""
+            if to_np and cnp:
+                return np_get(frame)
+            else:
+                return np_convert(frame)
+        # Handle memoization
+        if self.memoize and t == self.memoized_t:
+            if self.memoized_frame is not None:
+                # If memoized frame is already available, return it
+                return returner(self.memoized_frame)
+
+        # Get the frame using the frame function
+        frame = self.frame_function(t)
+
+        # Update memoization if enabled
+        if self.memoize:
+            self.memoized_t = t
+            self.memoized_frame = frame
+
+        return returner(frame)
+
     def transform(self,
                   func,
                   apply_to=None,
                   keep_duration=True,
-                  print_debug=False) -> Union["Clip", "VideoClip", "AudioClip"]:
+        ) -> Union["Clip", "VideoClip", "AudioClip"]:
         """General processing of a clip.
 
         Returns a new Clip whose frames are a transformation
@@ -190,12 +332,6 @@ class Clip:
 
         # mf = copy(self.frame_function)
         new_clip = self.with_updated_frame_function(lambda t: func(self.get_frame, t))
-
-        if print_debug:
-            wave = new_clip.to_soundarray()
-            print(wave)
-            print(type(wave))
-            print(len(wave))
 
         if not keep_duration:
             new_clip.duration = None
@@ -690,9 +826,12 @@ class Clip:
             # down to the nearest integer
             t = frame_index / fps
 
-            frame = self.get_frame(t, to_np=to_np)
+            frame = self.get_frame(t)
             if (dtype is not None) and (frame.dtype != dtype):
                 frame = frame.astype(dtype)
+
+            if to_np:
+                frame = np_get(frame)
             if with_times:
                 yield t, frame
             else:
@@ -824,7 +963,7 @@ class Clip:
             # get a concatenation of subclips
             return reduce(add, (self[k] for k in key))
         else:
-            return self.get_frame(key, to_np=False)
+            return self.get_frame(key, to_np=True)
 
     def __del__(self):
         # WARNING: as stated in close() above, if we call close, it closes clips

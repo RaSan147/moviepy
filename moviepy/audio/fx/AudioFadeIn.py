@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-from moviepy.np_handler import np
+from moviepy.np_handler import _np as np
 from moviepy.Clip import Clip
 from moviepy.decorators import audio_video_effect
 from moviepy.Effect import Effect

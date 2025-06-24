@@ -4,7 +4,7 @@ from PIL import Image, ImageFilter
 
 from moviepy.Clip import Clip
 from moviepy.Effect import Effect
-from moviepy.np_handler import np
+from moviepy.np_handler import np, np_get
 
 
 @dataclass
@@ -23,6 +23,7 @@ class GaussianBlur(Effect):
         """Apply the effect to the clip."""
         def filter(gf, t):
             im = gf(t)
+            im = np_get(im)
             image = Image.fromarray(im)
             blurred = image.filter(ImageFilter.GaussianBlur(radius=self.radius))
             return np.array(blurred)

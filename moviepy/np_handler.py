@@ -34,8 +34,9 @@ except Exception:
 
 
 def np_get(arr: np_ndarray) -> _np.ndarray:
-    """Get the array from cupy or numpy.
-    _np is numpy, np is cupy if available else numpy
+    """
+    Get the array from cupy or numpy to `numpy`.
+    `_np` is `numpy`, `np` is `cupy` if available else `numpy`
 
     Parameters
     ----------
@@ -48,7 +49,7 @@ def np_get(arr: np_ndarray) -> _np.ndarray:
             The array from cupy to numpy.
     """
     if isinstance(arr, list):
-        return [np_get(a) for a in arr]
+        return _np.array([np_get(a) for a in arr])
     if cnp and isinstance(arr, cnp.ndarray):
         # if 0-d array, return the value
         if arr.ndim == 0:
@@ -59,8 +60,8 @@ def np_get(arr: np_ndarray) -> _np.ndarray:
 
 
 def np_convert(arr: Any) -> Union[Any, np.ndarray]:
-    """Convert the array to cupy or numpy.
-    _np is numpy, np is cupy if available else numpy
+    """Convert the array to `cupy`.
+    `_np` is numpy, `np` is `cupy` if available else `numpy`
 
     Parameters
     ----------
