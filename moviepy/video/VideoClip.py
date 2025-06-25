@@ -10,7 +10,8 @@ import threading
 from numbers import Real
 from typing import TYPE_CHECKING, Callable, List, Union
 
-import numpy as np
+import cupy as cp  # Primary array library
+import numpy as np  # Only for final output conversions
 import proglog
 from imageio.v2 import imread as imread_v2
 from imageio.v3 import imwrite
@@ -839,148 +840,78 @@ class VideoClip(Clip):
         np.ndarray
             The composite image as a NumPy array (in RGBA format if transparency is used).
         """
-        # Ensure background is a NumPy array
-        if isinstance(background, Image.Image):
-            background = np.array(background)
-
-        # If background is in RGB (3 channels), remember that it has no alpha.
+        background = cp.asarray(background)
+        
         if background.ndim != 3 or background.shape[2] not in (3, 4):
-            raise ValueError("Background must be an RGB (H,W,3) or RGBA (H,W,4) image")
-        bg_has_alpha = (background.shape[2] == 4)
+            raise ValueError("Background must be RGB (H,W,3) or RGBA (H,W,4)")
 
-        # Compute clip time and get the clip frame (as uint8)
-        ct = t - self.start
-        clip_frame = self.get_frame(ct).astype(
-            np.uint8)  # e.g., shape (h, w, 3) or (h, w, 4)
-
-        # --- Handle mask if available ---
-        if self.mask is not None:
-            # Get the mask frame (assumed to be normalized between 0 and 1)
-            # and scale to 0-255.
-            clip_mask = (self.mask.get_frame(ct) *
-                         255).astype(np.uint8)  # shape (h_mask, w_mask)
-            # Ensure mask dimensions match the clip frame's dimensions.
-            clip_h, clip_w = clip_frame.shape[:2]
-            mask_h, mask_w = clip_mask.shape
-            if (clip_h, clip_w) != (mask_h, mask_w):
-                # If the mask is larger, crop it.
-                if mask_h > clip_h or mask_w > clip_w:
-                    clip_mask = clip_mask[:clip_h, :clip_w]
-                else:
-                    # If the mask is smaller, pad it with zeros.
-                    new_mask = np.zeros((clip_h, clip_w), dtype=np.uint8)
-                    new_mask[:mask_h, :mask_w] = clip_mask
-                    clip_mask = new_mask
-
-            # If the clip frame is RGB, add an alpha channel
-            if clip_frame.shape[2] == 3:
-                alpha_channel = np.full((clip_h, clip_w), 255, dtype=np.uint8)
-                clip_frame = np.dstack([clip_frame, alpha_channel])
-            # Replace the alpha channel with the mask
-            clip_frame[..., 3] = clip_mask
-        # else:
-        #     # If no mask and clip is RGB, add a full-opacity alpha channel.
-        #     if clip_frame.shape[2] == 3:
-        #         clip_h, clip_w = clip_frame.shape[:2]
-        #         alpha_channel = np.full((clip_h, clip_w), 255, dtype=np.uint8)
-        #         clip_frame = np.dstack([clip_frame, alpha_channel])
-
-        # --- Compute position ---
-        # Get the clip's intended position at time ct.
-        pos_initial = self.pos(ct)  # e.g., might be (x, y)
-        # Get sizes as (width, height) tuples.
-        clip_size = (clip_frame.shape[1], clip_frame.shape[0])
-        bg_size = (background.shape[1], background.shape[0])
-        # Use the provided compute_position helper.
-        pos = compute_position(clip_size, bg_size, pos_initial, self.relative_pos)
-        x, y = pos  # top-left coordinates for the clip on the background
-
-        # --- Composite the images ---
-        # If both images are RGB (no alpha), do a simple paste.
-        if (not bg_has_alpha) and (clip_frame.shape[2] == 3):
-            # Calculate the region in the background to replace.
-            end_x = min(x + clip_size[0], bg_size[0])
-            end_y = min(y + clip_size[1], bg_size[1])
-            region_w = end_x - x
-            region_h = end_y - y
-
-            background[y:end_y, x:end_x] = clip_frame[:region_h, :region_w, :3]
-
-            return background
-
-        # Otherwise, work in RGBA.
-        # Ensure the background has an alpha channel.
-        if not bg_has_alpha:
-            bg_h, bg_w = background.shape[:2]
-            alpha_channel = np.full((bg_h, bg_w), 255, dtype=np.uint8)
-            background = np.dstack([background, alpha_channel])
-
-        # If the clip frame is RGB, add an alpha channel.
-        # Ensure the clip frame has an alpha channel.
-        if clip_frame.shape[2] == 3:
-            clip_h, clip_w = clip_frame.shape[:2]
-            alpha_channel = np.full((clip_h, clip_w), 255, dtype=np.uint8)
-            clip_frame = np.dstack([clip_frame, alpha_channel])
-
-        # Create a copy of the background to modify
-        composite = background.copy()
         bg_h, bg_w = background.shape[:2]
+        bg_has_alpha = background.shape[2] == 4
+
+        ct = t - self.start
+        clip_frame = cp.asarray(self.get_frame(ct)).astype(cp.uint8)
         clip_h, clip_w = clip_frame.shape[:2]
 
-        # Calculate the region where the clip will be placed
-        y_start = max(y, 0)
-        x_start = max(x, 0)
-        y_end = min(y + clip_h, bg_h)
-        x_end = min(x + clip_w, bg_w)
+        # --- Add mask if available ---
+        if self.mask is not None:
+            clip_mask = cp.asarray((self.mask.get_frame(ct) * 255).clip(0, 255)).astype(cp.uint8)
+            # Resize mask if needed
+            if clip_mask.shape != (clip_h, clip_w):
+                padded_mask = cp.zeros((clip_h, clip_w), dtype=cp.uint8)
+                padded_mask[:min(clip_h, clip_mask.shape[0]), :min(clip_w, clip_mask.shape[1])] = \
+                    clip_mask[:clip_h, :clip_w]
+                clip_mask = padded_mask
 
-        # Calculate the corresponding region in the clip frame
-        clip_y_start = max(-y, 0)
+            if clip_frame.shape[2] == 3:
+                alpha_channel = cp.full((clip_h, clip_w), 255, dtype=cp.uint8)
+                clip_frame = cp.dstack([clip_frame, alpha_channel])
+
+            clip_frame[..., 3] = clip_mask
+
+        # Ensure both clip and background are RGBA
+        if clip_frame.shape[2] == 3:
+            alpha_channel = cp.full((clip_h, clip_w), 255, dtype=cp.uint8)
+            clip_frame = cp.dstack([clip_frame, alpha_channel])
+
+        if not bg_has_alpha:
+            alpha_channel = cp.full((bg_h, bg_w), 255, dtype=cp.uint8)
+            background = cp.dstack([background, alpha_channel])
+
+        # Compute position
+        pos = compute_position((clip_w, clip_h), (bg_w, bg_h), self.pos(ct), self.relative_pos)
+        x, y = pos
+        x_start, y_start = max(x, 0), max(y, 0)
+        x_end, y_end = min(x + clip_w, bg_w), min(y + clip_h, bg_h)
+        
+        if x_end <= x_start or y_end <= y_start:
+            return background.get()  # No overlap
+
         clip_x_start = max(-x, 0)
-        clip_y_end = clip_y_start + (y_end - y_start)
+        clip_y_start = max(-y, 0)
         clip_x_end = clip_x_start + (x_end - x_start)
+        clip_y_end = clip_y_start + (y_end - y_start)
 
-        # Only proceed if there's an overlap
-        if y_end > y_start and x_end > x_start:
-            # Extract the regions
-            bg_region = composite[y_start:y_end, x_start:x_end]
-            clip_region = clip_frame[clip_y_start:clip_y_end, clip_x_start:clip_x_end]
+        bg_region = background[y_start:y_end, x_start:x_end].astype(cp.float32)
+        clip_region = clip_frame[clip_y_start:clip_y_end, clip_x_start:clip_x_end].astype(cp.float32)
 
-            # Convert to float for alpha blending
-            bg_float = bg_region.astype(np.float64)
-            clip_float = clip_region.astype(np.float64)
+        alpha_bg = bg_region[..., 3] / 255.0
+        alpha_clip = clip_region[..., 3] / 255.0
+        out_alpha = alpha_clip + alpha_bg * (1 - alpha_clip)
 
-            # Extract alpha channels
-            alpha_bg = bg_float[..., 3] / 255
-            alpha_clip = clip_float[..., 3] / 255
+        # Avoid divide by zero using mask
+        safe_alpha = cp.where(out_alpha == 0, 1, out_alpha)
+        out_rgb = (
+            clip_region[..., :3] * alpha_clip[..., None] +
+            bg_region[..., :3] * alpha_bg[..., None] * (1 - alpha_clip[..., None])
+        ) / safe_alpha[..., None]
 
-            # Calculate output alpha
-            out_alpha = alpha_clip + alpha_bg * (1 - alpha_clip)
-            out_alpha = out_alpha
+        out_rgba = cp.concatenate([
+            out_rgb.clip(0, 255),
+            (out_alpha * 255).clip(0, 255)[..., None]
+        ], axis=-1)
 
-            # Blend RGB channels
-            with np.errstate(divide='ignore', invalid='ignore'):
-                out_rgb = (
-                    clip_float[..., :3] * alpha_clip[..., np.newaxis] +
-                    bg_float[..., :3] * alpha_bg[..., np.newaxis] *
-                    (1 - alpha_clip[..., np.newaxis])
-                )
-                out_rgb = np.where(
-                    out_alpha[..., np.newaxis] > 0,
-                    out_rgb / out_alpha[..., np.newaxis],
-                    0
-                )
-
-            # Combine and convert back to uint8
-            out_region = np.concatenate([
-                out_rgb,
-                out_alpha[..., np.newaxis] * 255
-            ], axis=-1)
-            out_region = np.round(out_region).clip(0, 255).astype(np.uint8)
-
-            # Place the blended region back
-            composite[y_start:y_end, x_start:x_end] = out_region
-
-        return composite
+        background[y_start:y_end, x_start:x_end] = cp.round(out_rgba).astype(cp.uint8)
+        return background.get()
 
     def compose_mask(self, background_mask: np.ndarray, t: float) -> np.ndarray:
         """Returns the result of the clip's mask at time `t` composited
@@ -998,32 +929,30 @@ class VideoClip(Clip):
           The time position in the clip at which to extract the mask.
         """
         ct = t - self.start  # clip time
-        clip_mask = self.get_frame(ct).astype("float")
+        background_mask = cp.asarray(background_mask)
+        
+        # Get mask frame (already in [0,1] range)
+        clip_mask = cp.asarray(self.get_frame(ct)).astype(cp.float32)
 
-        # numpy shape is H*W not W*H
         bg_h, bg_w = background_mask.shape
         clip_h, clip_w = clip_mask.shape
+        
+        # Position calculation
+        pos = compute_position(
+            (clip_w, clip_h),
+            (bg_w, bg_h),
+            self.pos(ct),
+            self.relative_pos
+        )
+        x, y = map(int, pos)
+        
+        # Calculate overlap
+        h, w = clip_mask.shape
+        y1, y2 = max(y, 0), min(y + h, bg_h)
+        x1, x2 = max(x, 0), min(x + w, bg_w)
+        
 
-        # SET POSITION
-        pos = self.pos(ct)
-        pos = compute_position((clip_w, clip_h), (bg_w, bg_h), pos, self.relative_pos)
-
-        # ALPHA COMPOSITING
-        # Determine the base_mask region to merge size
-        x_start = int(max(pos[0], 0))  # Dont go under 0 left
-        x_end = int(min(pos[0] + clip_w, bg_w))  # Dont go over base_mask width
-        y_start = int(max(pos[1], 0))  # Dont go under 0 top
-        y_end = int(min(pos[1] + clip_h, bg_h))  # Dont go over base_mask height
-
-        # Determine the clip_mask region to overlapp
-        # Dont go under 0 for horizontal, if we have negative margin of X px start at X
-        # And dont go over clip width
-        clip_x_start = int(max(0, -pos[0]))
-        clip_x_end = int(clip_x_start + min((x_end - x_start), (clip_w - clip_x_start)))
-        # same for vertical
-        clip_y_start = int(max(0, -pos[1]))
-        clip_y_end = int(clip_y_start + min((y_end - y_start), (clip_h - clip_y_start)))
-
+        
         # Blend the overlapping regions
         # The calculus is base_opacity + clip_opacity * (1 - base_opacity)
         # this ensure that masks are drawn in the right order and
@@ -1039,13 +968,15 @@ class VideoClip(Clip):
         # blocking 50 * 0.4 = 20 photons, and leaving me with only 30 photons
         # So, by adding two layer of 50% and 40% opacity my finaly opacity is only
         # of (100-30)*100 = 70% opacity !
-        background_mask[y_start:y_end, x_start:x_end] = background_mask[
-            y_start:y_end, x_start:x_end
-        ] + clip_mask[clip_y_start:clip_y_end, clip_x_start:clip_x_end] * (
-            1 - background_mask[y_start:y_end, x_start:x_end]
-        )
-
-        return background_mask
+        if y2 > y1 and x2 > x1:
+            # Extract regions
+            bg_region = background_mask[y1:y2, x1:x2]
+            clip_region = clip_mask[max(-y,0):y2-y, max(-x,0):x2-x]
+            
+            # Alpha compositing: bg + clip*(1-bg)
+            bg_region += clip_region * (1 - bg_region)
+        
+        return background_mask.get()
 
     def with_background_color(self, size=None, color=(0, 0, 0), pos=None, opacity=None):
         """Place the clip on a colored background.

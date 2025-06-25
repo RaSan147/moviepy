@@ -2,6 +2,7 @@
 
 from functools import reduce
 
+import cupy as cp
 import numpy as np
 from PIL import Image
 
@@ -191,53 +192,41 @@ class CompositeVideoClip(VideoClip):
         return frame
 
     def _frame_function_numpy(self, t):
-        """Applying NumPy implementation of frame composition without PIL."""
-        # Handle mask case
+        """GPU-accelerated NumPy version using CuPy."""
         if self.is_mask:
-            mask = np.zeros((self.size[1], self.size[0]), dtype=np.float32)
+            mask = cp.zeros((self.size[1], self.size[0]), dtype=cp.float32)
             for clip in self.playing_clips(t):
-                mask = clip.compose_mask(mask, t)
-            return mask
+                mask = cp.asarray(clip.compose_mask(cp.asnumpy(mask), t))
+            return mask.get()
 
-        # Get background frame
         bg_t = t - self.bg.start
-        bg_frame = self.bg.get_frame(bg_t).astype(np.uint8)
+        bg_frame = cp.asarray(self.bg.get_frame(bg_t).astype(np.uint8))
 
-        # Handle background mask if exists
         if self.bg.mask:
             bgm_t = t - self.bg.mask.start
-            bg_mask = (self.bg.mask.get_frame(
-                bgm_t) * 255).astype(np.uint8)
+            bg_mask = cp.asarray((self.bg.mask.get_frame(bgm_t) * 255).astype(np.uint8))
 
-            # Resize mask to match bg_frame if needed
             if bg_mask.shape != bg_frame.shape[:2]:
-                mask_h, mask_w = bg_mask.shape
-                img_h, img_w = bg_frame.shape[:2]
-
-                if mask_w > img_w or mask_h > img_h:
-                    bg_mask = bg_mask[:img_h, :img_w]
+                mh, mw = bg_mask.shape
+                bh, bw = bg_frame.shape[:2]
+                if mh > bh or mw > bw:
+                    bg_mask = bg_mask[:bh, :bw]
                 else:
-                    new_mask = np.zeros((img_h, img_w), dtype=np.uint8)
-                    new_mask[:mask_h, :mask_w] = bg_mask
-                    bg_mask = new_mask
+                    padded_mask = cp.zeros((bh, bw), dtype=cp.uint8)
+                    padded_mask[:mh, :mw] = bg_mask
+                    bg_mask = padded_mask
 
-            # Add alpha channel to background
             if bg_frame.shape[2] == 3:
-                bg_frame = np.dstack((bg_frame, bg_mask))
+                bg_frame = cp.dstack((bg_frame, bg_mask))
             else:
                 bg_frame[:, :, 3] = bg_mask
 
-        # Compose all clips
         current_frame = bg_frame
-
         for clip in self.playing_clips(t):
-            # Use our numpy compose function
-            current_frame = clip.compose_on(current_frame, t, backend="numpy")
+            current_frame = cp.asarray(clip.compose_on(current_frame.get(), t, backend="numpy"))
 
-        # Remove alpha channel if present (keeping only RGB)
-        if current_frame.shape[2] == 4:
-            return current_frame[:, :, :3]
-        return current_frame
+        return current_frame[:, :, :3].get() if current_frame.shape[2] == 4 else current_frame.get()
+
 
     def playing_clips(self, t=0):
         """Returns a list of the clips in the composite clips that are

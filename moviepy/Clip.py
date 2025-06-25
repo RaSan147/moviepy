@@ -9,6 +9,7 @@ from operator import add
 from typing import TYPE_CHECKING, List
 
 import numpy as np
+import cupy as cp
 import proglog
 
 
@@ -638,7 +639,7 @@ class Clip:
         else:
             return (t >= self.start) and ((self.end is None) or (t < self.end))
 
-    def close(self):
+    def __close(self):
         """Release any resources that are in use."""
         #    Implementation note for subclasses:
         #
@@ -649,6 +650,16 @@ class Clip:
         #      Closing a Clip may affect its copies.
         #    * Therefore, should NOT be called by __del__().
         pass
+
+    def close(self):
+        """Release GPU memory"""
+        if hasattr(self, 'img') and isinstance(self.img, cp.ndarray):
+            self.img = None
+        if hasattr(self, 'mask') and self.mask:
+            self.mask.close()
+        if hasattr(self, 'audio') and self.audio:
+            self.audio.close()
+        cp.get_default_memory_pool().free_all_blocks()
 
     def __eq__(self, other):
         if not isinstance(other, Clip):
