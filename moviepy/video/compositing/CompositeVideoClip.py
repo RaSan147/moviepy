@@ -127,7 +127,16 @@ class CompositeVideoClip(VideoClip):
                 maskclips, self.size, is_mask=True, bg_color=0.0
             )
 
-    def frame_function(self, t):
+    def frame_function(self, t, backend="numpy"):
+        """Returns the frame at time `t` of the composite clip."""
+        # Check if cupy is available
+        if backend == "numpy":
+            return self._frame_function_numpy(t)
+
+        # If not, use PIL
+        return self._frame_function_PIL(t)
+
+    def _frame_function_PIL(self, t):
         """The clips playing at time `t` are blitted over one another."""
         # For the mask we recalculate the final transparency we'll need
         # to apply on the result image
@@ -166,10 +175,13 @@ class CompositeVideoClip(VideoClip):
         # For each clip apply on top of current img
         current_img = bg_img
         for clip in self.playing_clips(t):
-            current_img = clip.compose_on(current_img, t)
+            current_img = clip.compose_on(current_img, t, backend="PIL")
 
         # Turn Pillow image into a numpy array
-        frame = np.array(current_img)
+        if isinstance(current_img, Image.Image):
+            frame = np.array(current_img)
+        else:
+            frame = current_img
 
         # If frame have transparency, remove it
         # our mask will take care of it during rendering
@@ -177,6 +189,55 @@ class CompositeVideoClip(VideoClip):
             return frame[:, :, :3]
 
         return frame
+
+    def _frame_function_numpy(self, t):
+        """Applying NumPy implementation of frame composition without PIL."""
+        # Handle mask case
+        if self.is_mask:
+            mask = np.zeros((self.size[1], self.size[0]), dtype=np.float32)
+            for clip in self.playing_clips(t):
+                mask = clip.compose_mask(mask, t)
+            return mask
+
+        # Get background frame
+        bg_t = t - self.bg.start
+        bg_frame = self.bg.get_frame(bg_t).astype(np.uint8)
+
+        # Handle background mask if exists
+        if self.bg.mask:
+            bgm_t = t - self.bg.mask.start
+            bg_mask = (self.bg.mask.get_frame(
+                bgm_t) * 255).astype(np.uint8)
+
+            # Resize mask to match bg_frame if needed
+            if bg_mask.shape != bg_frame.shape[:2]:
+                mask_h, mask_w = bg_mask.shape
+                img_h, img_w = bg_frame.shape[:2]
+
+                if mask_w > img_w or mask_h > img_h:
+                    bg_mask = bg_mask[:img_h, :img_w]
+                else:
+                    new_mask = np.zeros((img_h, img_w), dtype=np.uint8)
+                    new_mask[:mask_h, :mask_w] = bg_mask
+                    bg_mask = new_mask
+
+            # Add alpha channel to background
+            if bg_frame.shape[2] == 3:
+                bg_frame = np.dstack((bg_frame, bg_mask))
+            else:
+                bg_frame[:, :, 3] = bg_mask
+
+        # Compose all clips
+        current_frame = bg_frame
+
+        for clip in self.playing_clips(t):
+            # Use our numpy compose function
+            current_frame = clip.compose_on(current_frame, t, backend="numpy")
+
+        # Remove alpha channel if present (keeping only RGB)
+        if current_frame.shape[2] == 4:
+            return current_frame[:, :, :3]
+        return current_frame
 
     def playing_clips(self, t=0):
         """Returns a list of the clips in the composite clips that are
