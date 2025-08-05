@@ -6,7 +6,7 @@ import copy as _copy
 from functools import reduce
 from numbers import Real
 from operator import add
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Union
 
 import numpy as np
 import cupy as cp
@@ -189,7 +189,7 @@ class Clip:
             keep_duration=keep_duration,
         )
 
-    def with_effects(self, effects: List["Effect"]) -> "Clip":
+    def with_effects(self, effects: List["Effect"]) -> Union["Clip", "VideoClip", "AudioClip"]:
         """Return a copy of the current clip with the effects applied
 
         >>> new_clip = clip.with_effects([vfx.Resize(0.2, method="bilinear")])
