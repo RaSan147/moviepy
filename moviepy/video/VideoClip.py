@@ -784,9 +784,17 @@ class VideoClip(Clip):
             background.paste(clip_img, pos)
             return background
 
+        # If background has no alpha layer, we can just paste img on top of it
+        # this is far more efficient than alpha compositing
+        if background.mode[-1] != "A":
+            background.paste(clip_img, pos, mask=clip_img)
+            return background
+
         # For images with transparency we must use pillow alpha composite
         # instead of a simple paste, because pillow paste dont work nicely
         # with alpha compositing
+        # Only do this in last resort, as it is slower than a simple paste
+        # and we dont want to use it if we dont have to
         if background.mode[-1] != "A":
             background = background.convert("RGBA")
 
@@ -797,7 +805,10 @@ class VideoClip(Clip):
         # so we must start by making a fully transparent canvas of background's
         # size and paste our clip img into it in position pos, only then can we
         # composite this canvas on top of background
-        canvas = Image.new("RGBA", (background.width, background.height), (0, 0, 0, 0))
+        # Its actually faster to make the canvas in numpy and then convert it to PIL
+        # than to make it in PIL directly
+        canvas_np = np.zeros((background.height, background.width, 4), dtype=np.uint8)
+        canvas = Image.fromarray(canvas_np)
         canvas.paste(clip_img, pos)
         result = Image.alpha_composite(background, canvas)
         return result
@@ -1345,6 +1356,11 @@ class ImageClip(VideoClip):
       Set this parameter to `True` (default) if you want the alpha layer
       of the picture (if it exists) to be used as a mask.
 
+    duration
+      Duration of the clip in seconds. If not provided, the clip will
+      have infinite duration (i.e. it will be displayed until the end of the
+      composition in which it is included).
+
     Attributes
     ----------
 
@@ -1353,9 +1369,7 @@ class ImageClip(VideoClip):
 
     """
 
-    def __init__(
-        self, img, is_mask=False, transparent=True, fromalpha=False, duration=None
-    ):
+    def __init__(self, img, is_mask=False, transparent=True, duration=None):
         VideoClip.__init__(self, is_mask=is_mask, duration=duration)
 
         if not isinstance(img, np.ndarray):
@@ -1364,9 +1378,7 @@ class ImageClip(VideoClip):
 
         if len(img.shape) == 3:  # img is (now) a RGB(a) numpy array
             if img.shape[2] == 4:
-                if fromalpha:
-                    img = 1.0 * img[:, :, 3] / 255
-                elif is_mask:
+                if is_mask:
                     img = 1.0 * img[:, :, 0] / 255
                 elif transparent:
                     self.mask = ImageClip(1.0 * img[:, :, 3] / 255, is_mask=True)
@@ -1583,11 +1595,11 @@ class TextClip(ImageClip):
       letters with accents), and bellow standard baseline (e.g letters such as
       p, y, g).
 
-      This notion is knowned under the name ascent and descent meaning the
-      highest and lowest pixel above and below baseline
+      This notion is known under the name "ascent" and "descent" meaning the
+      highest and lowest pixel above and below the baseline.
 
-      If your first line dont have an "accent character" and your last line
-      dont have a "descent character", you'll have some "fat" arround
+      If your first line doesn't have an "accent character" and your last line
+      doesn't have a "descent character", you'll have some "fat" around.
     """
 
     @convert_path_to_string("filename")
@@ -1620,7 +1632,11 @@ class TextClip(ImageClip):
         if font is not None:
             try:
                 _ = ImageFont.truetype(font)
-            except Exception as e:
+            except TypeError as e:
+                if "takes no arguments" in str(e):
+                    pil_font = ImageFont.load_default()
+                else:
+                    raise
                 raise ValueError(
                     "Invalid font {}, pillow failed to use it with error {}".format(
                         font, e
@@ -1749,7 +1765,12 @@ class TextClip(ImageClip):
         if font:
             pil_font = ImageFont.truetype(font, font_size)
         else:
-            pil_font = ImageFont.load_default(font_size)
+            try:
+                # Only Pillow >= 10.1.0, can set font size
+                pil_font = ImageFont.load_default(font_size)
+            except TypeError:
+                pil_font = ImageFont.load_default()
+
         draw = ImageDraw.Draw(img)
 
         # Dont need allow break here, because we already breaked in caption
@@ -1819,7 +1840,12 @@ class TextClip(ImageClip):
         if font:
             font_pil = ImageFont.truetype(font, font_size)
         else:
-            font_pil = ImageFont.load_default(font_size)
+            try:
+                # Only Pillow >= 10.1.0, can set font size
+                font_pil = ImageFont.load_default(font_size)
+            except TypeError:
+                font_pil = ImageFont.load_default()
+
         draw = ImageDraw.Draw(img)
 
         lines = []
@@ -1983,6 +2009,29 @@ class TextClip(ImageClip):
         height = int(lines_height + paddings)
 
         return (int(right - left), height)
+
+    def __multiline_spacing(
+        self,
+        draw: ImageDraw.ImageDraw,
+        font: Union[
+            ImageFont.ImageFont, ImageFont.FreeTypeFont, ImageFont.TransposedFont
+        ],
+        spacing: float,
+        stroke_width: float,
+    ) -> float:
+        """Calculate the spacing between lines for multiline text.
+
+        This method is used to calculate the height of each line in a multiline
+        text block, taking into account the font metrics, spacing, and stroke width.
+
+        This is a dropped-in replacement for the deprecated
+        `ImageDraw._multiline_spacing` method in Pillow.
+        """
+        return (
+            draw.textbbox((0, 0), "A", font, stroke_width=stroke_width)[3]
+            + stroke_width
+            + spacing
+        )
 
     def __find_optimum_font_size(
         self,

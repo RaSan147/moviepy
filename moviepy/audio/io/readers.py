@@ -36,6 +36,9 @@ class FFMPEG_AudioReader:
     nbytes
       Desired number of bytes (1,2,4) in the signal that will be
       received from ffmpeg
+
+    audio_stream_index
+      The index of the audio stream to read from the file.
     """
 
     def __init__(
@@ -47,6 +50,7 @@ class FFMPEG_AudioReader:
         fps=44100,
         nbytes=2,
         nchannels=2,
+        audio_stream_index=0,
     ):
         # TODO bring FFMPEG_AudioReader more in line with FFMPEG_VideoReader
         # E.g. here self.pos is still 1-indexed.
@@ -57,11 +61,14 @@ class FFMPEG_AudioReader:
         self.format = "s%dle" % (8 * nbytes)
         self.codec = "pcm_s%dle" % (8 * nbytes)
         self.nchannels = nchannels
-        infos = ffmpeg_parse_infos(filename, decode_file=decode_file)
+        infos = ffmpeg_parse_infos(
+            filename, decode_file=decode_file, print_infos=print_infos
+        )
         self.duration = infos["duration"]
         self.bitrate = infos["audio_bitrate"]
         self.infos = infos
         self.proc = None
+        self.audio_stream_index = audio_stream_index
 
         self.n_frames = int(self.fps * self.duration)
         self.buffersize = min(self.n_frames + 1, buffersize)
@@ -81,6 +88,8 @@ class FFMPEG_AudioReader:
                 "%.05f" % (start_time - offset),
                 "-i",
                 ffmpeg_escape_filename(self.filename),
+                "-map",
+                "0:a:%d" % self.audio_stream_index,
                 "-vn",
                 "-ss",
                 "%.05f" % offset,
